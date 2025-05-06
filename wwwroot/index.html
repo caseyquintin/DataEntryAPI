@@ -1365,22 +1365,27 @@
         <!-- Single Delete -->
         <script src="./js/modules/singleDelete.js"></script>
 
-        <!-- Column Visibility Modal (safe placement outside everything else) -->
-        <div id="modal-root">
-            <div class="modal fade" id="columnModal" tabindex="-1" aria-labelledby="columnModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
+        <!-- Column Chooser Modal -->
+        <div class="modal fade" id="columnChooserModal" tabindex="-1" aria-labelledby="columnChooserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="columnModalLabel">Choose Columns</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="columnChooserModalLabel">Select Columns</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="columnVisibilityForm" class="row g-2 px-2"></form>
+                <!-- Column checkboxes will be generated here -->
+                <div id="columnCheckboxContainer">
+                    <!-- Example of expected checkbox structure -->
+                    <!-- <div class="form-check">
+                    <input class="form-check-input column-toggle-checkbox" type="checkbox" value="0" data-column-index="0" id="column0" checked>
+                    <label class="form-check-label" for="column0">Column Name</label>
+                    </div> -->
+                </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="applyColVis" class="btn btn-primary">Apply</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="columnChooserApplyBtn">Apply</button>
                 </div>
             </div>
             </div>

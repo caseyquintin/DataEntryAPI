@@ -1,94 +1,74 @@
-// columnChooser.js
-document.addEventListener('DOMContentLoaded', function () {
-    // Choose Columns button
-    $(document).on('click', '#customColVisBtn', function () {
-        console.log("🟢 customColVisBtn click triggered");
-    
-        if (typeof ContainerTable === 'undefined') {
-            showToast("❌ DataTable not ready yet", "danger");
-            return;
-        }
-    
-        const form = $('#columnVisibilityForm');
-        form.empty(); // Clear previous items
-    
-        ContainerTable.columns().every(function(index) {
-            const column = this;
-            const title = column.header().textContent.trim();
-            const visible = column.visible();
-    
-            if (index === 0 || title === '') return;
-    
-            form.append(`
-                <div class="col-md-6 mb-2">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" data-column="${index}" id="colToggle${index}" ${visible ? 'checked' : ''}>
-                        <label class="form-check-label" for="colToggle${index}">${title}</label>
-                    </div>
-                </div>
-            `);
-        });
-    
-        const modalEl = document.getElementById('columnModal');
-        if (!modalEl) {
-            showToast("❌ Column modal not found in DOM", "danger");
-            return;
-        }
-    
-        let modal = bootstrap.Modal.getInstance(modalEl);
-        if (!modal) {
-            modal = new bootstrap.Modal(modalEl);
-        }
-    
-        modal.show();
-    });
+// FRONTEND - columnChooser.js
+// Fix for Apply button not working
 
-    // Ensure modal is attached to body
-    const columnModal = document.getElementById('columnModal');
-    if (columnModal && columnModal.parentElement !== document.body) {
-    document.body.appendChild(columnModal);
+// Make sure we're using document.ready to ensure DOM is loaded
+$(document).ready(function() {
+    // Initialize the column chooser functionality
+    initColumnChooser();
+    
+    function initColumnChooser() {
+        // This selector should match your "Apply" button in the column chooser modal
+        // Check if this selector matches your actual button
+        $('#columnChooserApplyBtn').off('click').on('click', function(e) {
+            // Prevent default button behavior if it's a submit button
+            e.preventDefault();
+            
+            console.log('Apply button clicked'); // Debug log
+            
+            // Get reference to the DataTable - make sure this matches your table ID!
+            var table = $('#containersTable').DataTable();
+            
+            if (!table) {
+                console.error('DataTable not found!');
+                return;
+            }
+            
+            // Get all checkboxes in the column chooser modal
+            // Adjust the selector to match your actual checkboxes
+            var checkboxes = $('.column-toggle-checkbox');
+            
+            console.log('Found checkboxes:', checkboxes.length); // Debug log
+            
+            // Process each checkbox
+            checkboxes.each(function() {
+                // Get column index from data attribute or value
+                var columnIndex = $(this).data('column-index') || $(this).val();
+                
+                // Check if column should be visible
+                var isVisible = $(this).prop('checked');
+                
+                console.log('Setting column', columnIndex, 'to', isVisible ? 'visible' : 'hidden'); // Debug
+                
+                // Set column visibility - make sure columnIndex is a number
+                table.column(parseInt(columnIndex)).visible(isVisible);
+            });
+            
+            // Adjust column widths and redraw table
+            table.columns.adjust().draw();
+            
+            // Store column visibility state in localStorage for persistence
+            saveColumnVisibilityState(table);
+            
+            // Close the modal (if using Bootstrap)
+            $('#columnChooserModal').modal('hide');
+            
+            console.log('Column visibility updated'); // Debug log
+        });
     }
     
-
-    // Open the column chooser modal
-    $(document).on('click', '#customColVisBtn', function() {
-        if (typeof ContainerTable === 'undefined') {
-            showToast("❌ DataTable not ready yet", "danger");
-            return;
-        }
-        const form = $('#columnVisibilityForm');
-        form.empty(); // Clear previous items
-
-        ContainerTable.columns().every(function(index) {
-            const column = this;
-            const title = column.header().textContent.trim();
-            const visible = column.visible();
+    function saveColumnVisibilityState(table) {
+        // Create array to store visibility state
+        var visibilityState = [];
         
-            console.log(`🔍 Column ${index}: ${title} → visible: ${visible}`);
-        
-            if (index === 0 || title === '') return;
-        
-            form.append(`
-                <div class="col-md-4 mb-2">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" data-column="${index}" id="colToggle${index}" ${visible ? 'checked' : ''}>
-                    <label class="form-check-label" for="colToggle${index}">${title}</label>
-                  </div>
-                </div>
-              `);              
+        // Loop through all columns and store their visibility state
+        table.columns().every(function(index) {
+            visibilityState.push({
+                index: index,
+                visible: this.visible()
+            });
         });
-
-        const modalEl = document.getElementById('columnModal');
-
-        if (!modalEl) {
-            showToast("❌ Column modal not found in DOM", "danger");
-            return;
-        }
-
-        let modal = bootstrap.Modal.getInstance(modalEl);
-        if (!modal) {
-            modal = new bootstrap.Modal(modalEl);
-        }
-        modal.show();
-    });
+        
+        // Save to localStorage
+        localStorage.setItem('containersTableColumnState', JSON.stringify(visibilityState));
+    }
 });
