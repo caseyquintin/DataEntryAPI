@@ -1,4 +1,4 @@
-CTHub: Container Management System
+DataEntryAPI: Container Management System
 
 **Frontend**
 
@@ -63,35 +63,95 @@ CTHub: Container Management System
 
 **File Tree**
 
-CTHub/
-├── Controllers/                 # ASP.NET Core API controllers
-│ ├── ContainerController.cs   # Core container management
-│ ├── PortsController.cs       # Port data management
-│ ├── ShiplinesController.cs   # Shipping line management
-│ ├── TerminalsController.cs   # Terminal data management
-│   └── VesselsController.cs     # Vessel data management
-├── Models/                      # Data models
-│ ├── Container.cs             # Main container data model
-│ ├── Ports.cs                 # Port/location data model
-│ ├── Shiplines.cs             # Shipping lines model
-│   └── Terminal.cs              # Terminal data model
-├── wwwroot/                     # Frontend assets
-│ ├── css/                     # CSS stylesheets
-│   │   └── styles.css           # Main styling
-│ ├── js/                      # JavaScript files
-│   │ ├── modules/             # Modularized JavaScript
-│   │   │ ├── inlineEditingHandler.js  # Table inline editing (bug fixed)
-│   │   │ ├── bulkEditingModal.js      # Bulk edit functionality
-│   │   │   └── singleEditingModal.js    # Single item editing
-│   │   └── scripts.js           # Main JavaScript file
-│ ├── libs/                    # External libraries
-│   │ ├── bootstrap/           # Bootstrap framework
-│   │ ├── datatables/          # DataTables.net
-│   │ ├── flatpickr/           # Date picker
-│   │   └── jquery/              # jQuery library
-│   └── index.html               # Main application page
-├── DTOs/                        # Data Transfer Objects
-│   └── FieldUpdateDto.cs        # Field update data transfer
-├── Migrations/                  # Database migrations
-├── appsettings.json             # Application settings
-└── Program.cs                   # Application entry point
+DataEntryAPI
+ ┣ Controllers
+ ┃ ┣ CarriersController.cs
+ ┃ ┣ ContainerController.cs
+ ┃ ┣ FPMsController.cs
+ ┃ ┣ OptionsController.cs
+ ┃ ┣ PortsController.cs
+ ┃ ┣ ShiplinesController.cs
+ ┃ ┣ TerminalsController.cs
+ ┃ ┗ VesselsController.cs
+ ┣ DTOs
+ ┃ ┣ FieldUpdateDto.cs
+ ┃ ┗ VesselLineDto.cs
+ ┣ Models
+ ┃ ┣ Container.cs
+ ┃ ┣ FPMs.cs
+ ┃ ┣ Ports.cs
+ ┃ ┣ Shiplines.cs
+ ┃ ┣ Terminal.cs
+ ┃ ┣ Vessel.cs
+ ┃ ┗ VesselLine.cs
+ ┣ Properties
+ ┃ ┗ launchSettings.json
+ ┣ wwwroot
+ ┃ ┣ assets
+ ┃ ┃ ┣ AuditLogistics_LOGO.png
+ ┃ ┃ ┣ AuditLogistics_LOGO_invert.png
+ ┃ ┃ ┣ AuditLogistics_LOGO_simple.png
+ ┃ ┃ ┗ favicon.ico
+ ┃ ┣ css
+ ┃ ┃ ┗ styles.css
+ ┃ ┣ js
+ ┃ ┃ ┣ modules
+ ┃ ┃ ┃ ┣ bulkDelete.js
+ ┃ ┃ ┃ ┣ bulkEditingModal.js
+ ┃ ┃ ┃ ┣ columnChooser.js
+ ┃ ┃ ┃ ┣ inlineEditingHandler.js
+ ┃ ┃ ┃ ┣ newContainerModal.js
+ ┃ ┃ ┃ ┣ singleDelete.js
+ ┃ ┃ ┃ ┗ singleEditingModal.js
+ ┃ ┃ ┣ versions
+ ┃ ┃ ┃ ┣ scripts v1.0 - Port of Entry and Terminal DDs Working.js
+ ┃ ┃ ┃ ┣ scripts v2.0 - Inline tabbing works.js
+ ┃ ┃ ┃ ┣ scripts v3.0 - 1-2 plus cascading dropdowns.js
+ ┃ ┃ ┃ ┣ scripts v4.0 - 1-3 plus new container modal is modularized.js
+ ┃ ┃ ┃ ┣ scripts v5.0 - 1-4 plus inline editing is modularized.js
+ ┃ ┃ ┃ ┣ scripts v6.0 - 1-5 plus all of those modals etc are modularized.js
+ ┃ ┃ ┃ ┗ scripts v7.0 - 1-6 plus modals mostly functional fullscreen vertical scroll.js
+ ┃ ┃ ┗ scripts.js
+ ┃ ┣ libs
+ ┃ ┃ ┣ bootstrap
+ ┃ ┃ ┣ datatables
+ ┃ ┃ ┃ ┣ css
+ ┃ ┃ ┃ ┃ ┣ datatables.css
+ ┃ ┃ ┃ ┃ ┗ datatables.min.css
+ ┃ ┃ ┃ ┣ datatables.js
+ ┃ ┃ ┃ ┗ datatables.min.js
+ ┃ ┃ ┗ flatpickr
+ ┃ ┃ ┃ ┣ themes
+ ┃ ┃ ┃ ┃ ┣ airbnb.css
+ ┃ ┃ ┃ ┃ ┣ confetti.css
+ ┃ ┃ ┃ ┃ ┣ dark.css
+ ┃ ┃ ┃ ┃ ┣ light.css
+ ┃ ┃ ┃ ┃ ┣ material_blue.css
+ ┃ ┃ ┃ ┃ ┣ material_green.css
+ ┃ ┃ ┃ ┃ ┣ material_orange.css
+ ┃ ┃ ┃ ┃ ┗ material_red.css
+ ┃ ┃ ┃ ┣ flatpickr.min.css
+ ┃ ┃ ┃ ┗ flatpickr.min.js
+ ┃ ┣ index v1.0 - Edits and Deletes are working - Bulk and Single.html
+ ┃ ┣ index v2.0 - Edits Deletes New are working.html
+ ┃ ┣ index.html
+ ┃ ┣ index2.html
+ ┃ ┣ nicescript.html
+ ┃ ┣ notsailed.html
+ ┃ ┣ onvessel-arrived.html
+ ┃ ┣ onvessel-notarrived.html
+ ┃ ┣ rail.html
+ ┃ ┣ returned.html
+ ┃ ┣ settopickup.html
+ ┃ ┗ settoreturn.html
+ ┣ .gitignore
+ ┣ appsettings.Development.json
+ ┣ appsettings.json
+ ┣ DataContext.cs
+ ┣ DataEntryAPI.csproj
+ ┣ DataEntryAPI.http
+ ┣ DataEntryAPI.sln
+ ┣ FileStructure.txt
+ ┣ package-lock.json
+ ┣ package.json
+ ┗ Program.cs
