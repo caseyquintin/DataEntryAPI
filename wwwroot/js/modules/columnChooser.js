@@ -1,74 +1,139 @@
 // FRONTEND - columnChooser.js
-// Fix for Apply button not working
+// Complete solution for column visibility control
 
-// Make sure we're using document.ready to ensure DOM is loaded
 $(document).ready(function() {
-    // Initialize the column chooser functionality
-    initColumnChooser();
-    
-    function initColumnChooser() {
-        // This selector should match your "Apply" button in the column chooser modal
-        // Check if this selector matches your actual button
-        $('#columnChooserApplyBtn').off('click').on('click', function(e) {
-            // Prevent default button behavior if it's a submit button
-            e.preventDefault();
+    // Check if we already have the modal in the DOM
+    if ($('#columnChooserModal').length === 0) {
+        // Create the modal if it doesn't exist
+        createColumnChooserModal();
+    }
+
+    // Bind the button click event using the correct ID from scripts.js
+    $(document).on('click', '#customColVisBtn', function() {
+        console.log('Column chooser button clicked');
+        populateColumnCheckboxes();
+        $('#columnChooserModal').modal('show');
+    });
+
+    // Handle the apply button click
+    $(document).on('click', '#columnChooserApplyBtn', function() {
+        console.log('Apply button clicked');
+        applyColumnVisibility();
+    });
+
+    function createColumnChooserModal() {
+        // Create a Bootstrap modal for column selection
+        const modalHtml = `
+            <div class="modal fade" id="columnChooserModal" tabindex="-1" aria-labelledby="columnChooserModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="columnChooserModalLabel">Choose Columns</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="columnCheckboxContainer">
+                                <!-- Checkboxes will be dynamically populated here -->
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="columnChooserApplyBtn">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add the modal to the document body
+        $('body').append(modalHtml);
+    }
+
+    function populateColumnCheckboxes() {
+        // Get the DataTable instance
+        var table = $('#ContainerList').DataTable();
+        
+        if (!table) {
+            console.error('DataTable not found!');
+            return;
+        }
+        
+        // Clear existing checkboxes
+        $('#columnCheckboxContainer').empty();
+        
+        // Add a checkbox for each column
+        table.columns().every(function(index) {
+            // Skip the first two columns (checkbox and actions)
+            if (index < 2) return;
             
-            console.log('Apply button clicked'); // Debug log
+            var column = this;
+            var columnTitle = $(column.header()).text().trim();
+            var isVisible = column.visible();
             
-            // Get reference to the DataTable - make sure this matches your table ID!
-            var table = $('#containersTable').DataTable();
+            // Create checkbox HTML
+            var checkboxHtml = `
+                <div class="form-check">
+                    <input class="form-check-input column-toggle-checkbox" type="checkbox" 
+                           id="column${index}" data-column-index="${index}" ${isVisible ? 'checked' : ''}>
+                    <label class="form-check-label" for="column${index}">
+                        ${columnTitle || `Column ${index}`}
+                    </label>
+                </div>
+            `;
             
-            if (!table) {
-                console.error('DataTable not found!');
-                return;
-            }
-            
-            // Get all checkboxes in the column chooser modal
-            // Adjust the selector to match your actual checkboxes
-            var checkboxes = $('.column-toggle-checkbox');
-            
-            console.log('Found checkboxes:', checkboxes.length); // Debug log
-            
-            // Process each checkbox
-            checkboxes.each(function() {
-                // Get column index from data attribute or value
-                var columnIndex = $(this).data('column-index') || $(this).val();
-                
-                // Check if column should be visible
-                var isVisible = $(this).prop('checked');
-                
-                console.log('Setting column', columnIndex, 'to', isVisible ? 'visible' : 'hidden'); // Debug
-                
-                // Set column visibility - make sure columnIndex is a number
-                table.column(parseInt(columnIndex)).visible(isVisible);
-            });
-            
-            // Adjust column widths and redraw table
-            table.columns.adjust().draw();
-            
-            // Store column visibility state in localStorage for persistence
-            saveColumnVisibilityState(table);
-            
-            // Close the modal (if using Bootstrap)
-            $('#columnChooserModal').modal('hide');
-            
-            console.log('Column visibility updated'); // Debug log
+            // Add to container
+            $('#columnCheckboxContainer').append(checkboxHtml);
         });
     }
-    
-    function saveColumnVisibilityState(table) {
-        // Create array to store visibility state
-        var visibilityState = [];
+
+    function applyColumnVisibility() {
+        // Get table reference
+        var table = $('#ContainerList').DataTable();
         
-        // Loop through all columns and store their visibility state
+        if (!table) {
+            console.error('DataTable not found!');
+            return;
+        }
+        
+        // Add debug logging
+        console.log('Applying column visibility changes...');
+        
+        // Process each checkbox
+        $('.column-toggle-checkbox').each(function() {
+            var columnIndex = $(this).data('column-index');
+            var isVisible = $(this).prop('checked');
+            
+            console.log(`Setting column ${columnIndex} to ${isVisible ? 'visible' : 'hidden'}`);
+            
+            // Apply visibility setting to the DataTable
+            table.column(parseInt(columnIndex)).visible(isVisible, false);
+        });
+        
+        // Adjust and redraw - this is critical!
+        preserveScrollPosition(() => {
+            table.columns.adjust().draw(false);
+        });
+        
+        // Save state to localStorage
+        saveColumnState(table);
+        
+        // Hide the modal
+        $('#columnChooserModal').modal('hide');
+        
+        // Show success message
+        showToast('Column visibility updated', 'success');
+    }
+
+    function saveColumnState(table) {
+        var state = [];
+        
         table.columns().every(function(index) {
-            visibilityState.push({
+            state.push({
                 index: index,
                 visible: this.visible()
             });
         });
         
-        // Save to localStorage
-        localStorage.setItem('containersTableColumnState', JSON.stringify(visibilityState));
+        localStorage.setItem('ContainerListColumnState', JSON.stringify(state));
     }
 });
