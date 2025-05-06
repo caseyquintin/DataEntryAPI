@@ -1,21 +1,75 @@
 // singleDelete.js
 document.addEventListener('DOMContentLoaded', function () {
-    // Inline Delete button
-    $('#ContainerList tbody').on('click', '.delete-btn', function() {
-        const containerID = $(this).data('id');
-        const row = ContainerTable.row('#' + containerID);
+    // Container to store data during delete operation
+    let containerToDelete = null;
 
+    // Inline Delete button handler
+    $('#ContainerList tbody').on('click', '.delete-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const containerID = $(this).data('id');
+        
+        // Get the container data from the table
+        const table = $('#ContainerList').DataTable();
+        const row = table.row($(this).closest('tr'));
+        const data = row.data();
+        
+        // Store the container data for later
+        containerToDelete = {
+            id: containerID,
+            row: row,
+            data: data
+        };
+
+        // Display container info in the modal
+        const containerInfo = `
+            <strong>Container Number:</strong> ${data.containerNumber || 'N/A'}<br>
+            <strong>ID:</strong> ${containerID}<br>
+            <strong>Status:</strong> ${data.currentStatus || 'N/A'}<br>
+            <strong>BOL/Booking:</strong> ${data.bolBookingNumber || 'N/A'}
+        `;
+        $('#singleContainerToDelete').html(containerInfo);
+        
+        // Show the confirmation modal with proper Bootstrap 5 initialization
+        const modalElement = document.getElementById('confirmSingleDeleteModal');
+        const modal = new bootstrap.Modal(modalElement, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
+        modal.show();
+    });
+
+    // Delete confirmation button handler
+    $(document).on('click', '#confirmSingleDeleteBtn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!containerToDelete) return;
+        
+        const containerID = containerToDelete.id;
+        const row = containerToDelete.row;
+        
+        // Hide the modal
+        const modalElement = document.getElementById('confirmSingleDeleteModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+        
         // Temporarily hide the row
         row.node().style.opacity = '0.5';
 
         // Show undo message
         const undoBanner = $(`
             <div class="alert alert-warning alert-dismissible fade show position-fixed bottom-0 end-0 m-4" style="z-index: 1055; min-width: 300px;">
-                <strong>Container ${containerID} deleted.</strong> <button type="button" class="btn btn-sm btn-light ms-2 undo-delete-btn" data-id="${containerID}">Undo</button>
+                <strong>Container ${containerToDelete.data.containerNumber || containerID} deleted.</strong> 
+                <button type="button" class="btn btn-sm btn-light ms-2 undo-delete-btn" data-id="${containerID}">Undo</button>
             </div>
         `).appendTo('body');
 
-        // ✅ Save deleted row data to localStorage in case you want to restore later
+        // Save deleted row data to localStorage in case you want to restore later
         localStorage.setItem(`deleted-${containerID}`, JSON.stringify(row.data()));
 
         // Start delete timer
@@ -40,29 +94,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
         }, 10000);
+        
+        // Reset the containerToDelete
+        containerToDelete = null;
+    });
 
-        // Undo Logic
-        $('body').on('click', '.undo-delete-btn', function() {
-            const containerID = $(this).data('id');
+    // Undo Logic
+    $('body').on('click', '.undo-delete-btn', function() {
+        const containerID = $(this).data('id');
 
-            clearTimeout(deleteTimeouts[containerID]);
-            delete deleteTimeouts[containerID];
+        clearTimeout(deleteTimeouts[containerID]);
+        delete deleteTimeouts[containerID];
 
-            const storedRow = localStorage.getItem(`deleted-${containerID}`);
-            if (storedRow) {
-                const rowData = JSON.parse(storedRow);
-                currentEditRow = ContainerTable.row('#' + containerID);
+        const storedRow = localStorage.getItem(`deleted-${containerID}`);
+        if (storedRow) {
+            const rowData = JSON.parse(storedRow);
+            currentEditRow = ContainerTable.row('#' + containerID);
 
-                if (currentEditRow.node()) {
-                    $(currentEditRow.node()).fadeIn();
-                }
-
-                localStorage.removeItem(`deleted-${containerID}`);
-                console.log(`🕓 Undo delete for container ${containerID}`);
+            if (currentEditRow.node()) {
+                $(currentEditRow.node()).fadeIn();
             }
 
-            $(this).closest('.alert').alert('close');
-            $(currentEditRow.node()).css('opacity', '1');
-        });
+            localStorage.removeItem(`deleted-${containerID}`);
+            console.log(`🕓 Undo delete for container ${containerID}`);
+        }
+
+        $(this).closest('.alert').alert('close');
+        $(currentEditRow.node()).css('opacity', '1');
     });
-})
+});

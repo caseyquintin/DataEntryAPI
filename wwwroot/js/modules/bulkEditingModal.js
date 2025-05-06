@@ -1,5 +1,11 @@
-// bulkEditingModal.js
-$(document).on('click', '#bulkEditBtn', function () {
+// bulkEditingModal.js - update just the first part for the button handler
+$(document).off('click', '#bulkEditBtn').on('click', '#bulkEditBtn', function (e) {
+    // Prevent any default actions or event bubbling
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Bulk Edit button clicked'); // Debug log
+    
     const selected = getSelectedContainerIDs();
     if (selected.length === 0) {
         showToast('🚫 Please select at least one row to edit.', 'warning');
@@ -20,7 +26,13 @@ $(document).on('click', '#bulkEditBtn', function () {
     //  ✅ Populate dropdowns before modal opens
     populateBulkDropdowns();
 
-    const modal = new bootstrap.Modal(document.getElementById('bulkContainerModal'));
+    // Use proper Bootstrap 5 modal initialization
+    const modalElement = document.getElementById('bulkContainerModal');
+    const modal = new bootstrap.Modal(modalElement, {
+        backdrop: true,
+        keyboard: true,
+        focus: true
+    });
     modal.show();
 });
 

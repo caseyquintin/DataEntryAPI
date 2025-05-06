@@ -20,6 +20,7 @@
 
     </head>
     <body>
+
         <div class="d-flex" id="wrapper">
             <!-- Sidebar-->
             <div class="border-end bg-white" id="sidebar-wrapper">
@@ -796,59 +797,64 @@
                                         </button>
                                     </h2>
                                     <div id="bulkContainerInfo" class="accordion-collapse collapse show">
-                                <div class="accordion-body row g-3">
+                                        <div class="accordion-body row g-3">
 
-                                    <!-- Current Status -->
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input apply-field" type="checkbox" id="applyBulkCurrentStatus" data-target="bulkCurrentStatusSelect">
-                                            <label class="form-check-label" for="applyBulkCurrentStatus">Apply Current Status</label>
-                                        </div>
-                                        <select id="bulkCurrentStatusSelect" class="form-select" name="CurrentStatus" disabled></select>
-                                    </div>
+                                            <!-- Current Status -->
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkCurrentStatus" data-target="bulkCurrentStatusSelect">
+                                                    <label class="form-check-label" for="applyBulkCurrentStatus">Apply Current Status</label>
+                                                </div>
+                                                <select id="bulkCurrentStatusSelect" class="form-select" name="CurrentStatus" disabled></select>
+                                            </div>
 
-                                    <!-- Container Size -->
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input apply-field" type="checkbox" id="applyBulkContainerSize" data-target="bulkContainerSizeSelect">
-                                            <label class="form-check-label" for="applyBulkContainerSize">Apply Container Size</label>
-                                        </div>
-                                        <select id="bulkContainerSizeSelect" class="form-select" name="ContainerSize" disabled></select>
-                                    </div>
+                                            <!-- Container Size -->
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkContainerSize" data-target="bulkContainerSizeSelect">
+                                                    <label class="form-check-label" for="applyBulkContainerSize">Apply Container Size</label>
+                                                </div>
+                                                <select id="bulkContainerSizeSelect" class="form-select" name="ContainerSize" disabled></select>
+                                            </div>
 
-                                    <!-- Main Source -->
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input apply-field" type="checkbox" id="applyBulkMainSource" data-target="bulkMainSourceSelect">
-                                            <label class="form-check-label" for="applyBulkMainSource">Apply Main Source</label>
-                                        </div>
-                                        <select id="bulkMainSourceSelect" class="form-select" name="MainSource" disabled></select>
-                                    </div>
+                                            <!-- Main Source -->
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkMainSource" data-target="bulkMainSourceSelect">
+                                                    <label class="form-check-label" for="applyBulkMainSource">Apply Main Source</label>
+                                                </div>
+                                                <select id="bulkMainSourceSelect" class="form-select" name="MainSource" disabled></select>
+                                            </div>
 
-                                    <!-- Transload -->
-                                    <div class="col-md-4">
-                                        <label class="form-label d-block">Transload</label>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input apply-field" type="checkbox" id="applyBulkTransloadBoolean" data-target="bulkTransloadBoolean">
-                                        </div>
-                                    </div>
+                                            <!-- Transload -->
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkTransloadBoolean" data-target="bulkTransloadBoolean">
+                                                    <label class="form-check-label" for="applyBulkTransloadBoolean">Apply Transload</label>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="bulkTransloadBoolean" name="Transload" disabled />
+                                                </div>
+                                            </div>
 
-                                    <!-- Shipline -->
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input apply-field" type="checkbox" id="applyBulkShipline" data-target="bulkShiplineSelect">
-                                            <label class="form-check-label" for="applyBulkShipline">Apply Shipline</label>
+                                            <!-- Shipline -->
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkShipline" data-target="bulkShiplineSelect">
+                                                    <label class="form-check-label" for="applyBulkShipline">Apply Shipline</label>
+                                                </div>
+                                                <select id="bulkShiplineSelect" class="form-select" name="ShiplineID" disabled></select>
+                                            </div>
+                                            
+                                            <!-- BOL/Booking # -->
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkBOLBookingNumber" data-target="bulkBOLBookingNumber">
+                                                    <label class="form-check-label" for="applyBulkBOLBookingNumber">Apply BOL/Booking #</label>
+                                                </div>
+                                                <input type="text" id="bulkBOLBookingNumber" class="form-control" name="BOLBookingNumber" disabled />
+                                            </div>
                                         </div>
-                                        <select id="bulkShiplineSelect" class="form-select" name="ShiplineID" disabled></select>
-                                    </div>
-                                    
-                                    <!-- BOL/Booking # -->
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input apply-field" type="checkbox" id="applyBulkBOLBookingNumber">
-                                            <label class="form-check-label" for="applyBulkBOLBookingNumber">Apply BOL/Booking #</label>
-                                        </div>
-                                        <input type="text" id="bulkBOLBookingNumber" class="form-control" name="BOLBookingNumber" disabled />
                                     </div>
                                 </div>
 
@@ -876,7 +882,6 @@
                                             <!-- Rail Destination -->
                                             <div class="col-md-4">
                                                 <div class="form-check">
-                                                    <!-- 🔧 Add data-target to match the input field ID below -->
                                                     <input class="form-check-input apply-field" type="checkbox" id="applyBulkRailDestination" data-target="bulkRailDestination">
                                                     <label class="form-check-label" for="applyBulkRailDestination">Apply Rail Destination</label>
                                                 </div>
@@ -1276,7 +1281,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -1284,6 +1288,29 @@
                             <button type="submit" class="btn btn-primary">Apply Changes to Selected</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Single Delete Modal -->
+        <div class="modal fade" id="confirmSingleDeleteModal" tabindex="-1" aria-labelledby="confirmSingleDeleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content border-danger">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="confirmSingleDeleteModalLabel">⚠️ Confirm Delete</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this container?</p>
+                        <div id="singleContainerToDelete" class="alert alert-light">
+                            <!-- Container info will be displayed here -->
+                        </div>
+                        <div class="text-danger fw-bold">This action can be undone for 10 seconds.</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button id="confirmSingleDeleteBtn" type="button" class="btn btn-danger">Yes, Delete</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1309,6 +1336,26 @@
             </div>
         </div>
 
+        <!-- Column Chooser Modal -->
+        <div class="modal fade" id="columnChooserModal" tabindex="-1" aria-labelledby="columnChooserModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="columnChooserModalLabel">Choose Columns to Show or Hide</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="columnCheckboxContainer" class="container-fluid">
+                            <!-- Row and columns will be generated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="columnChooserApplyBtn">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
        
         <!-- Core Libraries -->
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -1365,32 +1412,6 @@
         <!-- Single Delete -->
         <script src="./js/modules/singleDelete.js"></script>
 
-        <!-- Column Chooser Modal -->
-        <div class="modal fade" id="columnChooserModal" tabindex="-1" aria-labelledby="columnChooserModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title" id="columnChooserModalLabel">Select Columns</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                <!-- Column checkboxes will be generated here -->
-                <div id="columnCheckboxContainer">
-                    <!-- Example of expected checkbox structure -->
-                    <!-- <div class="form-check">
-                    <input class="form-check-input column-toggle-checkbox" type="checkbox" value="0" data-column-index="0" id="column0" checked>
-                    <label class="form-check-label" for="column0">Column Name</label>
-                    </div> -->
-                </div>
-                </div>
-                <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="columnChooserApplyBtn">Apply</button>
-                </div>
-            </div>
-            </div>
-        </div>
-  
         <!-- Column Chooser -->
         <script src="./js/modules/columnChooser.js"></script>
 
