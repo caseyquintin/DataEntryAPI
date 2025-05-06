@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Simple Sidebar - Start Bootstrap Template</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <!-- DataTables -->
+        <link rel="stylesheet" href="css/datatables.min.css">
+        <style>
+            html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Prevent page scroll */
+            }
+
+            #wrapper {
+            height: 100vh;
+            display: flex;
+            }
+
+            #sidebar-wrapper {
+            width: 250px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            height: 100vh;
+            }
+
+            #page-content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            }
+
+            #navbar {
+            flex-shrink: 0;
+            }
+
+            #table-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            position: relative;
+            }
+
+            .toolbar {
+              padding: 0 1rem;
+            }
+
+            .dataTables_filter {
+              margin-bottom: 0 !important;
+            }
+
+            th:first-child,
+            td:first-child {
+            width: 40px;
+            text-align: center;
+            }
+
+            #ContainerList_wrapper {
+            overflow-x: auto;
+            }
+
+            table.dataTable.fixedHeader-floating {
+            top: 56px !important; /* Or match your navbar height */
+            z-index: 1050;        /* Ensure it stays above content */
+            }
+
+            table.dataTable.fixedHeader-floating {
+            background-color: white;
+            z-index: 1055;
+            top: 56px !important; /* Match your navbar */
+            }
+
+            #ContainerList tbody tr.status-returned td {
+            background-color: #cccccc !important;
+            }
+
+            #ContainerList tbody tr.status-vessel td {
+            background-color: #4660f3 !important;
+            }
+
+            #ContainerList tbody tr.status-appt td {
+            background-color: #ffd900 !important;
+            }
+
+            table.dataTable td,
+            table.dataTable th {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            }
+
+            .dt-colresizable-hover {
+            cursor: col-resize !important;
+            }
+
+            .dt-colresizable-handler {
+            cursor: col-resize !important;
+            width: 10px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            z-index: 2;
+            }
+
+            table.dataTable {
+            table-layout: fixed !important;
+            /*width: 100%*/
+            }
+
+            table.dataTable thead th {
+            position: relative;
+            }
+          </style>
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar-->
+            <div class="border-end bg-white" id="sidebar-wrapper">
+                <div class="sidebar-heading border-bottom bg-light">Start Bootstrap</div>
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Dashboard</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Shortcuts</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Overview</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Events</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Profile</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Status</a>
+                </div>
+            </div>
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper">
+                <!-- Top navigation-->
+                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                    <div class="container-fluid">
+                        <button class="btn btn-primary" id="sidebarToggle">Toggle Menu</button>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                                <li class="nav-item active"><a class="nav-link" href="#!">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#!">Link</a></li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="#!">Action</a>
+                                        <a class="dropdown-item" href="#!">Another action</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#!">Something else here</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                <!-- Page content-->
+                <div id="table-container">
+                    <table id="ContainerList" class="table table-bordered" width="100%">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll"></th>
+                                <th>Actions</th>
+                                <th>ID</th>
+                                <th>Container #</th>
+                                <th>Arrival</th>
+                                <th>Arrival Actual</th>
+                                <th>Available</th>
+                                <th>Berth</th>
+                                <th>Berth Actual</th>
+                                <th>BOL or Booking #</th>
+                                <th>Carrier</th>
+                                <th>Container Size</th>
+                                <th>Current Status</th>
+                                <th>Delivered</th>
+                                <th>FPM</th>
+                                <th>Last Updated</th>
+                                <th>Load To Rail</th>
+                                <th>Main Source</th>
+                                <th>Notes</th>
+                                <th>Offload</th>
+                                <th>Offload Actual</th>
+                                <th>Pickup LFD</th>
+                                <th>PO #</th>
+                                <th>Port Of Departure</th>
+                                <th>Port Of Entry</th>
+                                <th>Pickup</th>
+                                <th>Project #</th>
+                                <th>Rail</th>
+                                <th>Rail Departure</th>
+                                <th>Rail Destination</th>
+                                <th>Rail ETA</th>
+                                <th>Rail Pickup #</th>
+                                <th>Railway Line</th>
+                                <th>Returned</th>
+                                <th>Return LFD</th>
+                                <th>Sail</th>
+                                <th>Sail Actual</th>
+                                <th>Shipline</th>
+                                <th>Shipline ID</th>
+                                <th>Shipment #</th>
+                                <th>Terminal</th>
+                                <th>Terminal ID</th>
+                                <th>Transload</th>
+                                <th>Vendor</th>
+                                <th>Vendor ID #</th>
+                                <th>Vessel ID</th>
+                                <th>Vessel Line</th>
+                                <th>Vessel Line ID</th>
+                                <th>Vessel Name</th>
+                                <th>Voyage</th>                      
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <!-- <tfoot>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll"></th>
+                                <th>Actions</th> 
+                                <th>ID</th>
+                                <th>Container #</th>
+                                <th>Arrival</th>
+                                <th>Arrival Actual</th>
+                                <th>Available</th>
+                                <th>Berth</th>
+                                <th>Berth Actual</th>
+                                <th>BOL or Booking #</th>
+                                <th>Carrier</th>
+                                <th>Container Size</th>
+                                <th>Current Status</th>
+                                <th>Delivered</th>
+                                <th>FPM</th>
+                                <th>Last Updated</th>
+                                <th>Load To Rail</th>
+                                <th>Main Source</th>
+                                <th>Notes</th>
+                                <th>Offload</th>
+                                <th>Offload Actual</th>
+                                <th>Pickup LFD</th>
+                                <th>PO #</th>
+                                <th>Port Of Departure</th>
+                                <th>Port Of Entry</th>
+                                <th>Pickup</th>
+                                <th>Project #</th>
+                                <th>Rail</th>
+                                <th>Rail Departure</th>
+                                <th>Rail Destination</th>
+                                <th>Rail ETA</th>
+                                <th>Rail Pickup #</th>
+                                <th>Railway Line</th>
+                                <th>Returned</th>
+                                <th>Return LFD</th>
+                                <th>Sail</th>
+                                <th>Sail Actual</th>
+                                <th>Shipline</th>
+                                <th>Shipline ID</th>
+                                <th>Shipment #</th>
+                                <th>Terminal</th>
+                                <th>Terminal ID</th>
+                                <th>Transload</th>
+                                <th>Vendor</th>
+                                <th>Vendor ID #</th>
+                                <th>Vessel ID</th>
+                                <th>Vessel Line</th>
+                                <th>Vessel Line ID</th>
+                                <th>Vessel Name</th>
+                                <th>Voyage</th>                        
+                            </tr>
+                        </tfoot> -->
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        
+        <!-- Bootstrap 5.3 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- DataTables.net CSS -->
+        <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.bootstrap5.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" />
+        <link href="https://cdn.datatables.net/scroller/2.3.0/css/scroller.bootstrap5.min.css" rel="stylesheet">
+
+        <!-- Bootstrap 5.3 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- DataTables.net JS -->
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+        <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+        <script src="https://cdn.datatables.net/scroller/2.3.0/js/dataTables.scroller.min.js"></script>
+
+        <!-- Buttons -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" />
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+
+        <!-- DataTables colResize Plugin-->
+        <script src="js/jquery.dataTables.colResize.js"></script>
+        <link rel="stylesheet" href="css/jquery.dataTables.colResize.css" />
+
+        <script>
+            let deleteTimeouts = {};
+            $(document).ready(function () {
+                const editedRows = {}; // Track changed rows
+                let currentEditRow = null;
+
+                // Bulk select checkbox helper
+                function getSelectedContainerIDs() {
+                    return $('.row-select:checked').map(function () {
+                        return $(this).data('id');
+                    }).get();
+                }           
+                
+                console.log(getSelectedContainerIDs());
+
+                // Add bulk action buttons
+                const bulkButtons = `
+                    <div class="d-flex gap-2">
+                    <button id="addContainerBtn" class="btn btn-outline-success btn-sm">➕ Add Container</button>
+                    <button id="bulkEditBtn" class="btn btn-outline-primary btn-sm">✏️ Bulk Edit</button>
+                    <button id="bulkDeleteBtn" class="btn btn-outline-danger btn-sm">🗑️ Bulk Delete</button>
+                    <button id="customColVisBtn" class="btn btn-outline-secondary btn-sm">🔧 Choose Columns</button>
+                    </div>
+                `;
+
+                // Datatable config
+                const table = $('#ContainerList').DataTable({
+                    ajax: {
+                        url: 'http://localhost:5062/api/containers',
+                        dataSrc: ''
+                    },
+                    scrollY: '60vh', // or your existing calc height
+                    scrollX: true, // ✅ fix horizontal scroll issue
+                    autoWidth: true, // ✅ allow dynamic sizing once
+                    tableLayout: 'auto', // not a DT config — CSS only
+                    stateSave: true, // ✅ So it loads column sizes and visibility settings
+                    colResize: {
+                        isEnabled: true,
+                        saveState: true,
+                        stateSaveCallback: function (settings, data) {
+                            const key = window.location.pathname + "/colResizeStateData";
+                            localStorage.setItem(key, JSON.stringify(data));
+                        },
+                        stateLoadCallback: function (settings) {
+                            const key = window.location.pathname + "/colResizeStateData";
+                            const data = localStorage.getItem(key);
+                            return data ? JSON.parse(data) : null;
+                        },
+                        onResizeEnd: function (column, columns) {
+                            console.log('📐 Saving column widths...', columns);
+                        }
+                    },
+                    scroller: {
+                        loadingIndicator: true // helpful for debugging
+                    },
+                    deferRender: true,
+                    //responsive: true, // Let DataTables adapt columns nicely
+                    scrollCollapse: true, // Disable unnecessary collapsing
+                    paging: true, // disables or enables pagination
+                    info: false, // hides X to Y of Z entries
+                    lengthChange: false, // hides the "Show X entries" dropdown
+                    pageLength: 100,
+                    order: [[1, 'desc']],
+                    dom: '<"toolbar d-flex justify-content-between align-items-center mb-3"Bf>rt',
+                    buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+                    columns: [
+                        {
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            className: '', // ✅ Leave it empty or use a custom class if needed
+                            render: function (data, type, row) {
+                                return `<input type="checkbox" class="row-select" data-id="${row.containerID}">`;
+                            }
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            render: function (data, type, row, meta) {
+                            return `
+                                <button class="btn btn-sm btn-primary edit-modal-btn" data-id="${row.containerID}">✏️</button>
+                                <button class="btn btn-sm btn-danger delete-btn ms-2" data-id="${row.containerID}">🗑️</button>
+                            `;
+                        }},
+                        { data: 'containerID' },
+                        { data: 'containerNumber', className: 'editable' },
+                        {
+                            data: 'arrival',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        {
+                            data: 'arrivalActual',
+                            className: 'editable',
+                            render: data => data ?? ''
+                        },
+                        {
+                            data: 'available',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'berth', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
+                        {
+                            data: 'berthActual',
+                            className: 'editable',
+                            render: data => data ?? ''
+                        },
+                        { data: 'bolBookingNumber', className: 'editable' },
+                        { data: 'carrier', className: 'editable' },
+                        { data: 'containerSize', className: 'editable' },
+                        { data: 'currentStatus', className: 'editable' },
+                        {
+                            data: 'delivered',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'fpm', className: 'editable' },
+                        {
+                            data: 'lastUpdated',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        {
+                            data: 'loadToRail',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'mainSource', className: 'editable' },
+                        { data: 'notes', className: 'editable' },
+                        {
+                            data: 'offload',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'offloadActual', className: 'editable' },
+                        {
+                            data: 'pickupLFD',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'poNumber', className: 'editable' },
+                        { data: 'portOfDeparture', className: 'editable' },
+                        { data: 'portOfEntry', className: 'editable' },
+                        {
+                            data: 'portRailwayPickup',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'projectNumber', className: 'editable' },
+                        { data: 'rail', className: 'editable' },
+                        {
+                            data: 'railDeparture',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'railDestination', className: 'editable' },
+                        {
+                            data: 'railETA',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'railPickupNumber', className: 'editable' },
+                        { data: 'railwayLine', className: 'editable' },
+                        {
+                            data: 'returned',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        {
+                            data: 'returnLFD',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        {
+                            data: 'sail',
+                            className: 'editable',
+                            render: data => data ? new Date(data).toLocaleDateString() : ''
+                        },
+                        { data: 'sailActual', className: 'editable' },
+                        { data: 'shipline', className: 'editable' },
+                        { data: 'shiplineID', className: 'editable' },
+                        { data: 'shipmentNumber', className: 'editable' },
+                        { data: 'terminal', className: 'editable' },
+                        { data: 'terminalID', className: 'editable' },
+                        { data: 'transload', className: 'editable' },
+                        { data: 'vendor', className: 'editable' },
+                        { data: 'vendorIDNumber', className: 'editable' },
+                        { data: 'vesselID', className: 'editable' },
+                        { data: 'vesselLine', className: 'editable' },
+                        { data: 'vesselLineID', className: 'editable' },
+                        { data: 'vesselName', className: 'editable' },
+                        { data: 'voyage', className: 'editable' }
+                    ],
+                    initComplete: function () {
+                        const toolbar = $('.toolbar');
+                        const table = this.api();
+
+                        if ($('#bulkEditBtn').length === 0) {
+                            toolbar.prepend(bulkButtons);
+                        }
+
+                        setTimeout(() => {
+                            table.fixedHeader.adjust(); // Adjust after DOM settles
+                        }, 100);
+
+                        // Ensure every TH (except the first) has the required attribute
+                        $('#ContainerList thead th').each(function (i) {
+                            if (i > 0) {
+                                $(this).attr('data-is-resizable', 'true');
+                            }
+                        });
+
+                        // ✅ Initialize ColResize here once the table and headers exist
+                        setTimeout(() => {
+                            const dtSettings = table.settings()[0];
+
+                            // Add missing resizable attribute to header cells if needed
+                            $('#ContainerList thead th').each(function (i) {
+                                if (i > 0) {
+                                    $(this).attr('data-is-resizable', 'true');
+                                }
+                            });
+
+                            // Rebuild ColResize if needed
+                            if (!dtSettings._colResize) {
+                                console.log('🛠 Manually initializing ColResize...');
+                                const colResizeOpts = $.extend(
+                                    true,
+                                    {},
+                                    $.fn.dataTable.defaults.colResize || {},
+                                    dtSettings.oInit.colResize || {}
+                                );
+                                new $.fn.dataTable.ColResize(dtSettings, colResizeOpts);
+                            }
+
+                            // Check handler count
+                            const handlers = $('#ContainerList th .dt-colresizable-handler');
+                            console.log(`🔍 Handler count: ${handlers.length}`);
+                        }, 300);
+
+                        $('#ContainerList').on('mouseenter', 'td', function () {
+                            const cell = $(this);
+                            if (this.offsetWidth < this.scrollWidth) {
+                                cell.attr('title', cell.text());
+                            } else {
+                                cell.removeAttr('title');
+                            }
+                        });
+                    },
+                    rowCallback: function (row, data) {
+                        const status = (data.currentStatus || '').trim().toUpperCase();
+                        $(row).removeClass('status-returned status-vessel status-appt');
+
+                        if (status === 'RETURNED') {
+                            $(row).addClass('status-returned');
+                        } else if (status === 'ON VESSEL') {
+                            $(row).addClass('status-vessel');
+                        } else if (status === 'DEL APPT SET') {
+                            $(row).addClass('status-appt');
+                        }
+                    }
+                });
+
+                table.on('init', function () {
+                    setTimeout(() => {
+                        const dtSettings = table.settings()[0];
+                        if (dtSettings._colResize && typeof dtSettings._colResize.restore === 'function') {
+                        dtSettings._colResize.restore(); // ✅ Restore saved widths
+                        table.columns.adjust().draw(false);
+                        console.log('📏 Column widths restored from saved state');
+                        }
+                    }, 200); // Small delay to make sure table is ready
+                });
+
+                // new $.fn.dataTable.FixedHeader(table, {
+                //     header: true,
+                //     headerOffset: 56,
+                //     scrollContainer: '#table-container' // 👈 This anchors the header
+                // });
+
+                // 🔁 Reset "Select All" checkbox whenever the table redraws (pagination, search, etc.)
+                table.on('draw', function () {
+                    $('#selectAll').prop('checked', false);
+                });
+
+                // Open the column chooser modal
+                $(document).on('click', '#customColVisBtn', function () {
+                    const form = $('#columnVisibilityForm');
+                    form.empty(); // Clear previous items
+
+                    table.columns().every(function (index) {
+                        const column = this;
+                        const title = column.header().textContent.trim();
+                        const visible = column.visible();
+
+                        // ⛔ Skip the first column (the select checkbox column)
+                        if (index === 0 || title === '') return;
+
+                        form.append(`
+                            <div class="col-12 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" data-column="${index}" id="colToggle${index}" ${visible ? 'checked' : ''}>
+                                    <label class="form-check-label" for="colToggle${index}">${title}</label>
+                                </div>
+                            </div>
+                        `);
+                    });
+
+                    const modal = new bootstrap.Modal(document.getElementById('columnModal'));
+                    modal.show();
+                });
+                
+                // Master select all checkbox control
+                $(document).on('change', '#selectAll', function () {
+                    const checked = $(this).is(':checked');
+                    $('.row-select').prop('checked', checked);
+                });
+
+                // New Container Button Function
+                $(document).on('click', '#addContainerBtn', function () {
+                    $('#addContainerForm')[0].reset(); // clear previous input
+                    new bootstrap.Modal(document.getElementById('addContainerModal')).show();
+                });
+
+                $('#addContainerForm').on('submit', function (e) {
+                    e.preventDefault();
+
+                    const containerNumber = $('#newContainerNumber').val().trim();
+                    const arrivalRaw = $('#newArrival').val();
+                    const arrival = arrivalRaw ? `${arrivalRaw}T00:00:00` : null;
+                    const status = $('#newStatus').val();
+
+                    const newContainer = {
+                        ContainerNumber: containerNumber,
+                        Arrival: arrival,
+                        CurrentStatus: status
+                    };
+
+                    $.ajax({
+                        url: 'http://localhost:5062/api/containers',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(newContainer),
+                        success: function () {
+                        bootstrap.Modal.getInstance(document.getElementById('addContainerModal')).hide();
+                        $('#ContainerList').DataTable().ajax.reload(null, false); // refresh table
+                        alert('✅ Container added!');
+                        },
+                        error: function (xhr, status, err) {
+                        console.error('❌ Error adding container:', err);
+                        alert('Failed to add container. Please check the data and try again.');
+                        }
+                    });
+                });
+                
+                // Choose Columns button
+                $(document).on('click', '#applyColVis', function () {
+                    const $btn = $(this);
+                    $btn.prop('disabled', true).text('Applying...');
+
+                    const wrapper = $('#ContainerList').closest('.dataTables_wrapper');
+                    wrapper.detach(); // 🔌 Temporarily remove from DOM
+
+                    $('#columnVisibilityForm input[type="checkbox"]').each(function () {
+                        const index = $(this).data('column');
+                        const isVisible = $(this).is(':checked');
+
+                        if (table.column(index).visible() !== isVisible) {
+                            table.column(index).visible(isVisible, false); // Batch update
+                        }
+                    });
+
+                    table.columns.adjust().draw(false); // ✅ Draw once
+                    wrapper.appendTo('#table-container'); // 🔌 Reattach
+
+                    bootstrap.Modal.getInstance(document.getElementById('columnModal')).hide();
+
+                    setTimeout(() => {
+                        $btn.prop('disabled', false).text('Apply');
+                    }, 300); // slight delay to visually reset
+                });
+
+                // Modal "Edit" button
+                $('#ContainerList tbody').on('click', '.edit-modal-btn', function () {
+                    currentEditRow = table.row($(this).closest('tr'));
+                    const rowData = currentEditRow.data();
+            
+                    $('#editID').val(rowData.containerID);
+                    $('#containerNumber').val(rowData.containerNumber);
+                    $('#arrival').val(rowData.arrival ? new Date(rowData.arrival).toISOString().split('T')[0] : '');
+                    $('#currentStatus').val(rowData.currentStatus);
+            
+                    const modal = new bootstrap.Modal(document.getElementById('editModal'));
+                    modal.show();
+                });
+                
+                // Bulk Edit Button function
+                $(document).on('click', '#bulkEditBtn', function () {
+                    const selected = getSelectedContainerIDs();
+                    if (selected.length === 0) {
+                        alert('Please select at least one row to edit.');
+                        return;
+                    }
+
+                    // Clear previous inputs
+                    $('#bulkStatus').val('');
+                    $('#bulkArrival').val('');
+
+                    const modal = new bootstrap.Modal(document.getElementById('bulkEditModal'));
+                    modal.show();
+                    });
+
+                    // Bulk Edit Modal Submission
+                    $('#bulkEditForm').on('submit', function (e) {
+                        e.preventDefault();
+
+                        const selectedIDs = getSelectedContainerIDs();
+                        if (selectedIDs.length === 0) return;
+
+                        const updates = {};
+                        const status = $('#bulkStatus').val();
+                        const arrival = $('#bulkArrival').val();
+
+                        function toSafeIsoDate(dateStr) {
+                            return dateStr ? `${dateStr}T00:00:00` : null;
+                        }
+
+                        updates.arrival = toSafeIsoDate($('#bulkArrival').val());
+
+                        const ajaxCalls = selectedIDs.map(id => {
+                            return Object.entries(updates).map(([field, value]) => {
+                            return $.ajax({
+                                url: 'http://localhost:5062/api/containers/update-field',
+                                method: 'PATCH',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                containerID: id,
+                                field: field.charAt(0).toUpperCase() + field.slice(1),
+                                value
+                                })
+                            });
+                            });
+                        }).flat();
+
+                        Promise.all(ajaxCalls).then(() => {
+                            bootstrap.Modal.getInstance(document.getElementById('bulkEditModal')).hide();
+                            $('#ContainerList').DataTable().ajax.reload(null, false);
+                            alert('✅ Bulk update complete!');
+                        }).catch(err => {
+                            console.error('❌ Error during bulk update:', err);
+                            alert('Some updates failed.');
+                        });
+                    });
+
+                // To keep checkboxes in sync after table redraws
+                $('#ContainerList').on('draw.dt', function () {
+                    $('#selectAll').prop('checked', false); // reset master checkbox
+                });
+
+                // Inline Delete button
+                $('#ContainerList tbody').on('click', '.delete-btn', function () {
+                    const containerID = $(this).data('id');
+                    const row = table.row($(this).closest('tr'));
+
+                    // Temporarily hide the row
+                    row.node().style.opacity = '0.5';
+
+                    // Show undo message
+                    const undoBanner = $(`
+                        <div class="alert alert-warning alert-dismissible fade show position-fixed bottom-0 end-0 m-4" style="z-index: 1055; min-width: 300px;">
+                            <strong>Container ${containerID} deleted.</strong> <button type="button" class="btn btn-sm btn-light ms-2 undo-delete-btn" data-id="${containerID}">Undo</button>
+                        </div>
+                    `).appendTo('body');
+
+                    // ✅ Save deleted row data to localStorage in case you want to restore later
+                    localStorage.setItem(`deleted-${containerID}`, JSON.stringify(row.data()));
+
+                    // Start delete timer
+                    deleteTimeouts[containerID] = setTimeout(() => {
+                        // Fade out row visually
+                        $(row.node()).fadeOut(500, function () {
+                            $.ajax({
+                                url: `http://localhost:5062/api/containers/${containerID}`,
+                                method: 'DELETE',
+                                success: function () {
+                                    console.log(`✅ Container ${containerID} permanently deleted.`);
+                                    table.ajax.reload(null, false);
+                                    undoBanner.alert('close');
+                                    localStorage.removeItem(`deleted-${containerID}`);
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error(`❌ Failed to delete container ${containerID}:`, error);
+                                    alert('Failed to delete. Please try again.');
+                                    $(row.node()).fadeIn(); // restore if error
+                                    undoBanner.alert('close');
+                                }
+                            });
+                        });
+                    }, 10000);
+
+                    // Undo Logic
+                    $('body').on('click', '.undo-delete-btn', function () {
+                        const containerID = $(this).data('id');
+
+                        clearTimeout(deleteTimeouts[containerID]);
+                        delete deleteTimeouts[containerID];
+
+                        const storedRow = localStorage.getItem(`deleted-${containerID}`);
+                        if (storedRow) {
+                            const rowData = JSON.parse(storedRow);
+                            currentEditRow = table.row((idx, data) => data.containerID == containerID);
+
+                            if (currentEditRow.node()) {
+                                $(currentEditRow.node()).fadeIn();
+                            }
+
+                            localStorage.removeItem(`deleted-${containerID}`);
+                            console.log(`🕓 Undo delete for container ${containerID}`);
+                        }
+
+                        $(this).closest('.alert').alert('close');
+                        $(currentEditRow.node()).css('opacity', '1');
+                    });
+                }); // ✅ Closes the .delete-btn handler (inline)!
+                
+                // Bulk delete button
+                $(document).on('click', '#bulkDeleteBtn', function () {
+                    const selectedIDs = getSelectedContainerIDs();
+
+                    if (selectedIDs.length === 0) {
+                        alert('No containers selected!');
+                        return;
+                    }
+
+                    // Save row data and temporarily hide each row
+                    selectedIDs.forEach(id => {
+                        const row = table.row((_, data) => data.containerID == id);
+                        if (row.node()) {
+                            $(row.node()).css('opacity', '0.5');
+                            localStorage.setItem(`deleted-${id}`, JSON.stringify(row.data()));
+                        }
+                    });
+
+                    // Show undo banner
+                    const undoBanner = $(`
+                        <div class="alert alert-warning alert-dismissible fade show position-fixed bottom-0 end-0 m-4" style="z-index: 1055; min-width: 300px;">
+                            <strong>Deleted ${selectedIDs.length} container(s).</strong>
+                            <button type="button" class="btn btn-sm btn-light ms-2" id="undoBulkDeleteBtn">Undo</button>
+                        </div>
+                    `).appendTo('body');
+
+                    // Start timer to finalize deletion
+                    const bulkDeleteTimeout = setTimeout(() => {
+                        Promise.all(
+                            selectedIDs.map(id =>
+                                $.ajax({
+                                    url: `http://localhost:5062/api/containers/${id}`,
+                                    method: 'DELETE'
+                                })
+                            )
+                        ).then(() => {
+                            undoBanner.alert('close');
+                            selectedIDs.forEach(id => localStorage.removeItem(`deleted-${id}`));
+                            table.ajax.reload(null, false);
+                        }).catch(err => {
+                            console.error('❌ Bulk delete error:', err);
+                            alert('Some deletions failed.');
+                            table.ajax.reload(null, false);
+                        });
+                    }, 10000);
+
+                    // Undo button handler
+                    $('body').one('click', '#undoBulkDeleteBtn', function () {
+                        clearTimeout(bulkDeleteTimeout);
+                        undoBanner.alert('close');
+
+                        selectedIDs.forEach(id => {
+                            const row = table.row((_, data) => data.containerID == id);
+                            if (row.node()) {
+                                $(row.node()).css('opacity', '1');
+                            }
+                            localStorage.removeItem(`deleted-${id}`);
+                        });
+
+                        console.log(`🕓 Undo bulk delete for: ${selectedIDs.join(', ')}`);
+                    });
+                });
+
+                // Edit Modal form submit
+                $('#editForm').on('submit', function (e) {
+                    e.preventDefault();
+            
+                    const rawArrival = $('#arrival').val();
+                    const parsedArrival = rawArrival ? new Date(rawArrival) : null;
+            
+                    const formData = {
+                        containerID: $('#editID').val(),
+                        containerNumber: $('#containerNumber').val(),
+                        arrival: parsedArrival instanceof Date && !isNaN(parsedArrival) ? parsedArrival.toISOString() : null,
+                        currentStatus: $('#currentStatus').val()
+                    };
+            
+                    const fieldMap = {
+                        containerNumber: 'ContainerNumber',
+                        arrival: 'Arrival',
+                        currentStatus: 'CurrentStatus'
+                    };
+            
+                    const ajaxCalls = Object.entries(fieldMap).map(([formKey, modelField]) => {
+                        const value = formData[formKey];
+                        console.log('Sending:', {
+                            containerID: formData.containerID,
+                            field: modelField,
+                            value
+                        });
+            
+                        return $.ajax({
+                            url: 'http://localhost:5062/api/containers/update-field',
+                            method: 'PATCH',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                containerID: formData.containerID,
+                                field: modelField,
+                                value
+                            }),
+                            success: res => console.log(`✅ Saved ${modelField}:`, res),
+                            error: err => console.error(`❌ Save error (${modelField}):`, err)
+                        });
+                    });
+            
+                    Promise.all(ajaxCalls).then(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                        table.ajax.reload(null, false); // ✅ reload after save
+                    });
+                });
+
+                // 🔁 Utility: move focus to next editable cell
+                function moveToNextEditable(currentCell) {
+                    const $cells = $('#ContainerList td.editable:visible');
+                    const currentIndex = $cells.index(currentCell);
+                    const $next = $cells.eq(currentIndex + 1);
+
+                    if ($next.length) {
+                        // Use .trigger('click') and then wait for input to appear
+                        $next.trigger('click');
+
+                        // Try focusing the new input directly when it's ready
+                        setTimeout(() => {
+                            const input = $next.find('input');
+                            if (input.length) input[0].focus();
+                        }, 150);
+                    }
+                }
+
+                // ✅ INLINE EDITING HANDLER: Save changes to backend
+                $('#ContainerList tbody').on('click', 'td.editable', function () {
+                    const cell = table.cell(this);
+                    const originalValue = cell.data();
+                    const rowData = table.row(this).data();
+                    const fieldIndex = cell.index().column;
+                    const fieldName = table.settings().init().columns[fieldIndex].data;
+                    const rowID = rowData.containerID;
+
+                    if ($(this).hasClass('editing')) return;
+
+                    $(this).addClass('editing');
+
+                    const isDateField = [
+                        'arrival', 'available', 'berth', 'delivered', 'lastUpdated', 'loadToRail', 
+                        'offload', 'pickupLFD', 'portRailwayPickup', 'railDeparture', 'railETA',
+                        'returned', 'returnLFD', 'sail'
+                    ].includes(fieldName);
+
+                    const inputType = isDateField ? 'date' : 'text';
+
+                    let inputValue = originalValue;
+                    if (isDateField && originalValue) {
+                        const parsed = new Date(originalValue);
+                        inputValue = parsed.toISOString().split('T')[0];
+                    }
+
+                    cell.node().innerHTML = `<input type="${inputType}" class="form-control form-control-sm" value="${inputValue}">`;
+                    const input = $('input', this).focus();
+
+                    let tabPressed = false;
+                    let preventBlur = false;
+
+                    input.on('keydown', function (e) {
+                        if (e.key === 'Tab' || e.key === 'Enter') {
+                            e.preventDefault();
+                            preventBlur = true;
+
+                            let newValue = input.val().trim();
+                            if (isDateField && newValue) {
+                                // Format as YYYY-MM-DDT00:00:00 (no time zone shift)
+                                const [year, month, day] = newValue.split('-');
+                                newValue = `${year}-${month}-${day}T00:00:00`;
+                            }
+
+                            // Don't save if nothing changed
+                            if (newValue === originalValue) {
+                            setTimeout(() => {
+                                cell.data(originalValue).draw(false);
+                                $(cell.node()).removeClass('editing');
+                                if (e.key === 'Tab') moveToNextEditable(cell.node());
+                            }, 0);
+                            return;
+                            }
+
+                            // ✅ Instantly update UI and move on
+                            cell.data(newValue); // Just update cell data silently (no redraw)
+                            $(cell.node()).text(isDateField ? new Date(newValue).toLocaleDateString() : newValue);
+
+                            if (e.key === 'Tab') moveToNextEditable(cell.node());
+
+                            // ✅ Background PATCH request (non-blocking)
+                            setTimeout(() => {
+                            fetch('http://localhost:5062/api/containers/update-field', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                containerID: rowID,
+                                field: fieldName.charAt(0).toUpperCase() + fieldName.slice(1),
+                                value: newValue
+                                })
+                            }).catch(err => console.error(`❌ Failed to save ${fieldName}`, err));
+                            }, 50);
+                        }
+
+                        if (e.key === 'Escape') {
+                            preventBlur = true;
+                            setTimeout(() => {
+                                cell.data(originalValue).draw(false);
+                                $(cell.node()).removeClass('editing');
+                            }, 0);
+                        }
+                        });
+                        input.on('blur', function () {
+                            setTimeout(() => {
+                                const newValue = input.val().trim();
+                                const isChanged = newValue !== originalValue;
+
+                                if (isChanged) {
+                                    const formattedValue = isDateField ? `${newValue}T00:00:00` : newValue;
+
+                                    // Update UI
+                                    cell.data(formattedValue); // no redraw
+                                    $(cell.node()).text(isDateField ? new Date(formattedValue).toLocaleDateString() : formattedValue);
+
+                                    // Background save
+                                    fetch('http://localhost:5062/api/containers/update-field', {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            containerID: rowID,
+                                            field: fieldName.charAt(0).toUpperCase() + fieldName.slice(1),
+                                            value: formattedValue
+                                        })
+                                    }).catch(err => console.error(`❌ Failed to save ${fieldName}`, err));
+                                } else {
+                                    // Restore original if unchanged
+                                    cell.data(originalValue).draw(false);
+                                }
+
+                                $(cell.node()).removeClass('editing');
+                            }, 150); // slight delay to ensure date picker closes
+                        });
+                });
+        });
+        </script>
+
+        <!-- new Container modal -->
+        <div class="modal fade" id="addContainerModal" tabindex="-1" aria-labelledby="addContainerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="addContainerForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">➕ Add New Container</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body row">
+                    <div class="mb-3 col-md-6">
+                    <label for="newContainerNumber" class="form-label">Container #</label>
+                    <input type="text" id="newContainerNumber" name="containerNumber" class="form-control" required />
+                    </div>
+                    <div class="mb-3 col-md-6">
+                    <label for="newArrival" class="form-label">Arrival</label>
+                    <input type="date" id="newArrival" name="arrival" class="form-control" />
+                    </div>
+                    <div class="mb-3 col-md-6">
+                    <label for="newStatus" class="form-label">Status</label>
+                    <select id="newStatus" name="currentStatus" class="form-select">
+                        <option value="">-- Optional --</option>
+                        <option>RETURNED</option>
+                        <option>ON VESSEL</option>
+                        <option>DEL APPT SET</option>
+                        <option>IN TRANSIT</option>
+                    </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Add Container</button>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        
+        <!-- Single edit modal -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="editForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Container</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body row">
+                    <input type="hidden" id="editID" name="containerID" />
+                    <div class="mb-3 col-md-6">
+                    <label for="containerNumber" class="form-label">Container #</label>
+                    <input type="text" class="form-control" id="containerNumber" name="containerNumber" />
+                    </div>
+                    <div class="mb-3 col-md-6">
+                    <label for="arrival" class="form-label">Arrival</label>
+                    <input type="date" class="form-control" id="arrival" name="arrival" />
+                    </div>
+                    <div class="mb-3 col-md-6">
+                    <label for="currentStatus" class="form-label">Status</label>
+                    <select class="form-select" id="currentStatus" name="currentStatus">
+                        <option value="">-- Select --</option>
+                        <option>RETURNED</option>
+                        <option>ON VESSEL</option>
+                        <option>DEL APPT SET</option>
+                        <option>IN TRANSIT</option>
+                    </select>
+                    </div>
+                    <!-- Add more fields as needed -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+
+        <!-- Bulk Edit Modal -->
+        <div class="modal fade" id="bulkEditModal" tabindex="-1" aria-labelledby="bulkEditModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <form id="bulkEditForm">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="bulkEditModalLabel">Bulk Edit Containers</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body row">
+                    <div class="mb-3 col-md-6">
+                      <label for="bulkStatus" class="form-label">Status</label>
+                      <select id="bulkStatus" name="currentStatus" class="form-select">
+                        <option value="">-- Leave Unchanged --</option>
+                        <option>RETURNED</option>
+                        <option>ON VESSEL</option>
+                        <option>DEL APPT SET</option>
+                        <option>IN TRANSIT</option>
+                      </select>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                      <label for="bulkArrival" class="form-label">Arrival Date</label>
+                      <input type="date" id="bulkArrival" name="arrival" class="form-control">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Apply to Selected</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        </div>
+
+        <!-- Column Visibility Modal -->
+        <div class="modal fade" id="columnModal" tabindex="-1" aria-labelledby="columnModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="columnModalLabel">Choose Columns to Show/Hide</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                <form id="columnVisibilityForm" class="row">
+                    <!-- Dynamically populated via JS -->
+                </form>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="applyColVis">Apply</button>
+                </div>
+            </div>
+            </div>
+        </div>
+    </body>
+</html>
