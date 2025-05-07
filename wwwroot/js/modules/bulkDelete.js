@@ -1,12 +1,11 @@
 // bulkDelete.js
 document.addEventListener('DOMContentLoaded', function () {
-    // Bulk delete button - specific event handler with proper event control
-    $('#bulkDeleteBtn').off('click').on('click', function(e) {
-        // Prevent any default actions or event bubbling
-        e.preventDefault();
+    // Bulk delete button handler
+    $('#bulkDeleteBtn').on('click', function(e) {
+        // Don't prevent default if using data-bs-toggle
         e.stopPropagation();
         
-        console.log('Bulk Delete button clicked'); // Debug log
+        console.log('Bulk Delete button clicked');
         
         const selectedIDs = getSelectedContainerIDs();
 
@@ -17,11 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Populate the confirmation modal with selected containers
         const table = $('#ContainerList').DataTable();
-        
-        // Clear the existing list
         $('#containerListToDelete').empty();
         
-        // Build container list for the modal
         selectedIDs.forEach(id => {
             const rowIndex = table.rows().eq(0).filter(function (rowIdx) {
                 return table.row(rowIdx).data().containerID === id;
@@ -29,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (rowIndex.length > 0) {
                 const data = table.row(rowIndex[0]).data();
-                // Create list item for each container
                 const listItem = `
                     <li class="list-group-item">
                         <strong>${data.containerNumber || 'No Number'}</strong> - 
@@ -41,29 +36,25 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         
-        // Update modal title with count
         $('#confirmBulkDeleteModalLabel').text(`⚠️ Confirm Delete (${selectedIDs.length} containers)`);
         
-        // Show the confirmation modal with proper Bootstrap 5 initialization
-        const modalElement = document.getElementById('confirmBulkDeleteModal');
+        // Option 1: If using data-bs-toggle on the button
+        // Do nothing - Bootstrap will handle the modal
         
-        // Ensure any existing modals are hidden first
-        $('.modal').modal('hide');
-        
-        // Show the delete confirmation modal
-        const modal = new bootstrap.Modal(modalElement);
+        // Option 2: If NOT using data-bs-toggle on the button
+        const modal = new bootstrap.Modal(document.getElementById('confirmBulkDeleteModal'));
         modal.show();
     });
     
     // Confirmation button click handler
-    $('#confirmBulkDeleteBtn').off('click').on('click', function(e) {
+    $('#confirmBulkDeleteBtn').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        // Hide the modal
-        $('#confirmBulkDeleteModal').modal('hide');
+        // Use Bootstrap's built-in method
+        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmBulkDeleteModal'));
+        modal.hide();
         
-        // Get the selected IDs again
         const selectedIDs = getSelectedContainerIDs();
         
         if (selectedIDs.length === 0) return;
