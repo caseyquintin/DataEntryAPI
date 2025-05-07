@@ -1,4 +1,4 @@
-DataEntryAPI: Container Management System
+**DataEntryAPI: Container Management System**
 
 **Frontend**
 
@@ -155,3 +155,22 @@ DataEntryAPI
  ┣ package-lock.json
  ┣ package.json
  ┗ Program.cs
+ 
+* * * * *
+ 
+**Future Development**
+
+**Short Term**
+- Debug Bulk Delete modal window
+- Add multiple containers with the same information
+- Debug and make Search function more robust
+- Link generation for SSLs, Vessel Owners and Terminals
+- Color coding for Actual/Estimate, Current Status, Main Source
+
+**Long Term**
+- Role restrictions
+- Container Notes Timeline(?)
+- Integrate with ALOT
+ + SN/DN system
+ + Internal Notes
+- Container Tracking Report generation (Power Automate)
