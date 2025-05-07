@@ -27,14 +27,12 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (rowIndex.length > 0) {
                 const data = table.row(rowIndex[0]).data();
-                const listItem = `
+                const containerInfo = `
                     <li class="list-group-item">
-                        <strong>${data.containerNumber || 'No Number'}</strong> - 
-                        ID: ${id} - 
-                        Status: ${data.currentStatus || 'N/A'}
+                        <strong>${data.containerNumber || 'No Number'}</strong>
                     </li>
                 `;
-                $('#containerListToDelete').append(listItem);
+                $('#containerListToDelete').append(containerInfo);
             }
         });
         

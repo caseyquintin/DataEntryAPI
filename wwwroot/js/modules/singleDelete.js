@@ -24,10 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Display container info in the modal
         const containerInfo = `
-            <strong>Container Number:</strong> ${data.containerNumber || 'N/A'}<br>
-            <strong>ID:</strong> ${containerID}<br>
-            <strong>Status:</strong> ${data.currentStatus || 'N/A'}<br>
-            <strong>BOL/Booking:</strong> ${data.bolBookingNumber || 'N/A'}
+            <li class="list-group-item">
+                <strong>${data.containerNumber || 'No Number'}</strong>
+            </li>
         `;
         $('#singleContainerToDelete').html(containerInfo);
         
@@ -65,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const undoBanner = $(`
             <div class="alert alert-warning alert-dismissible fade show position-fixed bottom-0 end-0 m-4" style="z-index: 1055; min-width: 300px;">
                 <strong>Container ${containerToDelete.data.containerNumber || containerID} deleted.</strong> 
-                <button type="button" class="btn btn-sm btn-light ms-2 undo-delete-btn" data-id="${containerID}">Undo</button>
+                <button type="button" class="btn btn-sm btn-light ms-2 undo-delete-btn" data-id="${containerNumber}">Undo</button>
             </div>
         `).appendTo('body');
 
