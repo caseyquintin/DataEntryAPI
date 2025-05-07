@@ -7,8 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
     $(document).on('click', '#bulkDeleteBtn', function(e) {
         e.stopPropagation();
         
-        console.log('Bulk Delete button clicked'); // This helps us debug
-        
         const selectedIDs = getSelectedContainerIDs();
 
         if (selectedIDs.length === 0) {
@@ -48,9 +46,20 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         e.stopPropagation();
         
-        // Hide the modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmBulkDeleteModal'));
-        modal.hide();
+        // Get the modal element and instance
+        const modalElement = document.getElementById('confirmBulkDeleteModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        
+        // Remove focus from any elements in the modal before hiding
+        $(modalElement).find(':focus').blur();
+        
+        // Move focus to body to prevent aria-hidden issues
+        document.body.focus();
+        
+        // Hide the modal after a short delay to ensure focus is handled
+        setTimeout(() => {
+            modal.hide();
+        }, 10);
         
         const selectedIDs = getSelectedContainerIDs();
         
@@ -108,5 +117,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log(`🕓 Undo bulk delete for: ${selectedIDs.join(', ')}`);
         });
+    });
+    
+    // Handle focus removal when modal is hidden to prevent aria-hidden warnings
+    $(document).on('hide.bs.modal', '#confirmBulkDeleteModal', function (e) {
+        // Remove focus from any focused element in the modal
+        const focusedElement = this.querySelector(':focus');
+        if (focusedElement) {
+            focusedElement.blur();
+        }
+        // Move focus to a safe element
+        document.body.focus();
+    });
+    
+    // Also handle when clicking the modal backdrop or pressing escape
+    $(document).on('click', '[data-bs-dismiss="modal"]', function() {
+        $(this).blur();
     });
 });
