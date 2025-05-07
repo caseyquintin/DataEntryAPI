@@ -23,6 +23,15 @@ $(document).off('click', '#bulkEditBtn').on('click', '#bulkEditBtn', function (e
         }
     });
 
+    // Explicitly set placeholders for dependent dropdowns
+    $('#bulkVesselNameSelect').empty()
+        .append('<option value="">-- Select Vessel Name --</option>')
+        .prop('disabled', true);
+    
+    $('#bulkTerminalSelect').empty()
+        .append('<option value="">-- Select Terminal --</option>')
+        .prop('disabled', true);
+
     //  ✅ Populate dropdowns before modal opens
     populateBulkDropdowns();
 
@@ -95,7 +104,8 @@ $('#bulkVesselLineSelect').on('change', async function () {
     $vesselNameSelect.empty().append('<option value="">Loading...</option>');
 
     if (!vesselLineId) {
-        $vesselNameSelect.html('<option value="">Select a Vessel Line first</option>').prop('disabled', true);
+        // Use consistent placeholder text here too
+        $vesselNameSelect.html('<option value="">-- Select Vessel Name --</option>').prop('disabled', true);
         return;
     }
 
@@ -175,16 +185,76 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetID === 'bulkVesselLineSelect' && !shouldEnable) {
             $('#bulkVesselNameSelect').prop('disabled', true).val('');
         }
+
+        // Special handling for Vessel Line checkbox
+        if (this.id === 'applyBulkVesselLineID' && this.checked) {
+            // Automatically check and enable Vessel Name
+            const vesselNameCheckbox = document.getElementById('applyBulkVesselID');
+            if (vesselNameCheckbox && !vesselNameCheckbox.checked) {
+                vesselNameCheckbox.checked = true;
+                $('#bulkVesselNameSelect').prop('disabled', false);
+                showToast('ℹ️ Vessel Name selection enabled - please select a Vessel Name for the new Vessel Line.', 'info');
+            }
+        }
+
+        // Special handling for Terminal checkbox
+        if (this.id === 'applyBulkPortID' && this.checked) {
+            // Automatically check and enable Terminal
+            const terminalCheckbox = document.getElementById('applyBulkTerminalID');
+            if (terminalCheckbox && !terminalCheckbox.checked) {
+                terminalCheckbox.checked = true;
+                $('#bulkTerminalSelect').prop('disabled', false);
+                showToast('ℹ️ Port Of Entry selection enabled - please select a Terminal for the new Port Of Entry.', 'info');
+            }
+        }
     });
 
     // Handle form submit
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        const selectedIDs = getSelectedContainerIDs(); // Make sure this exists!
+    
+        const selectedIDs = getSelectedContainerIDs();
         if (selectedIDs.length === 0) {
             showToast('⚠️ No containers selected.', 'warning');
             return;
+        }
+    
+        // Check if Vessel Line is being applied
+        const vesselLineCheckbox = document.getElementById('applyBulkVesselLineID');
+        const vesselNameCheckbox = document.getElementById('applyBulkVesselID');
+        
+        if (vesselLineCheckbox && vesselLineCheckbox.checked) {
+            // If Vessel Line is being changed, Vessel Name must also be changed
+            if (!vesselNameCheckbox || !vesselNameCheckbox.checked) {
+                showToast('⚠️ When changing the Vessel Line, you must also select a new Vessel Name.', 'warning');
+                return;
+            }
+            
+            // Also check that a valid vessel name is selected
+            const vesselNameSelect = document.getElementById('bulkVesselNameSelect');
+            if (!vesselNameSelect.value || vesselNameSelect.value === '') {
+                showToast('⚠️ Please select a Vessel Name for the new Vessel Line.', 'warning');
+                return;
+            }
+        }
+
+        // Check if Port Of Entry is being applied
+        const portOfEntryCheckbox = document.getElementById('applyBulkPortID');
+        const terminalCheckbox = document.getElementById('applyBulkTerminalID');
+        
+        if (portOfEntryCheckbox && portOfEntryCheckbox.checked) {
+            // If Port of Entry is being changed, Terminal must also be changed
+            if (!terminalCheckbox || !terminalCheckbox.checked) {
+                showToast('⚠️ When changing the Port Of Entry, you must also select a new Terminal.', 'warning');
+                return;
+            }
+            
+            // Also check that a valid Terminal is selected
+            const terminalSelect = document.getElementById('bulkTerminalSelect');
+            if (!terminalSelect.value || terminalSelect.value === '') {
+                showToast('⚠️ Please select a Terminal for the new Port Of Entry.', 'warning');
+                return;
+            }
         }
 
         const containerTemplate = {};
