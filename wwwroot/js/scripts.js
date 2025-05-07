@@ -370,7 +370,7 @@ function initializeContainerTable () {
             { data: 'portID', name: 'portID' },
             { data: 'terminal', name: 'terminal', className: 'editable' },
             { data: 'terminalID', name: 'terminalID' },
-            { data: 'arrival', name: 'arrival', className: 'editable' },
+            { data: 'arrival', name: 'arrival', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'arrivalActual', name: 'arrivalActual', className: 'editable' },
             { data: 'berth', name: 'berth', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'berthActual', name: 'berthActual', className: 'editable' },

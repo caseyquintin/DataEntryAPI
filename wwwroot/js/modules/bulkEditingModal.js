@@ -70,7 +70,11 @@ function populateBulkDropdowns() {
 
     $('#bulkSailActualSelect, #bulkArrivalActualSelect, #bulkBerthActualSelect, #bulkOffloadActualSelect').each(function () {
         const $el = $(this).empty().append('<option value="">-- Choose --</option>');
-        booleanOptions.forEach(opt => $el.append(`<option value="${opt}">${opt}</option>`));
+        
+        console.log("actualOrEstimateOptions:", actualOrEstimateOptions); // Debug line
+        console.log("booleanOptions:", booleanOptions); // Debug line
+        
+        actualOrEstimateOptions.forEach(opt => $el.append(`<option value="${opt}">${opt}</option>`));
     });
 
     $('#bulkCarrierSelect').empty().append('<option value="">-- Select Carrier --</option>');
@@ -135,9 +139,6 @@ $('#bulkPortOfEntrySelect').on('change', async function () {
 document.addEventListener('DOMContentLoaded', () => {
 
     const form = document.getElementById('bulkContainerForm');
-
-    flatpickr("#bulkArrivalDate", { allowInput: true, dateFormat: "Y-m-d", altInput: true, altFormat: "m/d/Y" });
-    flatpickr("#bulkSailDate", { allowInput: true, dateFormat: "Y-m-d", altInput: true, altFormat: "m/d/Y" });
 
     // Reset all bulk modal inputs and checkboxes
     $('#bulkContainerForm').find('input, select, textarea').each(function () {
@@ -208,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let value = input.value;
+            let handled = false;
 
             // Handle paired ID/name selects (e.g., ShiplineID + Shipline)
             if (input.tagName === 'SELECT' && input.options[input.selectedIndex]) {
@@ -216,39 +218,63 @@ document.addEventListener('DOMContentLoaded', () => {
             
                 if (nameAttr === 'ShiplineID') {
                     containerTemplate['Shipline'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['ShiplineID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'CarrierID') {
                     containerTemplate['Carrier'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['CarrierID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'FpmID') {
                     containerTemplate['FPM'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['FpmID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'PortID') {
                     containerTemplate['PortOfEntry'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['PortID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'TerminalID') {
                     containerTemplate['Terminal'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['TerminalID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'VesselLineID') {
                     containerTemplate['VesselLine'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['VesselLineID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'VesselID') {
                     containerTemplate['VesselName'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['VesselID'] = parseInt(value);
+                    handled = true;
                 }
             }
             
             if (input.type === 'checkbox') {
                 value = input.checked;
+                
+                // Special handling for boolean fields that need Yes/No conversion
+                if (name === 'Transload' || name === 'Rail') {
+                    if (booleanOptions && booleanOptions.length === 2) {
+                        value = value ? booleanOptions[0] : booleanOptions[1];
+                    } else {
+                        value = value ? 'Yes' : 'No';
+                    }
+                }
             }
             
+            if (!handled) {
             containerTemplate[input.name] = value;
-            
+            }            
         });
 
         if (Object.keys(containerTemplate).length === 0) {
