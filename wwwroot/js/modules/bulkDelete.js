@@ -1,11 +1,13 @@
 // bulkDelete.js
 document.addEventListener('DOMContentLoaded', function () {
-    // Bulk delete button handler
-    $('#bulkDeleteBtn').on('click', function(e) {
-        // Don't prevent default if using data-bs-toggle
+    // Instead of $('#bulkDeleteBtn').on('click', ...) which looks for an existing button,
+    // we use $(document).on('click', '#bulkDeleteBtn', ...) which watches for ANY button
+    // with that ID, even if it's created later!
+    
+    $(document).on('click', '#bulkDeleteBtn', function(e) {
         e.stopPropagation();
         
-        console.log('Bulk Delete button clicked');
+        console.log('Bulk Delete button clicked'); // This helps us debug
         
         const selectedIDs = getSelectedContainerIDs();
 
@@ -38,20 +40,17 @@ document.addEventListener('DOMContentLoaded', function () {
         
         $('#confirmBulkDeleteModalLabel').text(`⚠️ Confirm Delete (${selectedIDs.length} containers)`);
         
-        // Option 1: If using data-bs-toggle on the button
-        // Do nothing - Bootstrap will handle the modal
-        
-        // Option 2: If NOT using data-bs-toggle on the button
+        // Show the modal
         const modal = new bootstrap.Modal(document.getElementById('confirmBulkDeleteModal'));
         modal.show();
     });
     
-    // Confirmation button click handler
-    $('#confirmBulkDeleteBtn').on('click', function(e) {
+    // Same pattern for the confirm button - use document delegation
+    $(document).on('click', '#confirmBulkDeleteBtn', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        // Use Bootstrap's built-in method
+        // Hide the modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('confirmBulkDeleteModal'));
         modal.hide();
         
@@ -96,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }, 10000);
 
-        // Undo button handler - use once to prevent multiple bindings
+        // Undo button handler
         $('body').one('click', '#undoBulkDeleteBtn', function() {
             clearTimeout(bulkDeleteTimeout);
             undoBanner.alert('close');
