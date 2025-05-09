@@ -618,15 +618,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         preventBlur = true;
                     },
                     onChange: function(selectedDates, dateStr, instance) {
-                        console.log('Flatpickr onChange:', { selectedDates, dateStr });
                         if (selectedDates.length > 0) {
-                            // Store both the date and the fact that it changed
                             input.data('flatpickr-date', selectedDates[0]);
                             input.data('flatpickr-changed', true);
                         }
                     },
                     onClose: function(selectedDates, dateStr, instance) {
-                        console.log('Flatpickr onClose:', { selectedDates, dateStr });
                         flatpickrActive = false;
                         
                         if (selectedDates.length > 0 && input.data('flatpickr-changed')) {
@@ -634,17 +631,13 @@ document.addEventListener('DOMContentLoaded', function () {
                             const formattedValue = selectedDate.toISOString();
                             const displayValue = selectedDate.toLocaleDateString('en-US');
                             
-                            // Compare with original value
                             const originalIso = originalValue ? new Date(originalValue).toISOString() : '';
                             
                             if (formattedValue !== originalIso) {
-                                console.log('Date changed via picker:', { originalIso, formattedValue });
                                 
-                                // Update cell immediately
                                 cell.data(displayValue);
                                 $(cell.node()).addClass('processing-update');
                                 
-                                // Send patch request
                                 patchField(rowID, fieldName.charAt(0).toUpperCase() + fieldName.slice(1), formattedValue)
                                     .then(() => {
                                         showToast(`✅ ${fieldName} updated`, 'success');
@@ -797,13 +790,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Check if flatpickr is active
                 const isActive = $(this).data('is-flatpickr-active');
                 if (isDateField && isActive && isActive()) {
-                    console.log('Skipping blur - flatpickr is active');
                     return;
                 }
                 
                 // Skip if date was already handled by flatpickr
                 if (isDateField && $(this).data('flatpickr-changed')) {
-                    console.log('Skipping blur - date already handled by flatpickr');
                     return;
                 }
                 
@@ -827,19 +818,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Better date handling in blur
                     if (isDateField) {
-                        console.log('Date field blur handler - newValue:', newValue);
                         let parsed;
                         
                         // First check if there's a flatpickr instance and date
                         const fpInstance = $input.data('flatpickr-instance');
                         const fpDate = $input.data('flatpickr-date');
-                        
-                        console.log('Flatpickr data:', { fpInstance: !!fpInstance, fpDate: fpDate });
-                        
+                      
                         if (fpDate && fpInstance) {
                             // Use the stored date from flatpickr
                             parsed = fpDate;
-                            console.log('Using flatpickr date:', parsed);
                         } else if (newValue) {
                             // Fallback to manual parsing
                             // Check if it's just month/day without year
@@ -848,13 +835,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                 newValue = `${newValue}/${currentYear}`;
                             }
                             parsed = new Date(newValue);
-                            console.log('Manual parsing:', parsed);
                         }
                         
                         if (parsed && !isNaN(parsed.getTime())) {
                             formattedValue = parsed.toISOString();
                             displayValue = parsed.toLocaleDateString('en-US');
-                            console.log('Formatted values:', { formattedValue, displayValue });
                         } else {
                             // If parsing fails or no value, use empty or original
                             if (!newValue) {
@@ -875,23 +860,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         displayValue = formattedValue = newValue;
                     }
 
-                    // Skip all processing if handlers already took care of this field
                     const skipFields = ['carrier', 'shipline', 'fpm', 'portOfEntry', 'terminal', 'vesselLine', 'vesselName'];
                     if (skipFields.includes(fieldName)) {
                         return;
                     }
                     
-                    // For date fields, compare the ISO strings or check if both are empty
                     let valueChanged = false;
                     if (isDateField) {
                         const originalIso = originalValue ? new Date(originalValue).toISOString() : '';
                         valueChanged = formattedValue !== originalIso;
-                        console.log('Date value changed check:', { 
-                            originalValue, 
-                            originalIso, 
-                            formattedValue, 
-                            valueChanged 
-                        });
                     } else {
                         valueChanged = formattedValue !== originalValue;
                     }
