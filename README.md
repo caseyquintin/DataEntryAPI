@@ -158,47 +158,65 @@ DataEntryAPI
  
 * * * * *
  
-**Future Development**
+⏲️🛠️**Short Term Development Goals**🛠️⏲️
+ ⏹️ Set default Last Updated date to current when container is created or edited.
+ ⏹️ Link generation for SSLs, Vessel Owners and Terminals
+ ⏹️ Color coding for Actual/Estimate, Current Status and Main Source
+ ⏹️ Make Search function more robust
+ ⏹️ Filter table by status using pages and show only relevant columns
+    ⏹️ All Active Containers
+    ⏹️ Not Sailed
+    ⏹️ On Vessel (Arrived)
+    ⏹️ On Vessel (Not Arrived)
+    ⏹️ Rail
+    ⏹️ Set To Return
+    ⏹️ Set To Pick Up
+    ⏹️ Returned (1 year)
+    
+ ***New Container Modal***
+ ⏹️ Add multiple containers with the same information
+ 
+ ***Bulk Edit Modal***
+ ⏹️ Remove non-essential or helpful fields
+    ⏹️Shipment #
+ 
+ ***Inline***
+ ⏹️ Hide Rail details when Rail is set to "No"
+ ⏹️ Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already]
+ ⏹️ Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected.
+ ⏹️ Allow more mobility in Inline Editor (move up or down a row using keyboard)
 
-**Short Term**
-- Debug Bulk Delete modal window
-- Add multiple containers with the same information
-- Debug and make Search function more robust
-- Link generation for SSLs, Vessel Owners and Terminals
-- Color coding for Actual/Estimate, Current Status, Main Source
-
-**Long Term**
-- Role restrictions
-- Container Notes Timeline(?)
-- Integrate with ALOT
- + SN/DN system
- + Internal Notes
-- Container Tracking Report generation (Power Automate)
+ ***Search Function***
+ ⏹️ Make Search function more robust 
 
 * * * * *
 
-**Current Bugs**
-
-New Container Modal
-- Actual/Estimate dropdowns are using boolean.
-
-Inline
-- Date pickers don't work.
-- When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected.
-- Cascading DDs are still malfunctioning if changed too quickly
-
-Single Edit
-- If field is cleared, old value remains instead of being submitted as NULL.
+⏳🛠️**Long Term Development Goals**🛠️⏳
+⏹️ Role restrictions
+⏹️ Container Notes Timeline(?)
+⏹️ Integrate with ALOT
+   ⏹️ SN/DN system
+   ⏹️ Internal Notes generation and application to shipments
+⏹️ Container Tracking Report generation (Power Automate)
 
 * * * * *
 
-**Improvements**
+🪲**Current Bugs**🪲
 
-New Container Modal
-- Set default Last Updated date to current when submitted.
-
-Inline
-- Hide Rail details when Rail is set to "No"
-- Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already]
-- Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected.
-- Set default Last Updated date to current when row is altered.
+***New Container Modal***
+⏹️ Actual/Estimate dropdowns are using boolean.
+ 
+***Inline***
+⏹️ Date pickers don't work.
+⏹️ When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected.
+⏹️ Cascading DDs are still malfunctioning if changed too quickly
+ 
+***Single Edit***
+⏹️ If field is cleared, old value remains instead of being submitted as NULL.
+ 
+***Single and Bulk Delete Modal Windows***
+✅ Debug Single Delete modal window
+✅ Debug Bulk Delete modal window
+ 
+***Search Function***
+⏹️ Debug
