@@ -174,3 +174,31 @@ DataEntryAPI
  + SN/DN system
  + Internal Notes
 - Container Tracking Report generation (Power Automate)
+
+* * * * *
+
+**Current Bugs**
+
+New Container Modal
+- Actual/Estimate dropdowns are using boolean.
+
+Inline
+- Date pickers don't work.
+- When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected.
+- Cascading DDs are still malfunctioning if changed too quickly
+
+Single Edit
+- If field is cleared, old value remains instead of being submitted as NULL.
+
+* * * * *
+
+**Improvements**
+
+New Container Modal
+- Set default Last Updated date to current when submitted.
+
+Inline
+- Hide Rail details when Rail is set to "No"
+- Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already]
+- Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected.
+- Set default Last Updated date to current when row is altered.
