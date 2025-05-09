@@ -172,7 +172,7 @@ DataEntryAPI
  ⏹️ Add multiple containers with the same information
  
  ***Bulk Edit Modal***
- ⏹️ Remove non-essential or helpful fields
+ ⏹️ Remove non-essential or unhelpful fields
     ⏹️Shipment #
  
  ***Inline***
