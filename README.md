@@ -177,7 +177,7 @@ DataEntryAPI
  
  ***Inline***
  ⏹️ Hide Rail details when Rail is set to "No"
- ⏹️ Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already]
+ ✅ Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already]
  ⏹️ Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected.
  ⏹️ Allow more mobility in Inline Editor (move up or down a row using keyboard)
 
@@ -202,7 +202,7 @@ DataEntryAPI
 ⏹️ Actual/Estimate dropdowns are using boolean.
  
 ***Inline***
-⏹️ Date pickers don't work.
+✅ Date pickers don't work.
 ⏹️ When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected.
 ⏹️ Cascading DDs are still malfunctioning if changed too quickly
  
