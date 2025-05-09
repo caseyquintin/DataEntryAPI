@@ -12,7 +12,7 @@
 -   Scroller + buttons extensions
 
 -   **Flatpickr** for modern date pickers in inline-editable cells
--   **Dynamic dropdowns** (e.g., Port of Entry, Terminal, Shipline) populated via AJAX
+-   **Dynamic dropdowns** (e.g., Port of Entry > Terminal, Vessel Line > Vessel Name) populated via AJAX
 
 **Frontend Logic Highlights**
 
@@ -21,7 +21,7 @@
 -   Terminals are filtered based on selected PortID
 -   Smart layout persistence (column visibility, scroll, etc.)
 -   Custom toast notifications for user feedback
--   Undo feature for container deletion (with localStorage backup)
+-   Ten second delay undo feature for container deletion
 
 * * * * *
 
@@ -34,9 +34,14 @@
 
 -   Key Tables:
 
--   Containers -- core data model
--   Ports -- PortID + PortOfEntry
--   Terminals -- TerminalID, Terminal, LookupType, Link, PortID (FK)
+-   Containers -- core data model [includes ContainerID (PK), ShiplineID (FK), TerminalID (FK), VesselLineID (FK), VesselID (FK), PortID (FK), CarrierID (PK), FpmID (FK)]
+-   Ports -- PortID (PK) + PortOfEntry
+-   Terminals -- TerminalID (PK), Terminal, LookupType, Link, PortID (FK)
+-   VesselLines -- VesselLine, Link, VesselLineID (PK)
+-   Vessels -- VesselLine, IMO, MMSI, VesselName, VesselID, VesselLineID (FK)
+-   Shiplines -- Shipline, Link, ShiplineID (PK)
+-   FPMs -- FpmID (PK), Fpm, Active
+-   DropdownOptions -- Id (PK), Category, Value, IsActive, SortOrder [Categories include ActualOrEstimate, ContainerSize, Boolean, MainSource, Status] - Meant for simple dropdown options.
 
 -   **Dapper or ADO.NET** style SqlCommand usage (no Entity Framework here)
 -   **Swagger UI** (for interactive API docs)
@@ -104,13 +109,13 @@ DataEntryAPI
  ┃ ┃ ┃ ┣ singleDelete.js
  ┃ ┃ ┃ ┗ singleEditingModal.js
  ┃ ┃ ┣ versions
- ┃ ┃ ┃ ┣ scripts v1.0 - Port of Entry and Terminal DDs Working.js
- ┃ ┃ ┃ ┣ scripts v2.0 - Inline tabbing works.js
- ┃ ┃ ┃ ┣ scripts v3.0 - 1-2 plus cascading dropdowns.js
- ┃ ┃ ┃ ┣ scripts v4.0 - 1-3 plus new container modal is modularized.js
- ┃ ┃ ┃ ┣ scripts v5.0 - 1-4 plus inline editing is modularized.js
- ┃ ┃ ┃ ┣ scripts v6.0 - 1-5 plus all of those modals etc are modularized.js
- ┃ ┃ ┃ ┗ scripts v7.0 - 1-6 plus modals mostly functional fullscreen vertical scroll.js
+ ┃ ┃ ┃ ┣ scripts v1.0 - Port of Entry and Terminal DDs Working.js (4/16/2025)
+ ┃ ┃ ┃ ┣ scripts v2.0 - Inline tabbing works.js (4/17/2025)
+ ┃ ┃ ┃ ┣ scripts v3.0 - 1-2 plus cascading dropdowns.js (4/24/2025)
+ ┃ ┃ ┃ ┣ scripts v4.0 - 1-3 plus new container modal is modularized.js (4/27/2025)
+ ┃ ┃ ┃ ┣ scripts v5.0 - 1-4 plus inline editing is modularized.js (4/28/2025)
+ ┃ ┃ ┃ ┣ scripts v6.0 - 1-5 plus all of those modals etc are modularized.js (4/28/2025)
+ ┃ ┃ ┃ ┗ scripts v7.0 - 1-6 plus modals mostly functional fullscreen vertical scroll.js (5/1/2025)
  ┃ ┃ ┗ scripts.js
  ┃ ┣ libs
  ┃ ┃ ┣ bootstrap
@@ -121,22 +126,11 @@ DataEntryAPI
  ┃ ┃ ┃ ┣ datatables.js
  ┃ ┃ ┃ ┗ datatables.min.js
  ┃ ┃ ┗ flatpickr
- ┃ ┃ ┃ ┣ themes
- ┃ ┃ ┃ ┃ ┣ airbnb.css
- ┃ ┃ ┃ ┃ ┣ confetti.css
- ┃ ┃ ┃ ┃ ┣ dark.css
- ┃ ┃ ┃ ┃ ┣ light.css
- ┃ ┃ ┃ ┃ ┣ material_blue.css
- ┃ ┃ ┃ ┃ ┣ material_green.css
- ┃ ┃ ┃ ┃ ┣ material_orange.css
- ┃ ┃ ┃ ┃ ┗ material_red.css
  ┃ ┃ ┃ ┣ flatpickr.min.css
  ┃ ┃ ┃ ┗ flatpickr.min.js
- ┃ ┣ index v1.0 - Edits and Deletes are working - Bulk and Single.html
- ┃ ┣ index v2.0 - Edits Deletes New are working.html
+ ┃ ┣ index v1.0 - Edits and Deletes are working - Bulk and Single.html (4/8/2025)
+ ┃ ┣ index v2.0 - Edits Deletes New are working.html (4/9/2025)
  ┃ ┣ index.html
- ┃ ┣ index2.html
- ┃ ┣ nicescript.html
  ┃ ┣ notsailed.html
  ┃ ┣ onvessel-arrived.html
  ┃ ┣ onvessel-notarrived.html
@@ -159,12 +153,13 @@ DataEntryAPI
 * * * * *
  
 ⏲️🛠️**Short Term Development Goals**🛠️⏲️
+ ✅ Configure initial system using tech stack noted above (started 3/21/2025, completed 4/25/2025)
  ⏹️ Set default Last Updated date to current when container is created or edited.
  ⏹️ Link generation for SSLs, Vessel Owners and Terminals
  ⏹️ Color coding for Actual/Estimate, Current Status and Main Source
  ⏹️ Make Search function more robust
  ⏹️ Filter table by status using pages and show only relevant columns
-    ⏹️ All Active Containers
+    ✅ All Active Containers
     ⏹️ Not Sailed
     ⏹️ On Vessel (Arrived)
     ⏹️ On Vessel (Not Arrived)
@@ -192,8 +187,8 @@ DataEntryAPI
 * * * * *
 
 ⏳🛠️**Long Term Development Goals**🛠️⏳
-⏹️ Role restrictions
-⏹️ Container Notes Timeline(?)
+⏹️ Role restrictions by User Profile definitions set in ALOT
+⏹️ Container Notes Timeline - Changes in dates/information by Container ID
 ⏹️ Integrate with ALOT
    ⏹️ SN/DN system
    ⏹️ Internal Notes generation and application to shipments
