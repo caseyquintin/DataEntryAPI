@@ -207,7 +207,7 @@ DataEntryAPI
 ⏹️ Cascading DDs are still malfunctioning if changed too quickly
  
 ***Single Edit***
-⏹️ If field is cleared, old value remains instead of being submitted as NULL.
+✅ If field is cleared, old value remains instead of being submitted as NULL.
  
 ***Single and Bulk Delete Modal Windows***
 ✅ Debug Single Delete modal window
