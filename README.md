@@ -208,7 +208,16 @@ DataEntryAPI
  
 ***Single Edit***
 ✅ If field is cleared, old value remains instead of being submitted as NULL.
- 
+
+***Single Delete***
+⏹️ Error when trying to delete newly created Blank Row without a Container Number attributed (Bulk Delete works!):
+   singleDelete.js:67 Uncaught ReferenceError: containerNumber is not defined
+       at HTMLButtonElement.<anonymous> (singleDelete.js:67:100)
+       at HTMLDocument.dispatch (jquery-3.7.0.min.js:2:39997)
+       at HTMLDocument.<anonymous> (jquery-3.7.0.min.js:2:37968)
+       
+***Bulk Delete***
+
 ***Single and Bulk Delete Modal Windows***
 ✅ Debug Single Delete modal window
 ✅ Debug Bulk Delete modal window
