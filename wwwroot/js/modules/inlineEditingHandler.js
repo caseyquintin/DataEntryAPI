@@ -594,15 +594,95 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
             
+            // Replace your existing date field initialization with this
             if (isDateField) {
-                flatpickr(input[0], {
+                // Set a flag to track if we're in the middle of a flatpickr interaction
+                let flatpickrActive = false;
+                
+                const fp = flatpickr(input[0], {
                     dateFormat: 'm/d/Y',
                     allowInput: true,
-                    onChange: function(selectedDates, dateStr) {
-                        // Trigger blur so your handler sees the change
-                        input.trigger('blur');
+                    defaultDate: originalValue ? new Date(originalValue) : null,
+                    parseDate: function(datestr, format) {
+                        if (datestr && datestr.includes('/')) {
+                            const parts = datestr.split('/');
+                            if (parts.length === 2) {
+                                const currentYear = new Date().getFullYear();
+                                datestr = `${parts[0]}/${parts[1]}/${currentYear}`;
+                            }
+                        }
+                        return flatpickr.parseDate(datestr, format);
+                    },
+                    onOpen: function() {
+                        flatpickrActive = true;
+                        preventBlur = true;
+                    },
+                    onChange: function(selectedDates, dateStr, instance) {
+                        console.log('Flatpickr onChange:', { selectedDates, dateStr });
+                        if (selectedDates.length > 0) {
+                            // Store both the date and the fact that it changed
+                            input.data('flatpickr-date', selectedDates[0]);
+                            input.data('flatpickr-changed', true);
+                        }
+                    },
+                    onClose: function(selectedDates, dateStr, instance) {
+                        console.log('Flatpickr onClose:', { selectedDates, dateStr });
+                        flatpickrActive = false;
+                        
+                        if (selectedDates.length > 0 && input.data('flatpickr-changed')) {
+                            const selectedDate = selectedDates[0];
+                            const formattedValue = selectedDate.toISOString();
+                            const displayValue = selectedDate.toLocaleDateString('en-US');
+                            
+                            // Compare with original value
+                            const originalIso = originalValue ? new Date(originalValue).toISOString() : '';
+                            
+                            if (formattedValue !== originalIso) {
+                                console.log('Date changed via picker:', { originalIso, formattedValue });
+                                
+                                // Update cell immediately
+                                cell.data(displayValue);
+                                $(cell.node()).addClass('processing-update');
+                                
+                                // Send patch request
+                                patchField(rowID, fieldName.charAt(0).toUpperCase() + fieldName.slice(1), formattedValue)
+                                    .then(() => {
+                                        showToast(`✅ ${fieldName} updated`, 'success');
+                                        $(cell.node()).removeClass('processing-update');
+                                        
+                                        preserveScrollPosition(() => {
+                                            try {
+                                                table.draw(false);
+                                            } catch (err) {
+                                                console.warn("⚠️ Date update draw failed:", err);
+                                            }
+                                        });
+                                        
+                                        $(cell.node()).removeClass('editing');
+                                        setTimeout(() => moveToNextEditable(cell.node()), 100);
+                                    })
+                                    .catch(err => {
+                                        console.error(`❌ Failed to save ${fieldName}`, err);
+                                        showToast(`❌ Failed to update ${fieldName}`, 'danger');
+                                        $(cell.node()).removeClass('processing-update editing');
+                                    });
+                            }
+                        }
+                        
+                        // Clear the flags
+                        input.removeData('flatpickr-changed');
+                        input.removeData('flatpickr-date');
+                        
+                        // Allow blur after a short delay
+                        setTimeout(() => {
+                            preventBlur = false;
+                        }, 100);
                     }
                 });
+                
+                // Store the instance and flag
+                input.data('flatpickr-instance', fp);
+                input.data('is-flatpickr-active', () => flatpickrActive);
             }
 
             let inputValue = originalValue;
@@ -619,20 +699,38 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (e.key === 'Tab' || e.key === 'Enter') {
                     e.preventDefault();
                     preventBlur = true;
-            
+
                     let newValue = input.val().trim();
                     if (newValue === 'null') newValue = '';
-            
+
                     if (isDateField && newValue) {
-                        const parsed = new Date(newValue);
+                        let parsed;
+                        
+                        // First check if there's a flatpickr instance
+                        const fpInstance = input.data('flatpickr-instance');
+                        const fpDate = input.data('flatpickr-date');
+                        
+                        if (fpInstance && fpDate) {
+                            // Use the stored date from flatpickr
+                            parsed = fpDate;
+                        } else {
+                            // Fallback to manual parsing
+                            // Check if it's just month/day without year
+                            if (newValue.match(/^\d{1,2}\/\d{1,2}$/)) {
+                                const currentYear = new Date().getFullYear();
+                                newValue = `${newValue}/${currentYear}`;
+                            }
+                            parsed = new Date(newValue);
+                        }
+                        
                         newValue = isNaN(parsed.getTime()) ? originalValue : parsed.toISOString();
                     }
-            
+
                     const changed = newValue !== originalValue;
                     
                     // Mark cell as being processed
                     $(cell.node()).addClass('processing-update');
-            
+
                     // Update data without immediate draw
                     if (changed) {
                         cell.data(newValue);
@@ -677,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         moveToNextEditable(cell.node());
                     }, 100);
                 }
-            
+
                 if (e.key === 'Escape') {
                     preventBlur = true;
                     
@@ -689,16 +787,31 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     });
                 }
-            });
+            });  // This closes the keydown handler
+
+            // Now the flatpickr initialization should come after the keydown handler
 
             input.on('blur', function () {
                 if (preventBlur) return;
+                
+                // Check if flatpickr is active
+                const isActive = $(this).data('is-flatpickr-active');
+                if (isDateField && isActive && isActive()) {
+                    console.log('Skipping blur - flatpickr is active');
+                    return;
+                }
+                
+                // Skip if date was already handled by flatpickr
+                if (isDateField && $(this).data('flatpickr-changed')) {
+                    console.log('Skipping blur - date already handled by flatpickr');
+                    return;
+                }
                 
                 // Prevent multiple blur handlers from firing
                 const $input = $(this);
                 if ($input.data('blur-handled')) return;
                 $input.data('blur-handled', true);
-            
+
                 // Use requestAnimationFrame to wait for the next paint cycle
                 requestAnimationFrame(() => {
                     const $active = document.activeElement;
@@ -706,38 +819,85 @@ document.addEventListener('DOMContentLoaded', function () {
                         $input.data('blur-handled', false); // Reset if we're still in the cell
                         return;
                     }
-            
+
                     let newValue = $input.val();
                     if (newValue != null) newValue = newValue.toString().trim();
                     let formattedValue = newValue;
                     let displayValue = originalValue;
-            
-                    if (fieldName === 'terminal' && Array.isArray(isDropdownField)) {
+
+                    // Better date handling in blur
+                    if (isDateField) {
+                        console.log('Date field blur handler - newValue:', newValue);
+                        let parsed;
+                        
+                        // First check if there's a flatpickr instance and date
+                        const fpInstance = $input.data('flatpickr-instance');
+                        const fpDate = $input.data('flatpickr-date');
+                        
+                        console.log('Flatpickr data:', { fpInstance: !!fpInstance, fpDate: fpDate });
+                        
+                        if (fpDate && fpInstance) {
+                            // Use the stored date from flatpickr
+                            parsed = fpDate;
+                            console.log('Using flatpickr date:', parsed);
+                        } else if (newValue) {
+                            // Fallback to manual parsing
+                            // Check if it's just month/day without year
+                            if (newValue.match(/^\d{1,2}\/\d{1,2}$/)) {
+                                const currentYear = new Date().getFullYear();
+                                newValue = `${newValue}/${currentYear}`;
+                            }
+                            parsed = new Date(newValue);
+                            console.log('Manual parsing:', parsed);
+                        }
+                        
+                        if (parsed && !isNaN(parsed.getTime())) {
+                            formattedValue = parsed.toISOString();
+                            displayValue = parsed.toLocaleDateString('en-US');
+                            console.log('Formatted values:', { formattedValue, displayValue });
+                        } else {
+                            // If parsing fails or no value, use empty or original
+                            if (!newValue) {
+                                formattedValue = '';
+                                displayValue = '';
+                            } else {
+                                formattedValue = originalValue;
+                                displayValue = originalValue ? new Date(originalValue).toLocaleDateString('en-US') : '';
+                            }
+                        }
+                    } else if (fieldName === 'terminal' && Array.isArray(isDropdownField)) {
                         const matchedOption = isDropdownField.find(opt => opt.value == newValue);
                         displayValue = matchedOption ? matchedOption.label : newValue;
                     } else if (fieldName === 'vesselName' && Array.isArray(isDropdownField)) {
                         const matchedOption = isDropdownField.find(opt => opt.value == newValue);
                         displayValue = matchedOption ? matchedOption.label : newValue;
-                    } else if (isDateField && newValue) {
-                        const parsed = new Date(newValue);
-                        if (!isNaN(parsed.getTime())) {
-                            formattedValue = parsed.toISOString();
-                            displayValue = parsed.toLocaleDateString();
-                        } else {
-                            formattedValue = originalValue;
-                        }
                     } else if (!isDateField && newValue !== originalValue) {
                         displayValue = formattedValue = newValue;
                     }
-            
+
                     // Skip all processing if handlers already took care of this field
                     const skipFields = ['carrier', 'shipline', 'fpm', 'portOfEntry', 'terminal', 'vesselLine', 'vesselName'];
-                    if (skipFields.includes(fieldName) && formattedValue !== originalValue) {
-                        console.warn(`⚠️ Skipping fallback PATCH — ${fieldName} already patched on change.`);
+                    if (skipFields.includes(fieldName)) {
                         return;
                     }
                     
-                    if (formattedValue !== originalValue) {
+                    // For date fields, compare the ISO strings or check if both are empty
+                    let valueChanged = false;
+                    if (isDateField) {
+                        const originalIso = originalValue ? new Date(originalValue).toISOString() : '';
+                        valueChanged = formattedValue !== originalIso;
+                        console.log('Date value changed check:', { 
+                            originalValue, 
+                            originalIso, 
+                            formattedValue, 
+                            valueChanged 
+                        });
+                    } else {
+                        valueChanged = formattedValue !== originalValue;
+                    }
+                    
+                    if (valueChanged) {
+                        console.log('Value changed, sending patch...');
                         // Mark as processing
                         $(cell.node()).addClass('processing-update');
                         
@@ -764,6 +924,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 patchField(rowID, fieldName.charAt(0).toUpperCase() + fieldName.slice(1), formattedValue)
                                     .then(() => {
                                         $(cell.node()).removeClass('processing-update');
+                                        showToast(`✅ ${fieldName} updated`, 'success');
                                     })
                                     .catch(err => {
                                         console.error(`❌ Failed to save ${fieldName}`, err);
@@ -772,10 +933,14 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         });
                     } else {
+                        console.log('Value not changed, skipping patch');
                         // Just reset to original value if not changed
                         addToUpdateQueue(() => {
                             if (cell && cell.node() && document.body.contains(cell.node())) {
-                                cell.data(originalValue);
+                                const displayVal = isDateField && originalValue 
+                                    ? new Date(originalValue).toLocaleDateString('en-US') 
+                                    : originalValue || '';
+                                cell.data(displayVal);
                                 try {
                                     table.row(cell.index().row).invalidate().draw(false);
                                 } catch (err) {
@@ -784,7 +949,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         });
                     }
-            
+
                     // Safe cleanup
                     const cellNode = cell.node();
                     if (cellNode && document.body.contains(cellNode)) {
