@@ -119,7 +119,7 @@ public class ContainerController : ControllerBase
             (Container, CurrentStatus, ContainerSize, MainSource, Transload, Shipline, ShiplineID, BOLBookingNumber, Rail, RailDestination, RailwayLine, LoadToRail, RailDeparture, RailETA, RailPickupNumber, FPM, FpmID, ProjectNumber, ShipmentNumber, PONumber, Vendor, VendorIDNumber, VesselLine, VesselLineID, VesselName, VesselID, Voyage, PortOfDeparture, Sail, SailActual, PortOfEntry, PortID, Terminal, TerminalID, Arrival, ArrivalActual, Berth, BerthActual, Offload, OffloadActual, Carrier, CarrierID, Available, PickupLFD, PortRailwayPickup, ReturnLFD, Delivered, Returned, Notes, LastUpdated)
             VALUES 
             (@Container, @CurrentStatus, @ContainerSize, @MainSource, @Transload, @Shipline, @ShiplineID, @BOLBookingNumber, @Rail, @RailDestination, @RailwayLine, @LoadToRail, @RailDeparture, @RailETA, @RailPickupNumber, @FPM, @FpmID, @ProjectNumber, @ShipmentNumber, @PONumber, @Vendor, @VendorIDNumber, @VesselLine, @VesselLineID, @VesselName, @VesselID, @Voyage, @PortOfDeparture, @Sail, @SailActual, @PortOfEntry, @PortID, @Terminal, @TerminalID, @Arrival, @ArrivalActual, @Berth, @BerthActual, @Offload, @OffloadActual, @Carrier, @CarrierID, @Available, @PickupLFD, @PortRailwayPickup, @ReturnLFD, @Delivered, @Returned, @Notes, @LastUpdated)";
-        
+
         using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
         using var cmd = new SqlCommand(sql, conn);
 
@@ -188,7 +188,7 @@ public class ContainerController : ControllerBase
             Console.WriteLine($"❌ Error inserting container: {ex.Message}");
             return StatusCode(500, "Failed to insert container.");
         }
-        
+
     }
 
     [HttpPatch("update-field")]
@@ -231,12 +231,19 @@ public class ContainerController : ControllerBase
             else
             {
                 // For other types, if the value is null or empty, set to null
-                convertedValue = string.IsNullOrWhiteSpace(update.Value) 
-                    ? null 
+                convertedValue = string.IsNullOrWhiteSpace(update.Value)
+                    ? null
                     : Convert.ChangeType(update.Value, property.PropertyType);
             }
 
             property.SetValue(container, convertedValue);
+
+            // ✅ NEW: Auto-update LastUpdated if it's not the field being updated
+            if (!update.Field.Equals("LastUpdated", StringComparison.OrdinalIgnoreCase))
+            {
+                container.LastUpdated = DateTime.Now;
+            }
+
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Field updated successfully." });
