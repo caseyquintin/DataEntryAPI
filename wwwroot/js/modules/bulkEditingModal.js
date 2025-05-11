@@ -80,9 +80,6 @@ function populateBulkDropdowns() {
     $('#bulkSailActualSelect, #bulkArrivalActualSelect, #bulkBerthActualSelect, #bulkOffloadActualSelect').each(function () {
         const $el = $(this).empty().append('<option value="">-- Choose --</option>');
         
-        console.log("actualOrEstimateOptions:", actualOrEstimateOptions); // Debug line
-        console.log("booleanOptions:", booleanOptions); // Debug line
-        
         actualOrEstimateOptions.forEach(opt => $el.append(`<option value="${opt}">${opt}</option>`));
     });
 
@@ -212,6 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle form submit
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        console.log('🚀 Bulk edit form submitted');
     
         const selectedIDs = getSelectedContainerIDs();
         if (selectedIDs.length === 0) {
@@ -258,9 +257,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const containerTemplate = {};
+        let lastUpdatedExplicitlySet = false; // Track if user manually set LastUpdated
 
         $('.apply-field:checked').each(function () {
             const targetID = $(this).data('target');
+
             if (!targetID) {
                 console.warn('⚠️ Missing data-target for checkbox:', this.id);
                 return;
@@ -276,6 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!name) {
                 console.warn('⚠️ Input missing name attribute:', input);
                 return;
+            }
+
+            // Check if LastUpdated is being explicitly set by user
+            if (name === 'LastUpdated') {
+                lastUpdatedExplicitlySet = true;
             }
 
             let value = input.value;
@@ -352,6 +358,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // ✨ Auto-update LastUpdated if not explicitly set
+        if (!lastUpdatedExplicitlySet && Object.keys(containerTemplate).length > 0) {
+            // Format as YYYY-MM-DD for the date input field
+            const now = new Date();
+            const dateString = now.toISOString().split('T')[0];
+            containerTemplate['LastUpdated'] = dateString;
+        }
+
         const payload = selectedIDs.map(id => ({
             containerID: id,
             ...containerTemplate
@@ -364,12 +378,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             });
 
-            if (!res.ok) throw new Error('Server error');
-
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error('❌ Server error response:', errorText);
+                throw new Error('Server error');
+            }
+    
+            const responseData = await res.json();
+   
             showToast(`✅ Updated ${selectedIDs.length} containers`, 'success');
             $('#bulkContainerModal').modal('hide');
             $('#ContainerList').DataTable().ajax.reload(null, false);
-
+    
         } catch (err) {
             console.error('❌ Bulk update failed:', err);
             showToast('❌ Failed to apply bulk changes.', 'danger');
