@@ -201,7 +201,7 @@ const linkedFieldHandlers = {
                 field,
                 value
             };
-    
+
             const response = await fetch('http://localhost:5062/api/containers/update-field', {
                 method: 'PATCH',
                 headers: {
@@ -209,12 +209,26 @@ const linkedFieldHandlers = {
                 },
                 body: JSON.stringify(payload)
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}`);
             }
-    
+
             console.log(`✅ ${field} saved: ${value}`);
+            
+            // Update LastUpdated field (skip if we're already updating LastUpdated)
+            if (field !== 'LastUpdated') {
+                // Add a small delay to ensure the main field update is processed first
+                setTimeout(async () => {
+                    try {
+                        await updateLastUpdatedField(containerID);
+                        console.log(`✅ LastUpdated automatically updated after ${field} change`);
+                    } catch (err) {
+                        console.error(`❌ Failed to auto-update LastUpdated after ${field} change:`, err);
+                    }
+                }, 100);
+            }
+            
             return true;
         } catch (err) {
             console.error(`❌ Failed to update ${field}:`, err);
@@ -245,7 +259,6 @@ const linkedFieldHandlers = {
         }
     }
 
-    // Replace your current fadeNewRowHighlights function with this working version:
     function fadeNewRowHighlights() {
         
         // Find rows with table-warning class
@@ -259,6 +272,51 @@ const linkedFieldHandlers = {
             setTimeout(() => {
                 warningRows.removeClass('table-warning fade-out-warning');
             }, 800);
+        }
+    }
+
+    async function updateLastUpdatedField(containerID) {
+        try {
+            const now = new Date().toISOString();
+            
+            const payload = {
+                containerID: containerID,
+                field: 'LastUpdated',
+                value: now
+            };
+
+            const response = await fetch('http://localhost:5062/api/containers/update-field', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+
+            console.log(`✅ LastUpdated field updated for container ${containerID}`);
+            
+            // Update the DataTable cell if it exists in the current view
+            const table = $('#ContainerList').DataTable();
+            const rowIdx = table.rows().indexes().filter((idx) => {
+                return table.row(idx).data().containerID === containerID;
+            });
+            
+            if (rowIdx.length > 0) {
+                const lastUpdatedColIdx = getColumnIndex(table, 'lastUpdated');
+                if (lastUpdatedColIdx !== -1) {
+                    const displayDate = new Date(now).toLocaleDateString('en-US');
+                    table.cell(rowIdx[0], lastUpdatedColIdx).data(displayDate);
+                }
+            }
+            
+            return true;
+        } catch (err) {
+            console.error(`❌ Failed to update LastUpdated field:`, err);
+            return false;
         }
     }
 
@@ -582,7 +640,31 @@ const linkedFieldHandlers = {
                     $this.data('change-handled', true);
                     
                     setTimeout(() => {
-                        // ... rest of the terminal change handler code ...
+                        const newValue = $(this).val();
+                        const match = isDropdownField.find(opt => opt.value == newValue);
+                        const terminalName = match ? match.label : '[Unknown Terminal]';
+                        
+                        // Update both Terminal and TerminalID
+                        const terminalId = terminalIdByName[terminalName];
+                        
+                        if (terminalId) {
+                            // Send patches for both fields
+                            Promise.all([
+                                patchField(rowID, 'Terminal', terminalName),
+                                patchField(rowID, 'TerminalID', terminalId)
+                            ]).then(() => {
+                                showToast(`✅ Terminal updated`, 'success');
+                                // Update LastUpdated after both patches succeed
+                                updateLastUpdatedField(rowID);
+                            });
+                        } else {
+                            // Just update the terminal name without ID
+                            patchField(rowID, 'Terminal', terminalName)
+                                .then(() => {
+                                    showToast(`✅ Terminal updated`, 'success');
+                                    updateLastUpdatedField(rowID);
+                                });
+                        }
                     }, 50);
                 });
                 
@@ -598,8 +680,28 @@ const linkedFieldHandlers = {
                             const newValue = currentValue;
                             const match = isDropdownField.find(opt => opt.value == newValue);
                             const terminalName = match ? match.label : '[Unknown Terminal]';
-
-                            // ... rest of the terminal update code ...
+                            
+                            // Update both Terminal and TerminalID
+                            const terminalId = terminalIdByName[terminalName];
+                            
+                            if (terminalId) {
+                                // Send patches for both fields
+                                Promise.all([
+                                    patchField(rowID, 'Terminal', terminalName),
+                                    patchField(rowID, 'TerminalID', terminalId)
+                                ]).then(() => {
+                                    showToast(`✅ Terminal updated`, 'success');
+                                    // Update LastUpdated after both patches succeed
+                                    updateLastUpdatedField(rowID);
+                                });
+                            } else {
+                                // Just update the terminal name without ID
+                                patchField(rowID, 'Terminal', terminalName)
+                                    .then(() => {
+                                        showToast(`✅ Terminal updated`, 'success');
+                                        updateLastUpdatedField(rowID);
+                                    });
+                            }
                         }, 50);
                     }
                 });
@@ -635,7 +737,31 @@ const linkedFieldHandlers = {
                     $this.data('change-handled', true);
                     
                     setTimeout(() => {
-                        // ... rest of the vesselName change handler code ...
+                        const newValue = $(this).val();
+                        const match = isDropdownField.find(opt => opt.value == newValue);
+                        const vesselName = match ? match.label : '[Unknown Vessel]';
+                        
+                        // Update both VesselName and VesselID
+                        const vesselId = vesselIdByName[vesselName];
+                        
+                        if (vesselId) {
+                            // Send patches for both fields
+                            Promise.all([
+                                patchField(rowID, 'VesselName', vesselName),
+                                patchField(rowID, 'VesselID', vesselId)
+                            ]).then(() => {
+                                showToast(`✅ Vessel Name updated`, 'success');
+                                // Update LastUpdated after both patches succeed
+                                updateLastUpdatedField(rowID);
+                            });
+                        } else {
+                            // Just update the vessel name without ID
+                            patchField(rowID, 'VesselName', vesselName)
+                                .then(() => {
+                                    showToast(`✅ Vessel Name updated`, 'success');
+                                    updateLastUpdatedField(rowID);
+                                });
+                        }
                     }, 50);
                 });
                 
@@ -650,15 +776,34 @@ const linkedFieldHandlers = {
                         setTimeout(() => {
                             const newValue = currentValue;
                             const match = isDropdownField.find(opt => opt.value == newValue);
-                            const vesselNameValue = match ? match.label : '[Unknown vesselName]';
-
-                            // ... rest of the vessel name update code ...
+                            const vesselName = match ? match.label : '[Unknown Vessel]';
+                            
+                            // Update both VesselName and VesselID
+                            const vesselId = vesselIdByName[vesselName];
+                            
+                            if (vesselId) {
+                                // Send patches for both fields
+                                Promise.all([
+                                    patchField(rowID, 'VesselName', vesselName),
+                                    patchField(rowID, 'VesselID', vesselId)
+                                ]).then(() => {
+                                    showToast(`✅ Vessel Name updated`, 'success');
+                                    // Update LastUpdated after both patches succeed
+                                    updateLastUpdatedField(rowID);
+                                });
+                            } else {
+                                // Just update the vessel name without ID
+                                patchField(rowID, 'VesselName', vesselName)
+                                    .then(() => {
+                                        showToast(`✅ Vessel Name updated`, 'success');
+                                        updateLastUpdatedField(rowID);
+                                    });
+                            }
                         }, 50);
                     }
                 });
             }
             
-            // Replace your existing date field initialization with this
             if (isDateField) {
                 // Set a flag to track if we're in the middle of a flatpickr interaction
                 let flatpickrActive = false;
@@ -703,7 +848,17 @@ const linkedFieldHandlers = {
                                 $(cell.node()).addClass('processing-update');
                                 
                                 patchField(rowID, fieldName.charAt(0).toUpperCase() + fieldName.slice(1), formattedValue)
-                                    .then(() => {
+                                    .then(async (success) => {
+                                        if (success) {
+                                            // Explicitly update LastUpdated for date fields
+                                            try {
+                                                await updateLastUpdatedField(rowID);
+                                                console.log(`✅ LastUpdated field updated for date field ${fieldName}`);
+                                            } catch (err) {
+                                                console.error(`❌ Failed to update LastUpdated for date field:`, err);
+                                            }
+                                        }
+                                        
                                         showToast(`✅ ${fieldName} updated`, 'success');
                                         $(cell.node()).removeClass('processing-update');
                                         
@@ -846,8 +1001,6 @@ const linkedFieldHandlers = {
                 }
             });  // This closes the keydown handler
 
-            // Now the flatpickr initialization should come after the keydown handler
-
             input.on('blur', function () {
                 if (preventBlur) return;
                 
@@ -857,8 +1010,31 @@ const linkedFieldHandlers = {
                     return;
                 }
                 
-                // Skip if date was already handled by flatpickr
+                // For date fields, check if value changed and update LastUpdated
                 if (isDateField && $(this).data('flatpickr-changed')) {
+                    // Get the stored flatpickr date
+                    const fpDate = $(this).data('flatpickr-date');
+                    const fpInstance = $(this).data('flatpickr-instance');
+                    
+                    if (fpDate && fpInstance) {
+                        const formattedValue = fpDate.toISOString();
+                        const originalIso = originalValue ? new Date(originalValue).toISOString() : '';
+                        
+                        if (formattedValue !== originalIso) {
+                            // Update LastUpdated since the date changed
+                            updateLastUpdatedField(rowID)
+                                .then(() => {
+                                    console.log(`✅ LastUpdated updated via blur for date field ${fieldName}`);
+                                })
+                                .catch(err => {
+                                    console.error(`❌ Failed to update LastUpdated via blur:`, err);
+                                });
+                        }
+                    }
+                    
+                    // Clear the flags after handling
+                    $(this).removeData('flatpickr-changed');
+                    $(this).removeData('flatpickr-date');
                     return;
                 }
                 
@@ -887,7 +1063,7 @@ const linkedFieldHandlers = {
                         // First check if there's a flatpickr instance and date
                         const fpInstance = $input.data('flatpickr-instance');
                         const fpDate = $input.data('flatpickr-date');
-                      
+                    
                         if (fpDate && fpInstance) {
                             // Use the stored date from flatpickr
                             parsed = fpDate;
@@ -1097,7 +1273,6 @@ const linkedFieldHandlers = {
             }
         });
     
-        // Now that the DOM is updated, send all the PATCH requests
         const sendPatchRequests = async () => {
             try {
                 // Send all patch requests in sequence to avoid race conditions
@@ -1108,6 +1283,9 @@ const linkedFieldHandlers = {
                         body: JSON.stringify(payload)
                     });
                 }
+                
+                // Update the LastUpdated field after successful patches
+                await updateLastUpdatedField(rowID);
                 
                 showToast(`✅ ${fieldName} updated`, 'success');
                 
