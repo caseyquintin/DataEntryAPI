@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         // Temporarily hide the row
-        row.node().style.opacity = '0.5';
+        row.node().style.opacity = '0.5'; 
 
         // Show undo message
         const undoBanner = $(`
