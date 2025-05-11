@@ -156,7 +156,7 @@ DataEntryAPI
  ✅ Configure initial system using tech stack noted above (started 3/21/2025, completed 4/25/2025)
  ⏹️ Set default Last Updated date to current when container is created or edited.
     ✅ Inline (5/10/2025)
-    ⏹️ New Container
+    ✅ New Container
     ⏹️ Single Edit
     ⏹️ Bulk Edit
     ⏹️ Blank Line  
