@@ -257,12 +257,22 @@ document.addEventListener('DOMContentLoaded', function () {
     
         const compareField = (field, newVal) => {
             const originalVal = originalContainerData[field];
-            const cleanedNewVal = newVal === '' ? null : newVal;
-    
-            if (
-                originalVal !== cleanedNewVal &&
-                !(originalVal == null && cleanedNewVal === null)
-            ) {
+            
+            // For string fields, treat empty string as a valid "cleared" value
+            // Convert empty strings to null to match database expectations
+            const cleanedNewVal = (newVal === '' || newVal === null) ? null : newVal;
+
+            // Compare values - consider both null and empty string as "empty"
+            const isOriginalEmpty = originalVal === null || originalVal === '';
+            const isNewEmpty = cleanedNewVal === null;
+            
+            // If both are empty, no change needed
+            if (isOriginalEmpty && isNewEmpty) {
+                return;
+            }
+            
+            // If they're different, add to changed fields
+            if (originalVal !== cleanedNewVal) {
                 changedFields.push({ field, value: cleanedNewVal });
             }
         };
