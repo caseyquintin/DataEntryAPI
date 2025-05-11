@@ -24,7 +24,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Display container info in the modal
         const containerInfo = `
-            <strong>${data.containerNumber || 'N/A'}</strong>
+            <strong>Container Number:</strong> ${data.containerNumber || 'N/A'}<br>
+            <strong>ID:</strong> ${containerID}<br>
+            <strong>Status:</strong> ${data.currentStatus || 'N/A'}<br>
+            <strong>BOL/Booking:</strong> ${data.bolBookingNumber || 'N/A'}
         `;
         $('#singleContainerToDelete').html(containerInfo);
         

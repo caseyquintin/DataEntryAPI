@@ -11037,11 +11037,3 @@ html, body {
   color: #212529 !important; /* Bootstrap's default text-dark */
   font-weight: 700;
 }
-
-#ContainerList tbody tr {
-    transition: background-color 0.8s ease;
-}
-
-#ContainerList tbody tr.fade-highlight {
-    background-color: transparent !important;
-}

@@ -230,21 +230,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function fadeNewRowHighlights() {
-        const newRows = $('#ContainerList tbody tr.new-row-highlight, #ContainerList tbody tr[style*="background-color: #f5f5dc"]');
-        
-        if (newRows.length > 0) {
-            // Add a CSS class that triggers the transition
-            newRows.addClass('fade-highlight');
-            
-            // Remove the highlight class and styles after transition
-            setTimeout(() => {
-                newRows.removeClass('new-row-highlight fade-highlight')
-                    .css('background-color', '');
-            }, 800);
-        }
-    }
-
     // ✅ INLINE EDITING HANDLER: Save changes to backend
     window.initializeDataTableHandlers = function (table) {
         $('#ContainerList tbody').on('click', 'td.editable', async function () {        

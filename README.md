@@ -204,7 +204,7 @@ DataEntryAPI
 ✅ Date pickers don't work.
 ✅ When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected.
 ⏹️ Cascading DDs are still malfunctioning if changed too quickly
-⏹️ Newly added Blank Rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected.
+⏹️ Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected.
  
 ***Single Edit***
 ✅ If field is cleared, old value remains instead of being submitted as NULL.
