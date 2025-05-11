@@ -217,7 +217,8 @@ const linkedFieldHandlers = {
             console.log(`✅ ${field} saved: ${value}`);
             
             // Update LastUpdated field (skip if we're already updating LastUpdated)
-            if (field !== 'LastUpdated') {
+            // Check both camelCase and PascalCase variations
+            if (field.toLowerCase() !== 'lastupdated') {
                 // Add a small delay to ensure the main field update is processed first
                 setTimeout(async () => {
                     try {
@@ -227,6 +228,8 @@ const linkedFieldHandlers = {
                         console.error(`❌ Failed to auto-update LastUpdated after ${field} change:`, err);
                     }
                 }, 100);
+            } else {
+                console.log(`✅ Skipping auto-update of LastUpdated since we're manually editing it`);
             }
             
             return true;
@@ -654,15 +657,12 @@ const linkedFieldHandlers = {
                                 patchField(rowID, 'TerminalID', terminalId)
                             ]).then(() => {
                                 showToast(`✅ Terminal updated`, 'success');
-                                // Update LastUpdated after both patches succeed
-                                updateLastUpdatedField(rowID);
                             });
                         } else {
                             // Just update the terminal name without ID
                             patchField(rowID, 'Terminal', terminalName)
                                 .then(() => {
                                     showToast(`✅ Terminal updated`, 'success');
-                                    updateLastUpdatedField(rowID);
                                 });
                         }
                     }, 50);
@@ -691,15 +691,12 @@ const linkedFieldHandlers = {
                                     patchField(rowID, 'TerminalID', terminalId)
                                 ]).then(() => {
                                     showToast(`✅ Terminal updated`, 'success');
-                                    // Update LastUpdated after both patches succeed
-                                    updateLastUpdatedField(rowID);
                                 });
                             } else {
                                 // Just update the terminal name without ID
                                 patchField(rowID, 'Terminal', terminalName)
                                     .then(() => {
                                         showToast(`✅ Terminal updated`, 'success');
-                                        updateLastUpdatedField(rowID);
                                     });
                             }
                         }, 50);
@@ -850,12 +847,14 @@ const linkedFieldHandlers = {
                                 patchField(rowID, fieldName.charAt(0).toUpperCase() + fieldName.slice(1), formattedValue)
                                     .then(async (success) => {
                                         if (success) {
-                                            // Explicitly update LastUpdated for date fields
-                                            try {
-                                                await updateLastUpdatedField(rowID);
-                                                console.log(`✅ LastUpdated field updated for date field ${fieldName}`);
-                                            } catch (err) {
-                                                console.error(`❌ Failed to update LastUpdated for date field:`, err);
+                                            // Only update LastUpdated if we're not editing the LastUpdated field itself
+                                            if (fieldName.toLowerCase() !== 'lastupdated') {
+                                                try {
+                                                    await updateLastUpdatedField(rowID);
+                                                    console.log(`✅ LastUpdated field updated for date field ${fieldName}`);
+                                                } catch (err) {
+                                                    console.error(`❌ Failed to update LastUpdated for date field:`, err);
+                                                }
                                             }
                                         }
                                         
@@ -881,9 +880,12 @@ const linkedFieldHandlers = {
                             }
                         }
                         
-                        // Clear the flags
-                        input.removeData('flatpickr-changed');
-                        input.removeData('flatpickr-date');
+                        // Don't clear the flags here - let blur handler use them first
+                        // Clear them after a delay to give blur handler time to run
+                        setTimeout(() => {
+                            input.removeData('flatpickr-changed');
+                            input.removeData('flatpickr-date');
+                        }, 200);
                         
                         // Allow blur after a short delay
                         setTimeout(() => {
@@ -959,7 +961,11 @@ const linkedFieldHandlers = {
                         // Skip certain fields that are handled elsewhere
                         const skipFields = ['carrier', 'shipline', 'fpm', 'portOfEntry', 'vesselLine'];
                         if (!skipFields.includes(fieldName)) {
-                            patchField(rowID, fieldName.charAt(0).toUpperCase() + fieldName.slice(1), newValue)
+                            // Use the exact field name for the patch
+                            const fieldNameForPatch = fieldName === 'lastUpdated' ? 'LastUpdated' : 
+                                                    fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+                            
+                            patchField(rowID, fieldNameForPatch, newValue)
                                 .catch(err => {
                                     console.error(`❌ Failed to save ${fieldName}`, err);
                                     showToast(`❌ Failed to update ${fieldName}`, 'danger');
@@ -999,7 +1005,7 @@ const linkedFieldHandlers = {
                         }
                     });
                 }
-            });  // This closes the keydown handler
+            });
 
             input.on('blur', function () {
                 if (preventBlur) return;
@@ -1021,14 +1027,16 @@ const linkedFieldHandlers = {
                         const originalIso = originalValue ? new Date(originalValue).toISOString() : '';
                         
                         if (formattedValue !== originalIso) {
-                            // Update LastUpdated since the date changed
-                            updateLastUpdatedField(rowID)
-                                .then(() => {
-                                    console.log(`✅ LastUpdated updated via blur for date field ${fieldName}`);
-                                })
-                                .catch(err => {
-                                    console.error(`❌ Failed to update LastUpdated via blur:`, err);
-                                });
+                            // Only update LastUpdated if we're not editing the LastUpdated field itself
+                            if (fieldName.toLowerCase() !== 'lastupdated') {
+                                updateLastUpdatedField(rowID)
+                                    .then(() => {
+                                        console.log(`✅ LastUpdated updated via blur for date field ${fieldName}`);
+                                    })
+                                    .catch(err => {
+                                        console.error(`❌ Failed to update LastUpdated via blur:`, err);
+                                    });
+                            }
                         }
                     }
                     
@@ -1212,56 +1220,51 @@ const linkedFieldHandlers = {
         if (!config) return;
 
         const selectedLabel = $(input).val();
-        
         const selectedId = config.idLookup[selectedLabel];
 
         if (!selectedId) {
             return;
         }
-    
-        const rowIdx = cell.index().row;
-        const cellNode = cell.node();
-    
-        // Check if the cell is still attached to the DOM
-        if (!cellNode || !document.body.contains(cellNode)) {
-            return;
-        }
-    
-        // Detach all event handlers and mark cell as being processed
-        $(cellNode).off('blur change').addClass('processing-update');
-    
-        // Use a safer approach to update the visible cell
-        // Just update data without redraw yet
-        cell.data(selectedLabel);
-    
-        // Update the ID in the hidden column using direct index access
-        const idColIdx = getColumnIndex(table, config.idColumn);
-        if (idColIdx !== -1) {
-            // Update data without redrawing yet
-            table.cell(rowIdx, idColIdx).data(selectedId);
-        }
-    
-        // Now prepare the PATCH requests, but don't send them until we've updated the DOM safely
+
+        // Create the patchRequests array
         const patchRequests = config.patchFields.map((field, i) => {
             const value = i === 0 ? selectedLabel : String(selectedId);
             return {
-                containerID: rowID,
                 field: field,
                 value: value
             };
         });
-    
+
+        const rowIdx = cell.index().row;
+        const cellNode = cell.node();
+
+        // Check if the cell is still attached to the DOM
+        if (!cellNode || !document.body.contains(cellNode)) {
+            return;
+        }
+
+        // Detach all event handlers and mark cell as being processed
+        $(cellNode).off('blur change').addClass('processing-update');
+
+        // Use a safer approach to update the visible cell
+        cell.data(selectedLabel);
+
+        // Update the ID in the hidden column using direct index access
+        const idColIdx = getColumnIndex(table, config.idColumn);
+        if (idColIdx !== -1) {
+            table.cell(rowIdx, idColIdx).data(selectedId);
+        }
+
         // Remove editing state before we redraw
         $(cellNode).removeClass('editing');
-    
-        // Now that we've updated all the data, perform a single redraw in a way that preserves the scroll position
+
+        // Perform a single redraw that preserves the scroll position
         preserveScrollPosition(() => {
             try {
                 table.draw(false);
             } catch (err) {
                 console.warn("⚠️ Draw failed, using safer approach:", err);
                 
-                // If the draw fails, try a gentler approach with invalidation
                 try {
                     const row = table.row(rowIdx);
                     if (row && row.node() && document.body.contains(row.node())) {
@@ -1272,26 +1275,18 @@ const linkedFieldHandlers = {
                 }
             }
         });
-    
+
         const sendPatchRequests = async () => {
             try {
-                // Send all patch requests in sequence to avoid race conditions
-                for (const payload of patchRequests) {
-                    await fetch('http://localhost:5062/api/containers/update-field', {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+                // Send all patch requests using patchField function
+                for (const patch of patchRequests) {
+                    await patchField(rowID, patch.field, patch.value);
                 }
-                
-                // Update the LastUpdated field after successful patches
-                await updateLastUpdatedField(rowID);
                 
                 showToast(`✅ ${fieldName} updated`, 'success');
                 
                 // Run any post-update handlers if needed
                 if (config.onPatchComplete) {
-                    // Use setTimeout to ensure this runs after the current event cycle
                     setTimeout(() => {
                         try {
                             config.onPatchComplete(table, rowID, rowIdx);
@@ -1304,19 +1299,11 @@ const linkedFieldHandlers = {
                 console.error(`❌ Failed to PATCH ${fieldName}:`, err);
                 showToast(`❌ Failed to update ${fieldName}`, 'danger');
             } finally {
-                // Always remove the processing class when done
                 $(cellNode).removeClass('processing-update');
             }
         };
-    
+
         // Use setTimeout to ensure DOM operations complete before network requests
         setTimeout(sendPatchRequests, 50);
-    
-        // Only call moveToNextEditable after everything else has settled
-        setTimeout(() => {
-            if (cellNode && document.body.contains(cellNode)) {
-                moveToNextEditable(cellNode);
-            }
-        }, 100);
     }
 });
