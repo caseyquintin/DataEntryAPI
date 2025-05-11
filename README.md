@@ -177,11 +177,11 @@ DataEntryAPI
  
  ***Inline***
  ⏹️ Hide Rail details when Rail is set to "No"
- ✅ Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already]
+ ✅ Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already] (5/9/2025)
  ⏹️ Allow more mobility in Inline Editor (move up or down a row using keyboard)
 
  ***Search Function***
- ✅ Make Search function more robust 
+ ✅ Make Search function more robust (5/9/2025)
 
 * * * * *
 
@@ -198,29 +198,25 @@ DataEntryAPI
 🪲**Current Bugs**🪲
 
 ***New Container Modal***
-✅ Actual/Estimate dropdowns are using boolean.
+✅ Actual/Estimate dropdowns are using boolean. (5/9/2025)
  
 ***Inline***
-✅ Date pickers don't work.
-✅ When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected.
+✅ Date pickers don't work. (5/9/2025)
+✅ When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected. (5/9/2025)
 ⏹️ Cascading DDs are still malfunctioning if changed too quickly
-⏹️ Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected.
+✅ Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected. (5/10/2025)
  
 ***Single Edit***
-✅ If field is cleared, old value remains instead of being submitted as NULL.
+✅ If field is cleared, old value remains instead of being submitted as NULL. (5/9/2025)
 
 ***Single Delete***
-✅ Error when trying to delete newly created Blank Row without a Container Number attributed (Bulk Delete works!):
-   singleDelete.js:67 Uncaught ReferenceError: containerNumber is not defined
-       at HTMLButtonElement.<anonymous> (singleDelete.js:67:100)
-       at HTMLDocument.dispatch (jquery-3.7.0.min.js:2:39997)
-       at HTMLDocument.<anonymous> (jquery-3.7.0.min.js:2:37968)
+✅ Error when trying to delete newly created Blank Row without a Container Number attributed (Bulk Delete works!): (5/10/2025)
        
 ***Bulk Delete***
 
 ***Single and Bulk Delete Modal Windows***
-✅ Debug Single Delete modal window
-✅ Debug Bulk Delete modal window
+✅ Debug Single Delete modal window (5/8/2025)
+✅ Debug Bulk Delete modal window (5/8/2025)
  
 ***Search Function***
-✅ Debug
+✅ Debug (5/9/2025)
