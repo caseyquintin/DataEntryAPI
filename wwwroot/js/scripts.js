@@ -437,6 +437,10 @@ function initializeContainerTable () {
 
             $('#bulkButtons').html(bulkButtons);
 
+            if (typeof initializeBulkDelete === 'function') {
+                initializeBulkDelete(table);
+            }
+            
             const addBlankBtn = $(`<button class="btn btn-secondary btn-sm"><i class="fa fa-plus"></i> Add Blank Row</button>`);
             addBlankBtn.on('click', async function () {
                 try {
