@@ -370,7 +370,7 @@ function initializeContainerTable () {
             { data: 'portID', name: 'portID' },
             { data: 'terminal', name: 'terminal', className: 'editable' },
             { data: 'terminalID', name: 'terminalID' },
-            { data: 'arrival', name: 'arrival', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
+            { data: 'arrival', name: 'arrival', className: 'editable' },
             { data: 'arrivalActual', name: 'arrivalActual', className: 'editable' },
             { data: 'berth', name: 'berth', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'berthActual', name: 'berthActual', className: 'editable' },
@@ -437,6 +437,10 @@ function initializeContainerTable () {
 
             $('#bulkButtons').html(bulkButtons);
 
+            if (typeof initializeBulkDelete === 'function') {
+                initializeBulkDelete(table);
+            }
+            
             const addBlankBtn = $(`<button class="btn btn-secondary btn-sm"><i class="fa fa-plus"></i> Add Blank Row</button>`);
             addBlankBtn.on('click', async function () {
                 try {
