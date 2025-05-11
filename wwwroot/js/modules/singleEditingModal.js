@@ -51,10 +51,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const containerID = $(this).data('id');
         $('#editContainerForm')[0].reset();
         $('#editContainerID').val(containerID);
-
+    
         try {
             const data = await $.get(`http://localhost:5062/api/containers/${containerID}`);
+            console.log('🔍 DEBUG: Loaded container data:', data);
+            console.log('🔍 DEBUG: Current LastUpdated value:', data.lastUpdated);
+            
             originalContainerData = { ...data };
+            console.log('🔍 DEBUG: Original container data stored:', originalContainerData);
 
             // Simple dropdowns
             populateDropdown($('#editCurrentStatusSelect'), statusOptions, data.currentStatus);
@@ -228,6 +232,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#editContainerForm').on('submit', function (e) {
         e.preventDefault();
+
+        const getFlatpickrValue = (selector) => {
+            const element = $(selector)[0];
+            if (element && element._flatpickr) {
+                const fp = element._flatpickr;
+                if (fp.selectedDates && fp.selectedDates.length > 0) {
+                    return fp.selectedDates[0].toISOString().split('T')[0]; // YYYY-MM-DD format
+                }
+            }
+            return null;
+        };
+    
+        console.log('🔍 DEBUG: Form submission started');
     
         const convertIdToString = (value) => {
             return value ? String(value) : null;
@@ -235,6 +252,16 @@ document.addEventListener('DOMContentLoaded', function () {
         
         const containerID = $('#editContainerID').val();
         const changedFields = [];
+        
+        // ✅ NEW: Track if LastUpdated was manually changed
+        let lastUpdatedManuallyChanged = false;
+        
+        // ✅ NEW: Helper function to get current date/time in SQL format
+        const getCurrentDateTime = () => {
+            const dateTime = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+            console.log('🔍 DEBUG: getCurrentDateTime() returns:', dateTime);
+            return dateTime;
+        };
         
         // Define all the IDs early
         const vesselLineID = $('#editVesselLineSelect').val();
@@ -250,21 +277,85 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedFPMID = $fpmSelect.val();
         const selectedFPMName = $fpmSelect.find(':selected').data('name');
         const selectedVesselLineName = $('#editVesselLineSelect').find(':selected').data('name');
-        // When getting the selected vessel name, handle the [Blank] option
         const selectedVesselName = $('#editVesselNameSelect').find(':selected').text() === '[Blank]' 
             ? '' 
             : $('#editVesselNameSelect').find(':selected').data('name');
     
+        // ✅ MODIFIED: Updated compareField function with debugging
         const compareField = (field, newVal) => {
-            const originalVal = originalContainerData[field];
+            // Map the field names to match your data properties
+            const fieldMapping = {
+                'ContainerNumber': 'Container',
+                'LastUpdated': 'lastUpdated',
+                'CurrentStatus': 'currentStatus',
+                'ContainerSize': 'containerSize',
+                'MainSource': 'mainSource',
+                'Transload': 'transload',
+                'Shipline': 'shipline',
+                'BOLBookingNumber': 'bolBookingNumber',
+                'Rail': 'rail',
+                'RailDestination': 'railDestination',
+                'RailwayLine': 'railwayLine',
+                'LoadToRail': 'loadToRail',
+                'RailDeparture': 'railDeparture',
+                'RailETA': 'railETA',
+                'RailPickupNumber': 'railPickupNumber',
+                'FPM': 'fpm',
+                'ProjectNumber': 'projectNumber',
+                'ShipmentNumber': 'shipmentNumber',
+                'PONumber': 'poNumber',
+                'Vendor': 'vendor',
+                'VendorIDNumber': 'vendorIDNumber',
+                'VesselLine': 'vesselLine',
+                'VesselName': 'vesselName',
+                'Voyage': 'voyage',
+                'PortOfDeparture': 'portOfDeparture',
+                'Sail': 'sail',
+                'Arrival': 'arrival',
+                'Berth': 'berth',
+                'Offload': 'offload',
+                'Available': 'available',
+                'PickupLFD': 'pickupLFD',
+                'PortRailwayPickup': 'portRailwayPickup',
+                'ReturnLFD': 'returnLFD',
+                'Delivered': 'delivered',
+                'Returned': 'returned',
+                'Notes': 'notes',
+                'ShiplineID': 'shiplineID',
+                'FpmID': 'fpmID',
+                'VesselLineID': 'vesselLineID',
+                'VesselID': 'vesselID',
+                'PortID': 'portID',
+                'TerminalID': 'terminalID',
+                'CarrierID': 'carrierID',
+                'Carrier': 'carrier',
+                'SailActual': 'sailActual',
+                'ArrivalActual': 'arrivalActual',
+                'BerthActual': 'berthActual',
+                'OffloadActual': 'offloadActual'
+            };
+
+            // Get the actual property name from your data
+            const dataField = fieldMapping[field] || (field.charAt(0).toLowerCase() + field.slice(1));
+            const originalVal = originalContainerData[dataField];
             
             // For string fields, treat empty string as a valid "cleared" value
-            // Convert empty strings to null to match database expectations
+            // Convert empty strings to null to match database expectations  
             const cleanedNewVal = (newVal === '' || newVal === null) ? null : newVal;
 
             // Compare values - consider both null and empty string as "empty"
             const isOriginalEmpty = originalVal === null || originalVal === '';
             const isNewEmpty = cleanedNewVal === null;
+            
+            // Debug logging for all fields
+            console.log(`🔍 DEBUG: Comparing field '${field}' (data field: '${dataField}')`, {
+                originalVal,
+                newVal,
+                cleanedNewVal,
+                isOriginalEmpty,
+                isNewEmpty,
+                areEqual: isOriginalEmpty && isNewEmpty
+            });
             
             // If both are empty, no change needed
             if (isOriginalEmpty && isNewEmpty) {
@@ -273,10 +364,19 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // If they're different, add to changed fields
             if (originalVal !== cleanedNewVal) {
+                console.log(`✅ DEBUG: Field '${field}' has changed`);
                 changedFields.push({ field, value: cleanedNewVal });
+                
+                // Track if LastUpdated itself was manually changed
+                if (field === 'LastUpdated') {
+                    console.log('🔍 DEBUG: LastUpdated was manually changed');
+                    lastUpdatedManuallyChanged = true;
+                }
+            } else {
+                console.log(`❌ DEBUG: Field '${field}' has NOT changed`);
             }
         };
-    
+        
         const getCheckboxValue = (checked) => {
             return checked ? 'Yes' : 'No';
         };
@@ -285,23 +385,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const originalVesselLineID = originalContainerData.vesselLineID;
         const originalPortID = originalContainerData.portID;
         
-        // In the validation section, you might want to require "UNKNOWN" vessel name when "UNKNOWN" vessel line is selected
         const vesselLineText = $('#editVesselLineSelect').find(':selected').text().trim();
         if (vesselLineID !== String(originalVesselLineID) && 
             vesselLineID && 
             !vesselID &&
-            vesselLineText !== 'UNKNOWN') {  // Still allow empty vessel name for UNKNOWN
+            vesselLineText !== 'UNKNOWN') {
             showToast('⚠️ When changing Vessel Line, you must also select a Vessel Name.', 'warning');
             return;
         }
         
-        // Similar validation for Port/Terminal
         if (portID !== String(originalPortID) && portID && !terminalID) {
             showToast('⚠️ When changing Port of Entry, you must also select a Terminal.', 'warning');
             return;
         }
-
-        // 👆 END OF VALIDATION
+    
+        console.log('🔍 DEBUG: Starting field comparisons...');
     
         // Now start comparing all fields...
         compareField('ContainerNumber', $('#editContainerNumber').val());
@@ -311,42 +409,42 @@ document.addEventListener('DOMContentLoaded', function () {
         compareField('Transload', getCheckboxValue($('#editTransloadBoolean').is(':checked')));
         compareField('Shipline', selectedShiplineName);
         compareField('BOLBookingNumber', $('#editBOLBookingNumber').val());
-
+    
         compareField('Rail', getCheckboxValue($('#editRailBoolean').is(':checked')));
         compareField('RailDestination', $('#editRailDestination').val());
         compareField('RailwayLine', $('#editRailwayLine').val());
-        compareField('LoadToRail', $('#editLoadToRailDate').val());
-        compareField('RailDeparture', $('#editRailDepartureDate').val());
-        compareField('RailETA', $('#editRailETADate').val());
+        compareField('LoadToRail', getFlatpickrValue('#editLoadToRailDate'));
+        compareField('RailDeparture', getFlatpickrValue('#editRailDepartureDate'));
+        compareField('RailETA', getFlatpickrValue('#editRailETADate'));
         compareField('RailPickupNumber', $('#editRailPickupNumber').val());
-
+    
         compareField('FPM', selectedFPMName);
         compareField('ProjectNumber', $('#editProjectNumber').val());
         compareField('ShipmentNumber', $('#editShipmentNumber').val());
-
+    
         compareField('PONumber', $('#editPONumber').val());
         compareField('Vendor', $('#editVendor').val());
         compareField('VendorIDNumber', $('#editVendorIDNumber').val());
-
+    
         compareField('VesselLine', selectedVesselLineName);
         compareField('VesselName', selectedVesselName);
         compareField('Voyage', $('#editVoyage').val());
         compareField('PortOfDeparture', $('#editPortOfDeparture').val());
-        compareField('Sail', $('#editSailDate').val() || null);
-
-        compareField('Arrival', $('#editArrivalDate').val() || null);
-        compareField('Berth', $('#editBerthDate').val() || null);
-        compareField('Offload', $('#editOffloadDate').val() || null);
+        compareField('Sail', getFlatpickrValue('#editSailDate'));
     
-        compareField('Available', $('#editAvailableDate').val() || null);
-        compareField('PickupLFD', $('#editPickupLFDDate').val() || null);
-        compareField('PortRailwayPickup', $('#editPortRailwayPickupDate').val() || null);
-        compareField('ReturnLFD', $('#editReturnLFDDate').val() || null);
-        compareField('Delivered', $('#editDeliveredDate').val() || null);
-        compareField('Returned', $('#editReturnedDate').val() || null);
+        compareField('Arrival', getFlatpickrValue('#editArrivalDate'));
+        compareField('Berth', getFlatpickrValue('#editBerthDate'));
+        compareField('Offload', getFlatpickrValue('#editOffloadDate'));
+    
+        compareField('Available', getFlatpickrValue('#editAvailableDate'));
+        compareField('PickupLFD', getFlatpickrValue('#editPickupLFDDate'));
+        compareField('PortRailwayPickup', getFlatpickrValue('#editPortRailwayPickupDate'));
+        compareField('ReturnLFD', getFlatpickrValue('#editReturnLFDDate'));
+        compareField('Delivered', getFlatpickrValue('#editDeliveredDate'));
+        compareField('Returned', getFlatpickrValue('#editReturnedDate'));
     
         compareField('Notes', $('#editNotes').val());
-        compareField('LastUpdated', $('#editLastUpdatedDate').val() || null);
+        compareField('LastUpdated', getFlatpickrValue('#editLastUpdatedDate'));
     
         compareField('ShiplineID', convertIdToString(selectedShiplineID));
         compareField('FpmID', convertIdToString(selectedFPMID));
@@ -361,13 +459,46 @@ document.addEventListener('DOMContentLoaded', function () {
         compareField('BerthActual', $('#editBerthActualSelect').val());
         compareField('OffloadActual', $('#editOffloadActualSelect').val());
     
-        if (changedFields.length === 0) {
+        console.log('🔍 DEBUG: Field comparisons complete');
+        console.log('🔍 DEBUG: Changed fields so far:', changedFields);
+        console.log('🔍 DEBUG: lastUpdatedManuallyChanged:', lastUpdatedManuallyChanged);
+    
+        // ✅ NEW: Auto-update LastUpdated if any other field changed
+        if (changedFields.length > 0 && !lastUpdatedManuallyChanged) {
+            console.log('🔍 DEBUG: Auto-updating LastUpdated...');
+            
+            // Check if we already have LastUpdated in changedFields due to manual change
+            const lastUpdatedIndex = changedFields.findIndex(f => f.field === 'LastUpdated');
+            console.log('🔍 DEBUG: LastUpdated already in changedFields?', lastUpdatedIndex !== -1);
+            
+            // If LastUpdated wasn't manually changed, add/update it with current date
+            if (lastUpdatedIndex === -1) {
+                const newLastUpdatedValue = getCurrentDateTime();
+                console.log('🔍 DEBUG: Adding LastUpdated with value:', newLastUpdatedValue);
+                changedFields.push({ field: 'LastUpdated', value: newLastUpdatedValue });
+            }
+        }
+    
+        console.log('🔍 DEBUG: Final changedFields array:', changedFields);
+    
+        // ✅ NEW: Remove the automatic LastUpdated if it's the only change
+        if (changedFields.length === 1 && changedFields[0].field === 'LastUpdated' && !lastUpdatedManuallyChanged) {
+            console.log('🔍 DEBUG: Only LastUpdated changed automatically - skipping save');
             showToast("ℹ️ No changes to save.", "info");
             return;
         }
     
+        if (changedFields.length === 0) {
+            console.log('🔍 DEBUG: No changes detected');
+            showToast("ℹ️ No changes to save.", "info");
+            return;
+        }
+    
+        console.log('🔍 DEBUG: Sending PATCH requests for:', changedFields);
+    
         // Send PATCH requests only for changed fields
         const patchCalls = changedFields.map(({ field, value }) => {
+            console.log(`🔍 DEBUG: Creating PATCH request for field '${field}' with value:`, value);
             return $.ajax({
                 url: 'http://localhost:5062/api/containers/update-field',
                 method: 'PATCH',
@@ -378,14 +509,14 @@ document.addEventListener('DOMContentLoaded', function () {
     
         Promise.all(patchCalls)
             .then(() => {
+                console.log('✅ DEBUG: All PATCH requests successful');
                 bootstrap.Modal.getInstance(document.getElementById('editContainerModal')).hide();
                 $('#ContainerList').DataTable().ajax.reload(null, false);
                 showToast("✅ Changes saved successfully!", "success");
             })
             .catch((err) => {
-                console.error(err);
+                console.error('❌ DEBUG: PATCH request failed:', err);
                 showToast("❌ Failed to save changes.", "danger");
             });
     });
 });
-

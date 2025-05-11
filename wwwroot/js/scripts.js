@@ -385,7 +385,16 @@ function initializeContainerTable () {
             { data: 'delivered', name: 'delivered', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'returned', name: 'returned', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'notes', name: 'notes', className: 'editable' },
-            { data: 'lastUpdated', name: 'lastUpdated', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' }
+            { data: 'lastUpdated',  // Make sure this matches the property name in your data
+              title: 'Last Updated',
+              render: function(data, type, row) {
+                    if (!data) return '';
+                    
+                    // Format the date for display
+                    const date = new Date(data);
+                    return date.toLocaleDateString();
+              } 
+            }
         ],
         
         initComplete: function() {
