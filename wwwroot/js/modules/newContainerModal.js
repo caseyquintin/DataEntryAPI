@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Sail Actual
             $sailActualSelect.append(`<option value="">-- Choose --</option>`);
     
-            booleanOptions.forEach(option => {
+            actualOrEstimateOptions.forEach(option => {
                 $sailActualSelect.append(`<option value="${option}">${option}</option>`);
             });            
 
@@ -214,21 +214,21 @@ document.addEventListener('DOMContentLoaded', function () {
             // Arrival Actual
             $arrivalActualSelect.append(`<option value="">-- Choose --</option>`);
     
-            booleanOptions.forEach(option => {
+            actualOrEstimateOptions.forEach(option => {
                 $arrivalActualSelect.append(`<option value="${option}">${option}</option>`);
             });
 
             // Berth Actual
             $berthActualSelect.append(`<option value="">-- Choose --</option>`);
     
-            booleanOptions.forEach(option => {
+            actualOrEstimateOptions.forEach(option => {
                 $berthActualSelect.append(`<option value="${option}">${option}</option>`);
             });
 
             // Offload Actual
             $offloadActualSelect.append(`<option value="">-- Choose --</option>`);
     
-            booleanOptions.forEach(option => {
+            actualOrEstimateOptions.forEach(option => {
                 $offloadActualSelect.append(`<option value="${option}">${option}</option>`);
             });
 

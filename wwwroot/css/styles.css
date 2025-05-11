@@ -11037,12 +11037,3 @@ html, body {
   color: #212529 !important; /* Bootstrap's default text-dark */
   font-weight: 700;
 }
-
-.fade-out-warning {
-    transition: background-color 0.8s ease !important;
-}
-
-.fade-out-warning td {
-    transition: background-color 0.8s ease !important;
-    background-color: transparent !important;
-}

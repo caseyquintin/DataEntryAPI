@@ -58,13 +58,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         // Temporarily hide the row
-        row.node().style.opacity = '0.5';
+        row.node().style.opacity = '0.5'; 
 
         // Show undo message
         const undoBanner = $(`
             <div class="alert alert-warning alert-dismissible fade show position-fixed bottom-0 end-0 m-4" style="z-index: 1055; min-width: 300px;">
                 <strong>Container ${containerToDelete.data.containerNumber || containerID} deleted.</strong> 
-                <button type="button" class="btn btn-sm btn-light ms-2 undo-delete-btn" data-id="${containerNumber}">Undo</button>
+                <button type="button" class="btn btn-sm btn-light ms-2 undo-delete-btn" data-id="${containerID}">Undo</button> 
             </div>
         `).appendTo('body');
 
