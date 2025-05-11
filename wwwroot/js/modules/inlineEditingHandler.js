@@ -245,9 +245,34 @@ const linkedFieldHandlers = {
         }
     }
 
+    // Replace your current fadeNewRowHighlights function with this working version:
+    function fadeNewRowHighlights() {
+        
+        // Find rows with table-warning class
+        const warningRows = $('#ContainerList tbody tr.table-warning');
+        
+        if (warningRows.length > 0) {
+            
+            // Remove the class with a CSS transition
+            warningRows.addClass('fade-out-warning');
+            
+            setTimeout(() => {
+                warningRows.removeClass('table-warning fade-out-warning');
+            }, 800);
+        }
+    }
+
     // ✅ INLINE EDITING HANDLER: Save changes to backend
     window.initializeDataTableHandlers = function (table) {
-        $('#ContainerList tbody').on('click', 'td.editable', async function () {        
+        $('#ContainerList tbody').on('click', 'td.editable', async function () {     
+            
+            console.log("🖱️ Editable cell clicked");
+            
+            // Debug what happens before fade
+            setTimeout(() => {
+                fadeNewRowHighlights();
+            }, 5000);
+
             // Skip if we're already processing a cell
             if ($('#ContainerList td.editing').length > 0 || $(this).hasClass('processing-update')) {
                 return;
