@@ -23,6 +23,15 @@ $(document).off('click', '#bulkEditBtn').on('click', '#bulkEditBtn', function (e
         }
     });
 
+    // Explicitly set placeholders for dependent dropdowns
+    $('#bulkVesselNameSelect').empty()
+        .append('<option value="">-- Select Vessel Name --</option>')
+        .prop('disabled', true);
+    
+    $('#bulkTerminalSelect').empty()
+        .append('<option value="">-- Select Terminal --</option>')
+        .prop('disabled', true);
+
     //  ✅ Populate dropdowns before modal opens
     populateBulkDropdowns();
 
@@ -70,7 +79,11 @@ function populateBulkDropdowns() {
 
     $('#bulkSailActualSelect, #bulkArrivalActualSelect, #bulkBerthActualSelect, #bulkOffloadActualSelect').each(function () {
         const $el = $(this).empty().append('<option value="">-- Choose --</option>');
-        booleanOptions.forEach(opt => $el.append(`<option value="${opt}">${opt}</option>`));
+        
+        console.log("actualOrEstimateOptions:", actualOrEstimateOptions); // Debug line
+        console.log("booleanOptions:", booleanOptions); // Debug line
+        
+        actualOrEstimateOptions.forEach(opt => $el.append(`<option value="${opt}">${opt}</option>`));
     });
 
     $('#bulkCarrierSelect').empty().append('<option value="">-- Select Carrier --</option>');
@@ -91,7 +104,8 @@ $('#bulkVesselLineSelect').on('change', async function () {
     $vesselNameSelect.empty().append('<option value="">Loading...</option>');
 
     if (!vesselLineId) {
-        $vesselNameSelect.html('<option value="">Select a Vessel Line first</option>').prop('disabled', true);
+        // Use consistent placeholder text here too
+        $vesselNameSelect.html('<option value="">-- Select Vessel Name --</option>').prop('disabled', true);
         return;
     }
 
@@ -136,9 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const form = document.getElementById('bulkContainerForm');
 
-    flatpickr("#bulkArrivalDate", { allowInput: true, dateFormat: "Y-m-d", altInput: true, altFormat: "m/d/Y" });
-    flatpickr("#bulkSailDate", { allowInput: true, dateFormat: "Y-m-d", altInput: true, altFormat: "m/d/Y" });
-
     // Reset all bulk modal inputs and checkboxes
     $('#bulkContainerForm').find('input, select, textarea').each(function () {
         const isCheckbox = this.type === 'checkbox';
@@ -174,16 +185,76 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetID === 'bulkVesselLineSelect' && !shouldEnable) {
             $('#bulkVesselNameSelect').prop('disabled', true).val('');
         }
+
+        // Special handling for Vessel Line checkbox
+        if (this.id === 'applyBulkVesselLineID' && this.checked) {
+            // Automatically check and enable Vessel Name
+            const vesselNameCheckbox = document.getElementById('applyBulkVesselID');
+            if (vesselNameCheckbox && !vesselNameCheckbox.checked) {
+                vesselNameCheckbox.checked = true;
+                $('#bulkVesselNameSelect').prop('disabled', false);
+                showToast('ℹ️ Vessel Name selection enabled - please select a Vessel Name for the new Vessel Line.', 'info');
+            }
+        }
+
+        // Special handling for Terminal checkbox
+        if (this.id === 'applyBulkPortID' && this.checked) {
+            // Automatically check and enable Terminal
+            const terminalCheckbox = document.getElementById('applyBulkTerminalID');
+            if (terminalCheckbox && !terminalCheckbox.checked) {
+                terminalCheckbox.checked = true;
+                $('#bulkTerminalSelect').prop('disabled', false);
+                showToast('ℹ️ Port Of Entry selection enabled - please select a Terminal for the new Port Of Entry.', 'info');
+            }
+        }
     });
 
     // Handle form submit
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        const selectedIDs = getSelectedContainerIDs(); // Make sure this exists!
+    
+        const selectedIDs = getSelectedContainerIDs();
         if (selectedIDs.length === 0) {
             showToast('⚠️ No containers selected.', 'warning');
             return;
+        }
+    
+        // Check if Vessel Line is being applied
+        const vesselLineCheckbox = document.getElementById('applyBulkVesselLineID');
+        const vesselNameCheckbox = document.getElementById('applyBulkVesselID');
+        
+        if (vesselLineCheckbox && vesselLineCheckbox.checked) {
+            // If Vessel Line is being changed, Vessel Name must also be changed
+            if (!vesselNameCheckbox || !vesselNameCheckbox.checked) {
+                showToast('⚠️ When changing the Vessel Line, you must also select a new Vessel Name.', 'warning');
+                return;
+            }
+            
+            // Also check that a valid vessel name is selected
+            const vesselNameSelect = document.getElementById('bulkVesselNameSelect');
+            if (!vesselNameSelect.value || vesselNameSelect.value === '') {
+                showToast('⚠️ Please select a Vessel Name for the new Vessel Line.', 'warning');
+                return;
+            }
+        }
+
+        // Check if Port Of Entry is being applied
+        const portOfEntryCheckbox = document.getElementById('applyBulkPortID');
+        const terminalCheckbox = document.getElementById('applyBulkTerminalID');
+        
+        if (portOfEntryCheckbox && portOfEntryCheckbox.checked) {
+            // If Port of Entry is being changed, Terminal must also be changed
+            if (!terminalCheckbox || !terminalCheckbox.checked) {
+                showToast('⚠️ When changing the Port Of Entry, you must also select a new Terminal.', 'warning');
+                return;
+            }
+            
+            // Also check that a valid Terminal is selected
+            const terminalSelect = document.getElementById('bulkTerminalSelect');
+            if (!terminalSelect.value || terminalSelect.value === '') {
+                showToast('⚠️ Please select a Terminal for the new Port Of Entry.', 'warning');
+                return;
+            }
         }
 
         const containerTemplate = {};
@@ -208,6 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let value = input.value;
+            let handled = false;
 
             // Handle paired ID/name selects (e.g., ShiplineID + Shipline)
             if (input.tagName === 'SELECT' && input.options[input.selectedIndex]) {
@@ -216,39 +288,63 @@ document.addEventListener('DOMContentLoaded', () => {
             
                 if (nameAttr === 'ShiplineID') {
                     containerTemplate['Shipline'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['ShiplineID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'CarrierID') {
                     containerTemplate['Carrier'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['CarrierID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'FpmID') {
                     containerTemplate['FPM'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['FpmID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'PortID') {
                     containerTemplate['PortOfEntry'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['PortID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'TerminalID') {
                     containerTemplate['Terminal'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['TerminalID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'VesselLineID') {
                     containerTemplate['VesselLine'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['VesselLineID'] = parseInt(value);
+                    handled = true;
                 }
             
                 if (nameAttr === 'VesselID') {
                     containerTemplate['VesselName'] = selectedOption.dataset.name || selectedOption.text;
+                    containerTemplate['VesselID'] = parseInt(value);
+                    handled = true;
                 }
             }
             
             if (input.type === 'checkbox') {
                 value = input.checked;
+                
+                // Special handling for boolean fields that need Yes/No conversion
+                if (name === 'Transload' || name === 'Rail') {
+                    if (booleanOptions && booleanOptions.length === 2) {
+                        value = value ? booleanOptions[0] : booleanOptions[1];
+                    } else {
+                        value = value ? 'Yes' : 'No';
+                    }
+                }
             }
             
+            if (!handled) {
             containerTemplate[input.name] = value;
-            
+            }            
         });
 
         if (Object.keys(containerTemplate).length === 0) {

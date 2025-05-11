@@ -11,14 +11,15 @@ function populateDropdown($select, options, value) {
     $select.val(value || '');
 }
 
-// Reusable: dropdown for object arrays (e.g., { id, name })
+// Update populateDropdownFromObjects to include data-name attribute
 function populateDropdownFromObjects($select, items, selectedValue, valueKey = 'id', textKey = 'name') {
     $select.empty().append('<option value="">-- Choose --</option>');
 
     items.forEach(item => {
         const value = item[valueKey];
         const text = item[textKey];
-        $select.append(`<option value="${value}">${text}</option>`);
+        // Add data-name attribute
+        $select.append(`<option value="${value}" data-name="${text}">${text}</option>`);
     });
 
     $select.val(selectedValue || '');
@@ -78,23 +79,70 @@ document.addEventListener('DOMContentLoaded', function () {
             const $vesselNameSelect = $('#editVesselNameSelect');
 
             if (data.vesselLineID) {
-                const vesselNames = await fetchVesselNamesByVesselLineId(data.vesselLineID);
-                $vesselNameSelect.empty().append('<option value="">-- Select Vessel Name --</option>');
-                vesselNames.forEach(v => {
-                    const selected = v.vesselID === data.vesselID ? 'selected' : '';
-                    $vesselNameSelect.append(`<option value="${v.vesselID}" data-name="${v.vesselName}" ${selected}>${v.vesselName}</option>`);
-                });
-                $vesselNameSelect.prop('disabled', false);
+                const vesselLineText = $('#editVesselLineSelect').find(':selected').text().trim();
+                
+                // If vessel line is "UNKNOWN", only show "UNKNOWN" as vessel name
+                if (vesselLineText === 'UNKNOWN') {
+                    $vesselNameSelect.empty()
+                        .append('<option value="">-- Select Vessel Name --</option>')
+                        .append('<option value="" data-name="UNKNOWN">UNKNOWN</option>');
+                    
+                    // If the vessel name is "UNKNOWN", select it
+                    if (data.vesselName === 'UNKNOWN') {
+                        $vesselNameSelect.val('');
+                        $vesselNameSelect.find('option:contains("UNKNOWN")').prop('selected', true);
+                    }
+                    
+                    $vesselNameSelect.prop('disabled', false);
+                } else {
+                    // Normal vessel line - load actual vessel names
+                    try {
+                        const vesselNames = await fetchVesselNamesByVesselLineId(data.vesselLineID);
+                        $vesselNameSelect.empty().append('<option value="">-- Select Vessel Name --</option>');
+                        
+                        vesselNames.forEach(v => {
+                            const selected = v.vesselID === data.vesselID ? 'selected' : '';
+                            $vesselNameSelect.append(`<option value="${v.vesselID}" data-name="${v.vesselName}" ${selected}>${v.vesselName}</option>`);
+                        });
+                        
+                        $vesselNameSelect.prop('disabled', false);
+                    } catch (err) {
+                        console.error("Error loading vessel names:", err);
+                        $vesselNameSelect.html('<option value="">Error loading vessels</option>');
+                    }
+                }
             } else {
-                $vesselNameSelect.html('<option value="">Select a Vessel Line first...</option>').prop('disabled', true);
+                $vesselNameSelect.html('<option value="">-- Select Vessel Name --</option>').prop('disabled', true);
             }
 
             $('#editVesselLineSelect').off('change').on('change', async function () {
                 const selectedId = $(this).val();
-                $vesselNameSelect.empty().append('<option value="">Loading...</option>');
+                const selectedText = $(this).find(':selected').text().trim();
+                
+                $vesselNameSelect.empty();
+                
+                // Always start with the placeholder
+                $vesselNameSelect.append('<option value="">-- Select Vessel Name --</option>');
+                
+                // If "UNKNOWN" vessel line is selected, only show "UNKNOWN" as vessel name option
+                if (selectedText === 'UNKNOWN') {
+                    $vesselNameSelect.append('<option value="" data-name="UNKNOWN">UNKNOWN</option>');
+                    $vesselNameSelect.prop('disabled', false);
+                    return;
+                }
+                
+                if (!selectedId) {
+                    $vesselNameSelect.prop('disabled', true);
+                    return;
+                }
+                
+                // For all other vessel lines, load the actual vessel names
+                $vesselNameSelect.append('<option value="">Loading...</option>');
+                
                 try {
                     const names = await fetchVesselNamesByVesselLineId(selectedId);
                     $vesselNameSelect.empty().append('<option value="">-- Select Vessel Name --</option>');
+                    
                     names.forEach(n => {
                         $vesselNameSelect.append(`<option value="${n.vesselID}" data-name="${n.vesselName}">${n.vesselName}</option>`);
                     });
@@ -181,8 +229,20 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#editContainerForm').on('submit', function (e) {
         e.preventDefault();
     
+        const convertIdToString = (value) => {
+            return value ? String(value) : null;
+        };
+        
         const containerID = $('#editContainerID').val();
         const changedFields = [];
+        
+        // Define all the IDs early
+        const vesselLineID = $('#editVesselLineSelect').val();
+        const vesselID = $('#editVesselNameSelect').val();
+        const portID = $('#editPortOfEntrySelect').val();
+        const terminalID = $('#editTerminalSelect').val();
+        
+        // Get other select values
         const $shiplineSelect = $('#editShiplineSelect');
         const selectedShiplineID = $shiplineSelect.val();
         const selectedShiplineName = $shiplineSelect.find(':selected').data('name');
@@ -190,7 +250,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedFPMID = $fpmSelect.val();
         const selectedFPMName = $fpmSelect.find(':selected').data('name');
         const selectedVesselLineName = $('#editVesselLineSelect').find(':selected').data('name');
-        const selectedVesselName = $('#editVesselNameSelect').find(':selected').data('name');
+        // When getting the selected vessel name, handle the [Blank] option
+        const selectedVesselName = $('#editVesselNameSelect').find(':selected').text() === '[Blank]' 
+            ? '' 
+            : $('#editVesselNameSelect').find(':selected').data('name');
     
         const compareField = (field, newVal) => {
             const originalVal = originalContainerData[field];
@@ -204,16 +267,42 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         };
     
-        // Compare all fields (use the same naming as your backend expects)
+        const getCheckboxValue = (checked) => {
+            return checked ? 'Yes' : 'No';
+        };
+    
+        // Validation section
+        const originalVesselLineID = originalContainerData.vesselLineID;
+        const originalPortID = originalContainerData.portID;
+        
+        // In the validation section, you might want to require "UNKNOWN" vessel name when "UNKNOWN" vessel line is selected
+        const vesselLineText = $('#editVesselLineSelect').find(':selected').text().trim();
+        if (vesselLineID !== String(originalVesselLineID) && 
+            vesselLineID && 
+            !vesselID &&
+            vesselLineText !== 'UNKNOWN') {  // Still allow empty vessel name for UNKNOWN
+            showToast('⚠️ When changing Vessel Line, you must also select a Vessel Name.', 'warning');
+            return;
+        }
+        
+        // Similar validation for Port/Terminal
+        if (portID !== String(originalPortID) && portID && !terminalID) {
+            showToast('⚠️ When changing Port of Entry, you must also select a Terminal.', 'warning');
+            return;
+        }
+
+        // 👆 END OF VALIDATION
+    
+        // Now start comparing all fields...
         compareField('ContainerNumber', $('#editContainerNumber').val());
         compareField('CurrentStatus', $('#editCurrentStatusSelect').val());
         compareField('ContainerSize', $('#editContainerSizeSelect').val());
         compareField('MainSource', $('#editMainSourceSelect').val());
-        compareField('Transload', $('#editTransloadBoolean').is(':checked') ? 'Yes' : 'No');
+        compareField('Transload', getCheckboxValue($('#editTransloadBoolean').is(':checked')));
         compareField('Shipline', selectedShiplineName);
         compareField('BOLBookingNumber', $('#editBOLBookingNumber').val());
 
-        compareField('Rail', $('#editRailBoolean').is(':checked') ? 'Yes' : 'No');
+        compareField('Rail', getCheckboxValue($('#editRailBoolean').is(':checked')));
         compareField('RailDestination', $('#editRailDestination').val());
         compareField('RailwayLine', $('#editRailwayLine').val());
         compareField('LoadToRail', $('#editLoadToRailDate').val());
@@ -241,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
         compareField('Available', $('#editAvailableDate').val() || null);
         compareField('PickupLFD', $('#editPickupLFDDate').val() || null);
-        compareField('PortRailwayPickup', $('#editPickupDate').val() || null);
+        compareField('PortRailwayPickup', $('#editPortRailwayPickupDate').val() || null);
         compareField('ReturnLFD', $('#editReturnLFDDate').val() || null);
         compareField('Delivered', $('#editDeliveredDate').val() || null);
         compareField('Returned', $('#editReturnedDate').val() || null);
@@ -249,13 +338,13 @@ document.addEventListener('DOMContentLoaded', function () {
         compareField('Notes', $('#editNotes').val());
         compareField('LastUpdated', $('#editLastUpdatedDate').val() || null);
     
-        compareField('ShiplineID', selectedShiplineID);
-        compareField('FpmID', selectedFPMID);
-        compareField('VesselLineID', $('#editVesselLineSelect').val());
-        compareField('VesselID', $('#editVesselNameSelect').val());
-        compareField('PortID', $('#editPortOfEntrySelect').val());
-        compareField('TerminalID', $('#editTerminalSelect').val());
-        compareField('CarrierID', $('#editCarrierSelect').val());
+        compareField('ShiplineID', convertIdToString(selectedShiplineID));
+        compareField('FpmID', convertIdToString(selectedFPMID));
+        compareField('VesselLineID', convertIdToString($('#editVesselLineSelect').val()));
+        compareField('VesselID', convertIdToString($('#editVesselNameSelect').val()));
+        compareField('PortID', convertIdToString($('#editPortOfEntrySelect').val()));
+        compareField('TerminalID', convertIdToString($('#editTerminalSelect').val()));
+        compareField('CarrierID', convertIdToString($('#editCarrierSelect').val()));
     
         compareField('SailActual', $('#editSailActualSelect').val());
         compareField('ArrivalActual', $('#editArrivalActualSelect').val());
