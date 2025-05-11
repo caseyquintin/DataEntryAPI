@@ -1,11 +1,12 @@
 // bulkDelete.js
-function initializeBulkDelete(table) {
-    // Bulk delete button click handler
+document.addEventListener('DOMContentLoaded', function () {
+    // Bulk delete button - specific event handler with proper event control
     $('#bulkDeleteBtn').off('click').on('click', function(e) {
+        // Prevent any default actions or event bubbling
         e.preventDefault();
         e.stopPropagation();
         
-        console.log('Bulk Delete button clicked');
+        console.log('Bulk Delete button clicked'); // Debug log
         
         const selectedIDs = getSelectedContainerIDs();
 
@@ -14,6 +15,9 @@ function initializeBulkDelete(table) {
             return;
         }
 
+        // Populate the confirmation modal with selected containers
+        const table = $('#ContainerList').DataTable();
+        
         // Clear the existing list
         $('#containerListToDelete').empty();
         
@@ -25,8 +29,14 @@ function initializeBulkDelete(table) {
             
             if (rowIndex.length > 0) {
                 const data = table.row(rowIndex[0]).data();
-                // Simpler list item format
-                const listItem = `<li class="mb-2"><strong>${data.containerNumber || 'No Number'}</strong></li>`;
+                // Create list item for each container
+                const listItem = `
+                    <li class="list-group-item">
+                        <strong>${data.containerNumber || 'No Number'}</strong> - 
+                        ID: ${id} - 
+                        Status: ${data.currentStatus || 'N/A'}
+                    </li>
+                `;
                 $('#containerListToDelete').append(listItem);
             }
         });
@@ -34,13 +44,13 @@ function initializeBulkDelete(table) {
         // Update modal title with count
         $('#confirmBulkDeleteModalLabel').text(`⚠️ Confirm Delete (${selectedIDs.length} containers)`);
         
-        // Show the confirmation modal
+        // Show the confirmation modal with proper Bootstrap 5 initialization
         const modalElement = document.getElementById('confirmBulkDeleteModal');
-        const existingModal = bootstrap.Modal.getInstance(document.querySelector('.modal.show'));
-        if (existingModal) {
-            existingModal.hide();
-        }
         
+        // Ensure any existing modals are hidden first
+        $('.modal').modal('hide');
+        
+        // Show the delete confirmation modal
         const modal = new bootstrap.Modal(modalElement);
         modal.show();
     });
@@ -51,18 +61,16 @@ function initializeBulkDelete(table) {
         e.stopPropagation();
         
         // Hide the modal
-        const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmBulkDeleteModal'));
-        if (confirmModal) {
-            confirmModal.hide();
-        }
+        $('#confirmBulkDeleteModal').modal('hide');
         
+        // Get the selected IDs again
         const selectedIDs = getSelectedContainerIDs();
         
         if (selectedIDs.length === 0) return;
 
         // Save row data and temporarily hide each row
         selectedIDs.forEach(id => {
-            const row = table.row('#' + id);
+            const row = ContainerTable.row('#' + id);
             if (row.node()) {
                 $(row.node()).css('opacity', '0.5');
                 localStorage.setItem(`deleted-${id}`, JSON.stringify(row.data()));
@@ -89,33 +97,28 @@ function initializeBulkDelete(table) {
             ).then(() => {
                 undoBanner.alert('close');
                 selectedIDs.forEach(id => localStorage.removeItem(`deleted-${id}`));
-                table.ajax.reload(null, false);
-                showToast('✅ Containers deleted successfully!', 'success');
+                ContainerTable.ajax.reload(null, false);
             }).catch(err => {
                 console.error('❌ Bulk delete error:', err);
                 showToast('❌ Some deletions failed.', 'danger');
-                table.ajax.reload(null, false);
+                ContainerTable.ajax.reload(null, false);
             });
         }, 10000);
 
-        // Undo button handler
+        // Undo button handler - use once to prevent multiple bindings
         $('body').one('click', '#undoBulkDeleteBtn', function() {
             clearTimeout(bulkDeleteTimeout);
             undoBanner.alert('close');
 
             selectedIDs.forEach(id => {
-                const row = table.row('#' + id);
+                const row = ContainerTable.row('#' + id);
                 if (row.node()) {
                     $(row.node()).css('opacity', '1');
                 }
                 localStorage.removeItem(`deleted-${id}`);
             });
 
-            showToast('🔄 Deletion cancelled', 'info');
             console.log(`🕓 Undo bulk delete for: ${selectedIDs.join(', ')}`);
         });
     });
-}
-
-// Make the function globally available
-window.initializeBulkDelete = initializeBulkDelete;
+});
