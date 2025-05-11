@@ -154,12 +154,12 @@ DataEntryAPI
  
 ⏲️🛠️**Short Term Development Goals**🛠️⏲️
  ✅ Configure initial system using tech stack noted above (started 3/21/2025, completed 4/25/2025)
- ⏹️ Set default Last Updated date to current when container is created or edited.
+ ✅ Set default Last Updated date to current when container is created or edited.
     ✅ Inline (5/10/2025)
-    ✅ New Container
-    ⏹️ Single Edit
-    ⏹️ Bulk Edit
-    ⏹️ Blank Line  
+    ✅ New Container (5/11/2025)
+    ✅ Single Edit (5/11/2025)
+    ✅ Bulk Edit (5/11/2025)
+    ✅ Blank Line (5/10/2025)  
  ⏹️ Link generation for SSLs, Vessel Owners and Terminals
  ⏹️ Color coding for Actual/Estimate, Current Status and Main Source
  ⏹️ Make Search function more robust
