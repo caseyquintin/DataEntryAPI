@@ -384,7 +384,7 @@ function initializeContainerTable () {
             { data: 'returnLFD', name: 'returnLFD', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'delivered', name: 'delivered', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'returned', name: 'returned', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
-            { data: 'notes', name: 'notes', className: 'editable' },
+            { data: 'notes', name: 'notes', className: 'editable' },  
             { 
                 data: 'lastUpdated',
                 name: 'lastUpdated',  // Add this too for consistency
