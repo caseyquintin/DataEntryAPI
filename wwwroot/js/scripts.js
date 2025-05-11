@@ -390,7 +390,7 @@ function initializeContainerTable () {
                 name: 'lastUpdated',  // Add this too for consistency
                 title: 'Last Updated',
                 className: 'editable',  // ✅ This makes it editable!
-                render: function(data, type, row) {
+                render: function(data, type, row) { 
                       if (!data) return '';
                       const date = new Date(data);
                       return date.toLocaleDateString();    
