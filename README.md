@@ -203,7 +203,7 @@ DataEntryAPI
 ***Inline***
 ✅ Date pickers don't work. (5/9/2025)
 ✅ When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected. (5/9/2025)
-❓ Cascading DDs are still malfunctioning if changed too quickly
+❓ Cascading DDs are still malfunctioning if changed too quickly // seems to be working okay as of 5/10
 ✅ Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected. (5/10/2025)
  
 ***Single Edit***
