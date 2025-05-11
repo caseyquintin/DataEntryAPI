@@ -393,7 +393,7 @@ function initializeContainerTable () {
                 render: function(data, type, row) { 
                       if (!data) return '';
                       const date = new Date(data);
-                      return date.toLocaleDateString();    
+                      return date.toLocaleDateString();     
                 }
             }
         ],
