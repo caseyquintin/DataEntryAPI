@@ -394,7 +394,7 @@ function initializeContainerTable () {
                       if (!data) return '';
                       const date = new Date(data);
                       return date.toLocaleDateString();
-                } // edit to see if main scripts.js sync is working
+                } // edit to see if main scripts.js sync is working  
             }
         ],
         
