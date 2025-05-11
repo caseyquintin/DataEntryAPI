@@ -4,10 +4,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // New Container Button Function
     $(document).on('click', '#addContainerBtn', function () {
         const modalEl = document.getElementById('addContainerModal');
-    
+
         // ✅ Fully reset form and modal state
         $('#addContainerForm')[0].reset(); // clear inputs
         $('#addContainerForm').find('.is-invalid').removeClass('is-invalid'); // optional: clear validation styles
+
+        // Reset LastUpdated tracking
+        lastUpdatedManuallySet = false;
     
         // ✅ Remove stuck modal artifacts if needed
         modalEl.classList.remove('show');
@@ -27,6 +30,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Inject New Container Modal Options When It Opens
     $('#addContainerModal').on('show.bs.modal', function () {
+
+    // Reset the manual flag when modal opens
+    lastUpdatedManuallySet = false;
+    
+    // Set initial LastUpdated to today
+    updateLastUpdatedField();
+    
+    // Setup tracking after all fields are loaded
+    setTimeout(() => {
+        setupLastUpdatedTracking();
+    }, 100); // Small delay to ensure all dynamic fields are loaded
 
     // **Container Information**
         const $currentStatusSelect = $('#newCurrentStatusSelect');
@@ -250,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // **End sections**
-        });
+    });
 
     $('#addContainerForm').on('submit', function(e) {
         e.preventDefault();
@@ -290,19 +304,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
 
-        const shiplineId = parseInt($('#newShiplineSelect').val());
-
-        if (!shiplineId) {
-            showToast("❌ Please select a valid Shipline!", "danger");
-            return; // cancel submission
-        };
-
-        const fpmId = parseInt($('#newFPMSelect').val());
-
-        if (!fpmId) {
-            showToast("❌ Please select a valid FPM!", "danger");
-            return; // cancel submission
-        };
+        // Ensure LastUpdated is included (even if null)
+        if (!newContainer.LastUpdated) {
+            newContainer.LastUpdated = $('#newLastUpdated').val() || null;
+        }
         
         $.ajax({
             url: "http://localhost:5062/api/containers",
@@ -321,3 +326,41 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// Track if LastUpdated was manually changed
+let lastUpdatedManuallySet = false;
+
+// Function to update LastUpdated field
+function updateLastUpdatedField() {
+    // Don't update if user manually set the value
+    if (lastUpdatedManuallySet) return;
+    
+    const now = new Date();
+    const formattedDate = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    $('#newLastUpdated').val(formattedDate);
+}
+
+// Add change event listeners to all form fields
+function setupLastUpdatedTracking() {
+    // Get all form inputs, selects, and textareas
+    $('#addContainerForm').find('input, select, textarea').each(function() {
+        const $field = $(this);
+        const fieldId = $field.attr('id');
+        
+        // Skip the LastUpdated field itself
+        if (fieldId === 'newLastUpdated') {
+            // Track manual changes to LastUpdated
+            $field.on('change input', function() {
+                lastUpdatedManuallySet = true;
+            });
+            return;
+        }
+        
+        // Add change listener to all other fields
+        $field.on('change input', function() {
+            // Reset the manual flag when other fields change
+            lastUpdatedManuallySet = false;
+            updateLastUpdatedField();
+        });
+    });
+}
