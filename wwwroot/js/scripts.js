@@ -385,7 +385,17 @@ function initializeContainerTable () {
             { data: 'delivered', name: 'delivered', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'returned', name: 'returned', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'notes', name: 'notes', className: 'editable' },
-            { data: 'lastUpdated', name: 'lastUpdated', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' }
+            { 
+                data: 'lastUpdated',
+                name: 'lastUpdated',  // Add this too for consistency
+                title: 'Last Updated',
+                className: 'editable',  // ✅ This makes it editable!
+                render: function(data, type, row) {
+                      if (!data) return '';
+                      const date = new Date(data);
+                      return date.toLocaleDateString();
+                } 
+              }
         ],
         
         initComplete: function() {
