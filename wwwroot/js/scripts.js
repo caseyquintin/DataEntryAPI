@@ -394,7 +394,7 @@ function initializeContainerTable () {
                       if (!data) return '';
                       const date = new Date(data);
                       return date.toLocaleDateString();
-                } 
+                }
             }
         ],
         
