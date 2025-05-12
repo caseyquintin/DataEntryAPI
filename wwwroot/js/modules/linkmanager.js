@@ -19,12 +19,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${shipline.name}</td>
                     <td>
                         <input type="text" class="form-control form-control-sm shipline-link" 
-                               value="${shipline.link || ''}" placeholder="https://example.com">
+                               value="${shipline.link || ''}" 
+                               placeholder="https://example.com/track?container={container}">
+                        <small class="form-text text-muted">Use {container} as placeholder for container number</small>
                     </td>
                     <td>
                         <div class="form-check form-switch">
                             <input class="form-check-input shipline-dynamic" type="checkbox" 
                                    id="shipline_${shipline.id}" ${shipline.isDynamicLink ? 'checked' : ''}>
+                            <label class="form-check-label small" for="shipline_${shipline.id}">
+                                Dynamic Link
+                            </label>
                         </div>
                     </td>
                     <td>
@@ -46,12 +51,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${vesselLine.name}</td>
                     <td>
                         <input type="text" class="form-control form-control-sm vesselline-link" 
-                               value="${vesselLine.link || ''}" placeholder="https://example.com">
+                               value="${vesselLine.link || ''}" 
+                               placeholder="https://example.com/track?voyage={voyage}">
+                        <small class="form-text text-muted">Use {voyage} as placeholder for voyage number</small>
                     </td>
                     <td>
                         <div class="form-check form-switch">
                             <input class="form-check-input vesselline-dynamic" type="checkbox" 
                                    id="vesselline_${vesselLine.id}" ${vesselLine.isDynamicLink ? 'checked' : ''}>
+                            <label class="form-check-label small" for="vesselline_${vesselLine.id}">
+                                Dynamic Link
+                            </label>
                         </div>
                     </td>
                     <td>

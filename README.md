@@ -160,7 +160,7 @@ DataEntryAPI
     ✅ Single Edit (5/11/2025)
     ✅ Bulk Edit (5/11/2025)
     ✅ Blank Line (5/10/2025)  
- ⏹️ Link generation for SSLs, Vessel Owners and Terminals (started 5/12/2025, completed _______)
+ ✅ Basic link generation for SSLs, Vessel Owners and Terminals (started 5/12/2025, completed 5/12/2025)
  ⏹️ Color coding for Actual/Estimate, Current Status and Main Source
  ⏹️ Make Search function more robust
  ⏹️ Filter table by status using pages and show only relevant columns
@@ -196,6 +196,21 @@ DataEntryAPI
 * * * * *
 
 ⏳🛠️**Long Term Development Goals**🛠️⏳
+⏹️ Intelligent Vessel Tracking Integration
+   ⏹️ Implement direct integration with shipping line websites via vessel codes/voyage #s
+   ⏹️ Enable one-click access to vessel schedules
+   ⏹️ Support automated form submission for sites like HMM that require additional steps
+   ⏹️ Create configurable link templates for different shipping lines
+⏹️ Intelligent Container Status Lookup
+   ⏹️ Implement direct integration with shipping line tracking systems
+   ⏹️ Enable one-click access to container status from shipment records  
+   ⏹️ Support automated lookup for container numbers per shipline
+   ⏹️ Create configurable tracking URL templates for different shipping lines
+⏹️ Contextual Terminal Lookup System
+   ⏹️ Implement terminal lookup type selector (Availability/Vessel Schedule/General)
+   ⏹️ Split terminal lookup types into separate database field (LookupType with Availability, Vessel Schedule and General as options)
+   ⏹️ Create dynamic link generation based on terminal + lookup type combination
+   ⏹️ Enable user-driven selection of appropriate terminal interfaces
 ⏹️ Role restrictions by User Profile definitions set in ALOT
 ⏹️ Container Notes Timeline - Changes in dates/information by Container ID
 ⏹️ Integrate with ALOT

@@ -48,7 +48,7 @@ function createLinkIcon(url, tooltip = 'Visit website', isDynamic = false) {
 }
 
 // Process dynamic links that need container substitution
-function getProcessedLink(entityType, entityName, containerNumber) {
+function getProcessedLink(entityType, entityName, containerNumber, voyageNumber) {
     if (!entityName) return '';
     
     let entity, isEntityWithDynamicLink;
@@ -69,30 +69,40 @@ function getProcessedLink(entityType, entityName, containerNumber) {
     // If no entity found or no link available, return empty string
     if (!entity || !entity.link) return '';
     
-    // If it's a dynamic link but no container number is available
-    if (isEntityWithDynamicLink && (!containerNumber || containerNumber.trim() === '')) {
-        // Return a base link that will prompt for container number
-        // Some websites allow this functionality
-        return entity.link.split('?')[0]; // Return base URL without query parameters
+    // Process the link if it's dynamic
+    if (isEntityWithDynamicLink) {
+        // Get the raw link from our options
+        let processedLink = entity.link;
+        
+        // Replace container placeholders if available
+        if (containerNumber) {
+            processedLink = processedLink
+                .replace('{container}', containerNumber)
+                .replace('{CONTAINER}', containerNumber)
+                .replace('container=\\r', `container=${containerNumber}`);
+        }
+        
+        // Replace voyage placeholders if available
+        if (voyageNumber) {
+            processedLink = processedLink
+                .replace('{voyage}', voyageNumber)
+                .replace('{VOYAGE}', voyageNumber)
+                .replace('{voy}', voyageNumber)
+                .replace('{VOY}', voyageNumber);
+        }
+        
+        // If there are still placeholders but we don't have values,
+        // return the base URL
+        if ((processedLink.includes('{container}') || processedLink.includes('container=\\r')) && !containerNumber ||
+            (processedLink.includes('{voyage}') || processedLink.includes('{voy}')) && !voyageNumber) {
+            return processedLink.split('?')[0]; // Return base URL without query parameters
+        }
+        
+        return processedLink;
     }
     
-    // If it's a dynamic link and we have a container number, process it
-    if (isEntityWithDynamicLink && containerNumber) {
-        return processContainerLink(entity.link, containerNumber);
-    }
-    
-    // Otherwise, return the link as is
+    // For non-dynamic links, return as-is
     return entity.link;
-}
-
-function processContainerLink(link, containerNumber) {
-    if (!link || !containerNumber) return '';
-    
-    // Common substitution patterns
-    return link
-        .replace('container=\\r', `container=${containerNumber}`)
-        .replace('{container}', containerNumber)
-        .replace('{CONTAINER}', containerNumber);
 }
 
 // Fetch dropdown options
