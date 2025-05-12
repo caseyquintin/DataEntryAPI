@@ -262,3 +262,10 @@ td.editable .external-link:active {
   color: #0a58ca;
   /* Darker blue on hover */
 }
+
+.rail-field-disabled {
+  background-color: #f8f9fa !important;
+  color: #adb5bd !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}

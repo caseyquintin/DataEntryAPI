@@ -103,6 +103,61 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    const railRelatedFields = [
+        'railDestination', 
+        'railwayLine', 
+        'loadToRail', 
+        'railDeparture', 
+        'railETA', 
+        'railPickupNumber'
+    ];
+
+    $('#ContainerList').on('draw.dt', function() {
+        updateRailFieldsForAllRows();
+    });
+    
+    // Define the utility functions inside DOMContentLoaded too
+    function isRailDisabled(rowData) {
+        if (!rowData) return true;
+        
+        const railValue = rowData.rail;
+        // Check if rail is explicitly "No"
+        return railValue === 'No' || railValue === 'no';
+    }
+
+    function updateRailFieldsForAllRows() {
+        const table = $('#ContainerList').DataTable();
+        
+        table.rows().every(function(rowIdx) {
+            const rowData = this.data();
+            updateRailFieldsForRow(rowIdx, rowData);
+        });
+    }
+
+    function updateRailFieldsForRow(rowIdx, rowData) {
+        const table = $('#ContainerList').DataTable();
+        const isDisabled = isRailDisabled(rowData);
+        
+        // Update each rail-related field
+        railRelatedFields.forEach(fieldName => {
+            const colIdx = getColumnIndex(table, fieldName);
+            if (colIdx !== -1) {
+                const cell = table.cell(rowIdx, colIdx);
+                const $cell = $(cell.node());
+                
+                if (isDisabled) {
+                    $cell.addClass('rail-field-disabled');
+                    $cell.removeClass('editable');
+                    $cell.data('rail-disabled', true);
+                } else {
+                    $cell.removeClass('rail-field-disabled');
+                    $cell.addClass('editable');
+                    $cell.data('rail-disabled', false);
+                }
+            }
+        });
+    }
+
     // Helper function to safely get column index by data name
     function getColumnIndex(table, columnName) {
         const columns = table.settings()[0].aoColumns;
@@ -230,7 +285,22 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const result = await response.json();
-        
+
+            // Special handling for Rail field
+            if (field.toLowerCase() === 'rail') {
+                console.log(`🚂 Rail value updated to: ${value}`);
+                // Refresh the rail-related fields in the table
+                setTimeout(() => {
+                    const table = $('#ContainerList').DataTable();
+                    table.rows().every(function() {
+                        const rowData = this.data();
+                        if (rowData.containerID === containerID) {
+                            updateRailFieldsForRow(this.index(), rowData);
+                        }
+                    });
+                }, 300);
+            }        
+
             // If server indicates no change was needed, don't update LastUpdated
             if (result.message === "No change needed.") {
                 console.log(`⏭️ ${field} unchanged, skipping LastUpdated update`);
@@ -238,7 +308,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             console.log(`✅ ${field} saved: ${value}`);
-            
+
+            // Special handling for Rail field
+            if (field.toLowerCase() === 'rail') {
+                console.log(`🚂 Rail value updated to: ${value}`);
+                // Refresh the rail-related fields in the table
+                setTimeout(() => {
+                    const table = $('#ContainerList').DataTable();
+                    table.rows().every(function() {
+                        const rowData = this.data();
+                        if (rowData.containerID === containerID) {
+                            // Update rowData with the new Rail value
+                            rowData.rail = value;
+                            updateRailFieldsForRow(this.index(), rowData);
+                        }
+                    });
+                }, 300);
+            }      
+
             // Update LastUpdated field (skip if we're already updating LastUpdated)
             // Check both camelCase and PascalCase variations
             if (field.toLowerCase() !== 'lastupdated') {
@@ -348,13 +435,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ✅ INLINE EDITING HANDLER: Save changes to backend
     window.initializeDataTableHandlers = function (table) {
-        $('#ContainerList tbody').on('click', 'td.editable', async function (e) { // Add the 'e' parameter here
-            // If this was a click on a link icon, don't start editing
-            if (handleLinkIconClick(e)) {
+        $('#ContainerList tbody').on('click', 'td.editable', async function () {
+            // If clicking a link icon, don't start editing
+            if (handleLinkIconClick(event)) {
                 return;
-            }         
+            }            
             console.log("🖱️ Editable cell clicked");
             
+            // NEW CODE: Skip if this is a disabled rail field
+            if ($(this).data('rail-disabled')) {
+                console.log("🔒 Skipping edit for disabled rail field");
+                return;
+            }
+
             // Debug what happens before fade
             setTimeout(() => {
                 fadeNewRowHighlights();
