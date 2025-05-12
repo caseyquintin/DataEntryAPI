@@ -160,7 +160,7 @@ DataEntryAPI
     ✅ Single Edit (5/11/2025)
     ✅ Bulk Edit (5/11/2025)
     ✅ Blank Line (5/10/2025)  
- ⏹️ Link generation for SSLs, Vessel Owners and Terminals
+ ⏹️ Link generation for SSLs, Vessel Owners and Terminals (started 5/12/2025, completed _______)
  ⏹️ Color coding for Actual/Estimate, Current Status and Main Source
  ⏹️ Make Search function more robust
  ⏹️ Filter table by status using pages and show only relevant columns
@@ -215,6 +215,7 @@ DataEntryAPI
 ✅ When typing into DDs w/IDs attached the first option with that letter is picked and the next cell is selected. (5/9/2025)
 ❓ Cascading DDs are still malfunctioning if changed too quickly // seems to be working okay as of 5/10
 ✅ Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected. (5/10/2025)
+✅ Allow for blank fields to be tabbed through without setting values. (5/12/2025)
  
 ***Single Edit***
 ✅ If field is cleared, old value remains instead of being submitted as NULL. (5/9/2025)

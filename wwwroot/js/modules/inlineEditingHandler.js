@@ -196,6 +196,10 @@ const linkedFieldHandlers = {
 
     async function patchField(containerID, field, value) {
         try {
+
+            // Add check for empty string vs null
+            if (value === "") value = null;
+
             const payload = {
                 containerID,
                 field,
@@ -212,6 +216,14 @@ const linkedFieldHandlers = {
 
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}`);
+            }
+
+            const result = await response.json();
+        
+            // If server indicates no change was needed, don't update LastUpdated
+            if (result.message === "No change needed.") {
+                console.log(`⏭️ ${field} unchanged, skipping LastUpdated update`);
+                return true;
             }
 
             console.log(`✅ ${field} saved: ${value}`);
@@ -446,12 +458,15 @@ const linkedFieldHandlers = {
                         console.log("📚 Complete terminalIdByName lookup:", terminalIdByName);
                         
                         // Create dropdown options - using name as value
-                        isDropdownField = data.map(t => {
-                            return {
-                                value: t.terminal,  // Use name as value
-                                label: t.terminal
-                            };
-                        });
+                        isDropdownField = [
+                            { value: '', label: '' },  // Add empty option as first item
+                            ...data.map(t => {
+                                return {
+                                    value: t.terminal,  
+                                    label: t.terminal
+                                };
+                            })
+                        ];
                         
                         console.log("🎯 Terminal dropdown options ready:", isDropdownField);
                         
@@ -498,12 +513,15 @@ const linkedFieldHandlers = {
                         console.log("📚 Complete vesselIdByName lookup:", vesselIdByName);
                         
                         // Create dropdown options - using name as value
-                        isDropdownField = data.map(n => {
-                            return {
-                                value: n.vesselName,  // Use name as value
-                                label: n.vesselName
-                            };
-                        });
+                        isDropdownField = [
+                            { value: '', label: '' },  // Add empty option as first item
+                            ...data.map(n => {
+                                return {
+                                    value: n.vesselName,  
+                                    label: n.vesselName
+                                };
+                            })
+                        ];
                         
                         console.log("🎯 Vessel Name dropdown options ready:", isDropdownField);
                         
@@ -523,13 +541,15 @@ const linkedFieldHandlers = {
                 const normalizedOriginal = String(originalValue).trim();
                 
                 inputHtml = `<select class="form-select form-select-sm">` +
+                // ADD THIS EMPTY OPTION - it will be selected when originalValue is empty
+                `<option value="" ${normalizedOriginal === '' ? 'selected' : ''}></option>` +
                 isDropdownField.map(opt => {
                     const label = typeof opt === 'string' ? opt : opt.label;
                     const value = typeof opt === 'string' ? opt : opt.value;
                     
                     // For linked fields, we want to match against the label/name, not the ID
                     const isSelected = (String(label).trim() === normalizedOriginal) ? 'selected' : '';
-
+            
                     return `<option value="${value}" ${isSelected}>${label}</option>`;
                 }).join('') +
                 `</select>`;
@@ -644,6 +664,20 @@ const linkedFieldHandlers = {
                     
                     setTimeout(() => {
                         const newValue = $(this).val();
+                        
+                        // ADD THIS CODE: Check if clearing the field
+                        if (!newValue || newValue === "") {
+                            // Clear both name and ID
+                            Promise.all([
+                                patchField(rowID, 'Terminal', null),
+                                patchField(rowID, 'TerminalID', null)
+                            ]).then(() => {
+                                showToast(`✅ Terminal cleared`, 'success');
+                                updateLastUpdatedField(rowID);
+                            });
+                            return; // Important! Return early to skip the rest of the function
+                        }
+
                         const match = isDropdownField.find(opt => opt.value == newValue);
                         const terminalName = match ? match.label : '[Unknown Terminal]';
                         
@@ -735,6 +769,20 @@ const linkedFieldHandlers = {
                     
                     setTimeout(() => {
                         const newValue = $(this).val();
+                        
+                        // ADD THIS CODE: Check if clearing the field
+                        if (!newValue || newValue === "") {
+                            // Clear both name and ID
+                            Promise.all([
+                                patchField(rowID, 'VesselName', null),
+                                patchField(rowID, 'VesselID', null)
+                            ]).then(() => {
+                                showToast(`✅ Vessel Name cleared`, 'success');
+                                updateLastUpdatedField(rowID);
+                            });
+                            return; // Important! Return early to skip the rest of the function
+                        }
+
                         const match = isDropdownField.find(opt => opt.value == newValue);
                         const vesselName = match ? match.label : '[Unknown Vessel]';
                         
@@ -1218,21 +1266,27 @@ const linkedFieldHandlers = {
     function handleLinkedDropdownChange(input, cell, table, fieldName, rowID) {
         const config = linkedFieldHandlers[fieldName];
         if (!config) return;
-
+    
         const selectedLabel = $(input).val();
-        const selectedId = config.idLookup[selectedLabel];
-
-        if (!selectedId) {
-            return;
-        }
-
+        // Check if the dropdown was set to blank/empty
+        const isClearing = selectedLabel === "" || selectedLabel === null;
+        const selectedId = isClearing ? null : config.idLookup[selectedLabel];
+    
         // Create the patchRequests array
         const patchRequests = config.patchFields.map((field, i) => {
-            const value = i === 0 ? selectedLabel : String(selectedId);
-            return {
-                field: field,
-                value: value
-            };
+            // If clearing, set both the name and ID to null
+            if (isClearing) {
+                return {
+                    field: field,
+                    value: null
+                };
+            } else {
+                const value = i === 0 ? selectedLabel : String(selectedId);
+                return {
+                    field: field,
+                    value: value
+                };
+            }
         });
 
         const rowIdx = cell.index().row;
@@ -1282,8 +1336,6 @@ const linkedFieldHandlers = {
                 for (const patch of patchRequests) {
                     await patchField(rowID, patch.field, patch.value);
                 }
-                
-                showToast(`✅ ${fieldName} updated`, 'success');
                 
                 // Run any post-update handlers if needed
                 if (config.onPatchComplete) {

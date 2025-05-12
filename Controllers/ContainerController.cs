@@ -235,6 +235,14 @@ public class ContainerController : ControllerBase
                     ? null
                     : Convert.ChangeType(update.Value, property.PropertyType);
             }
+            
+            // Check if the value is actually changing
+            var currentValue = property.GetValue(container);
+            if (currentValue?.ToString() == convertedValue?.ToString())
+            {
+                // Value hasn't changed, return success without updating
+                return Ok(new { message = "No change needed." });
+            }
 
             property.SetValue(container, convertedValue);
 
