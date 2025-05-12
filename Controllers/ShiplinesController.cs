@@ -22,7 +22,7 @@ public class ShiplinesController : ControllerBase
         var connectionString = _configuration.GetConnectionString("DefaultConnection");
 
         using var conn = new SqlConnection(connectionString);
-        using var cmd = new SqlCommand("SELECT Shipline, ShiplineID FROM Shiplines ORDER BY ShiplineID", conn);
+        using var cmd = new SqlCommand("SELECT Shipline, ShiplineID, Link FROM Shiplines ORDER BY ShiplineID", conn);
 
         try
         {
@@ -32,7 +32,11 @@ public class ShiplinesController : ControllerBase
             {
                 shiplines.Add(new {
                     Id = (int)reader["ShiplineID"],
-                    Name = reader["Shipline"].ToString()
+                    Name = reader["Shipline"].ToString(),
+                    Link = reader["Link"]?.ToString() ?? string.Empty,
+                    // Add a flag if the link appears to be a template (contains a placeholder)
+                    IsLinkTemplate = (reader["Link"]?.ToString() ?? string.Empty).Contains("container=\\r") ||
+                                    (reader["Link"]?.ToString() ?? string.Empty).Contains("{container}")
                 });
             }
 
