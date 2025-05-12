@@ -248,7 +248,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const $next = $cells.eq(currentIndex + 1);
         
             if ($next.length) {
-                $next.trigger('click');
+                // Use jQuery trigger with empty event object to avoid undefined event
+                $next.trigger('click', [{synthetic: true}]);  // <-- Pass an empty event object
         
                 requestAnimationFrame(() => {
                     const input = $next.find('input')[0];
@@ -435,11 +436,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ✅ INLINE EDITING HANDLER: Save changes to backend
     window.initializeDataTableHandlers = function (table) {
-        $('#ContainerList tbody').on('click', 'td.editable', async function () {
-            // If clicking a link icon, don't start editing
-            if (handleLinkIconClick(event)) {
+        $('#ContainerList tbody').on('click', 'td.editable', async function (event) {
+            // Handle synthetic events from moveToNextEditable
+            if (event && event.synthetic) {
+                // Skip link icon check for synthetic events
+            } else if (handleLinkIconClick(event)) {
                 return;
-            }            
+            }
+            
             console.log("🖱️ Editable cell clicked");
             
             // NEW CODE: Skip if this is a disabled rail field

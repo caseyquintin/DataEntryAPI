@@ -186,7 +186,7 @@ DataEntryAPI
  ⏹️ Disable Rail fields when Rail is set to "No"
  
  ***Inline***
- ⏹️ Disable Rail fields when Rail is set to "No"
+ ✅ Disable Rail fields when Rail is set to "No"
  ✅ Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already] (5/9/2025)
  ⏹️ Allow more mobility in Inline Editor (move up or down a row using keyboard)
 
