@@ -175,13 +175,18 @@ DataEntryAPI
     
  ***New Container Modal***
  ⏹️ Add multiple containers with the same information
+ ⏹️ Disable Rail fields when Rail is set to "No"
+
+  ***Single Edit Modal***
+ ⏹️ Disable Rail fields when Rail is set to "No"
  
  ***Bulk Edit Modal***
  ⏹️ Remove non-essential or unhelpful fields
-    ⏹️Shipment #
+    ✅Shipment #
+ ⏹️ Disable Rail fields when Rail is set to "No"
  
  ***Inline***
- ⏹️ Hide Rail details when Rail is set to "No"
+ ⏹️ Disable Rail fields when Rail is set to "No"
  ✅ Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already] (5/9/2025)
  ⏹️ Allow more mobility in Inline Editor (move up or down a row using keyboard)
 
