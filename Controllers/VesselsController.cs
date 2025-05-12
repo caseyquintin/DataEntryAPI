@@ -34,6 +34,12 @@ public class VesselsController : ControllerBase
 
         return Ok(vessels);
     }
+    // File: VesselsController.cs
+    // Update the GetVesselLines method to include Link column
+
+    // File: VesselsController.cs
+    // Update the GetVesselLines method with a more explicit approach
+
     [HttpGet("vessel-lines")]
     public IActionResult GetVesselLines()
     {
@@ -41,7 +47,10 @@ public class VesselsController : ControllerBase
             .Select(vl => new
             {
                 id = vl.VesselLineID,
-                name = vl.vesselLineName
+                name = vl.vesselLineName,
+                link = vl.Link ?? string.Empty,
+                // Get the value from the database property
+                isDynamicLink = vl.IsDynamicLink
             })
             .OrderBy(v =>
                 v.name == "UNKNOWN" ? "0" :

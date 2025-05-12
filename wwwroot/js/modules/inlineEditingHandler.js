@@ -1,4 +1,15 @@
 // inlineEditingHandler.js
+// Utility function to handle clicks on link icons
+function handleLinkIconClick(event) {
+    // If clicking a link icon, stop propagation to prevent inline editing
+    if ($(event.target).closest('.external-link').length) {
+        event.stopPropagation();
+        return true; // Event was handled
+    }
+    return false; // Not a link icon, proceed with normal handling
+}
+
+// Now modify your existing click event handler for editable cells
 document.addEventListener('DOMContentLoaded', function () {
     let lastEditingCell = null;
     let moveLock = false;
@@ -21,76 +32,76 @@ document.addEventListener('DOMContentLoaded', function () {
         'carrierID'
     ];
 
-const linkedFieldHandlers = {
-    carrier: {
-        idColumn: 'carrierID',
-        get idLookup() { return carrierIdByName; },  // Dynamic getter
-        patchFields: ['Carrier', 'CarrierID']
-    },
-    fpm: {
-        idColumn: 'fpmID',
-        get idLookup() { return fpmIdByName; },  // Dynamic getter
-        patchFields: ['FPM', 'FpmID']
-    },
-    shipline: {
-        idColumn: 'shiplineID',
-        get idLookup() { return shiplineIdByName; },  // Dynamic getter
-        patchFields: ['Shipline', 'ShiplineID']
-    },
-    portOfEntry: {
-        idColumn: 'portID',
-        get idLookup() { return portIdByName; },  // Dynamic getter
-        patchFields: ['PortOfEntry', 'PortID'],
-        onPatchComplete: (table, rowID, rowIdx) => {
-            try {
-                // Fix: proper column index lookup
-                const terminalColIdx = getColumnIndex(table, 'terminal');
-                const terminalIDColIdx = getColumnIndex(table, 'terminalID');
-                
-                if (terminalColIdx !== -1 && terminalIDColIdx !== -1) {
-                    addToUpdateQueue(() => {
-                        safeUpdateCell(table, rowIdx, terminalColIdx, '');
-                        safeUpdateCell(table, rowIdx, terminalIDColIdx, '');
-                    });
+    const linkedFieldHandlers = {
+        carrier: {
+            idColumn: 'carrierID',
+            get idLookup() { return carrierIdByName; },  // Dynamic getter
+            patchFields: ['Carrier', 'CarrierID']
+        },
+        fpm: {
+            idColumn: 'fpmID',
+            get idLookup() { return fpmIdByName; },  // Dynamic getter
+            patchFields: ['FPM', 'FpmID']
+        },
+        shipline: {
+            idColumn: 'shiplineID',
+            get idLookup() { return shiplineIdByName; },  // Dynamic getter
+            patchFields: ['Shipline', 'ShiplineID']
+        },
+        portOfEntry: {
+            idColumn: 'portID',
+            get idLookup() { return portIdByName; },  // Dynamic getter
+            patchFields: ['PortOfEntry', 'PortID'],
+            onPatchComplete: (table, rowID, rowIdx) => {
+                try {
+                    // Fix: proper column index lookup
+                    const terminalColIdx = getColumnIndex(table, 'terminal');
+                    const terminalIDColIdx = getColumnIndex(table, 'terminalID');
+                    
+                    if (terminalColIdx !== -1 && terminalIDColIdx !== -1) {
+                        addToUpdateQueue(() => {
+                            safeUpdateCell(table, rowIdx, terminalColIdx, '');
+                            safeUpdateCell(table, rowIdx, terminalIDColIdx, '');
+                        });
+                    }
+                } catch (err) {
+                    console.error("❌ Error in portOfEntry handler:", err);
                 }
-            } catch (err) {
-                console.error("❌ Error in portOfEntry handler:", err);
             }
-        }
-    },
-    vesselLine: {
-        idColumn: 'vesselLineID',
-        get idLookup() { return vesselLineIdByName; },  // Dynamic getter
-        patchFields: ['VesselLine', 'VesselLineID'],
-        onPatchComplete: (table, rowID, rowIdx) => {
-            try {
-                // Fix: proper column index lookup
-                const vesselNameColIdx = getColumnIndex(table, 'vesselName');
-                const vesselIDColIdx = getColumnIndex(table, 'vesselID');
-                
-                if (vesselNameColIdx !== -1 && vesselIDColIdx !== -1) {
-                    addToUpdateQueue(() => {
-                        safeUpdateCell(table, rowIdx, vesselNameColIdx, '');
-                        safeUpdateCell(table, rowIdx, vesselIDColIdx, '');
-                    });
+        },
+        vesselLine: {
+            idColumn: 'vesselLineID',
+            get idLookup() { return vesselLineIdByName; },  // Dynamic getter
+            patchFields: ['VesselLine', 'VesselLineID'],
+            onPatchComplete: (table, rowID, rowIdx) => {
+                try {
+                    // Fix: proper column index lookup
+                    const vesselNameColIdx = getColumnIndex(table, 'vesselName');
+                    const vesselIDColIdx = getColumnIndex(table, 'vesselID');
+                    
+                    if (vesselNameColIdx !== -1 && vesselIDColIdx !== -1) {
+                        addToUpdateQueue(() => {
+                            safeUpdateCell(table, rowIdx, vesselNameColIdx, '');
+                            safeUpdateCell(table, rowIdx, vesselIDColIdx, '');
+                        });
+                    }
+                } catch (err) {
+                    console.error("❌ Error in vesselLine handler:", err);
                 }
-            } catch (err) {
-                console.error("❌ Error in vesselLine handler:", err);
             }
+        },
+        // Notice the dynamic getters for the new fields
+        vesselName: {
+            idColumn: 'vesselID',
+            get idLookup() { return vesselIdByName; },  // Dynamic getter
+            patchFields: ['VesselName', 'VesselID']
+        },
+        terminal: {
+            idColumn: 'terminalID',
+            get idLookup() { return terminalIdByName; },  // Dynamic getter
+            patchFields: ['Terminal', 'TerminalID']
         }
-    },
-    // Notice the dynamic getters for the new fields
-    vesselName: {
-        idColumn: 'vesselID',
-        get idLookup() { return vesselIdByName; },  // Dynamic getter
-        patchFields: ['VesselName', 'VesselID']
-    },
-    terminal: {
-        idColumn: 'terminalID',
-        get idLookup() { return terminalIdByName; },  // Dynamic getter
-        patchFields: ['Terminal', 'TerminalID']
-    }
-};
+    };
 
     // Helper function to safely get column index by data name
     function getColumnIndex(table, columnName) {
@@ -337,8 +348,11 @@ const linkedFieldHandlers = {
 
     // ✅ INLINE EDITING HANDLER: Save changes to backend
     window.initializeDataTableHandlers = function (table) {
-        $('#ContainerList tbody').on('click', 'td.editable', async function () {     
-            
+        $('#ContainerList tbody').on('click', 'td.editable', async function () {
+            // If this was a click on a link icon, don't start editing
+            if (handleLinkIconClick(e)) {
+                return;
+        }            
             console.log("🖱️ Editable cell clicked");
             
             // Debug what happens before fade

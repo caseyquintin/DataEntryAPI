@@ -29,6 +29,72 @@ let terminalOptions = [];
 let vesselNameOptions = [];
 let vesselLineIdByName = {};
 
+// Dynamic Link Processing
+// Utility function to create link icons
+function createLinkIcon(url, tooltip = 'Visit website', isDynamic = false) {
+    if (!url) return '';
+    
+    // Use a different icon class for dynamic links
+    const iconClass = isDynamic ? 'fas fa-search' : 'fas fa-external-link-alt';
+    
+    // Add a dynamic link class if applicable
+    const dynamicClass = isDynamic ? 'dynamic-link' : '';
+    
+    return `<a href="${url}" target="_blank" class="ms-2 external-link ${dynamicClass}" 
+              data-bs-toggle="tooltip" title="${tooltip}"
+              onclick="event.stopPropagation();">
+              <i class="${iconClass}"></i>
+            </a>`;
+}
+
+// Process dynamic links that need container substitution
+function getProcessedLink(entityType, entityName, containerNumber) {
+    if (!entityName) return '';
+    
+    let entity, isEntityWithDynamicLink;
+    
+    if (entityType === 'shipline') {
+        entity = shiplineOptions.find(s => s.name === entityName);
+        isEntityWithDynamicLink = entity?.isDynamicLink;
+    } 
+    else if (entityType === 'vesselLine') {
+        entity = vesselLineOptions.find(v => v.name === entityName);
+        isEntityWithDynamicLink = entity?.isDynamicLink;
+    }
+    else if (entityType === 'terminal') {
+        entity = terminalOptions.find(t => t.terminal === entityName);
+        isEntityWithDynamicLink = false;
+    }
+    
+    // If no entity found or no link available, return empty string
+    if (!entity || !entity.link) return '';
+    
+    // If it's a dynamic link but no container number is available
+    if (isEntityWithDynamicLink && (!containerNumber || containerNumber.trim() === '')) {
+        // Return a base link that will prompt for container number
+        // Some websites allow this functionality
+        return entity.link.split('?')[0]; // Return base URL without query parameters
+    }
+    
+    // If it's a dynamic link and we have a container number, process it
+    if (isEntityWithDynamicLink && containerNumber) {
+        return processContainerLink(entity.link, containerNumber);
+    }
+    
+    // Otherwise, return the link as is
+    return entity.link;
+}
+
+function processContainerLink(link, containerNumber) {
+    if (!link || !containerNumber) return '';
+    
+    // Common substitution patterns
+    return link
+        .replace('container=\\r', `container=${containerNumber}`)
+        .replace('{container}', containerNumber)
+        .replace('{CONTAINER}', containerNumber);
+}
+
 // Fetch dropdown options
 function fetchDropdownOptions() {
     return Promise.all([
@@ -55,20 +121,20 @@ function fetchDropdownOptions() {
             return carrierOptions;
         }),
         $.getJSON('http://localhost:5062/api/shiplines').then(data => {
-            // Save the full shipline list
+            // Save the full shipline list with links
             shiplineOptions = data.map(s => ({
                 id: s.id,
-                name: s.name
+                name: s.name,
+                link: s.link,
+                isDynamicLink: s.isDynamicLink
             }));
 
-            // 🧠 Save shipline ID lookup map
+            // Keep the ID lookup map as before
             data.forEach(s => {
                 shiplineIdByName[s.name] = s.id;
             });
 
             console.log("🧠 Shipline Options:", shiplineOptions);
-            console.log("📦 Shipline ID by Name:", shiplineIdByName);
-
             return shiplineOptions;
         }),
         $.getJSON('http://localhost:5062/api/FPMs').then(data => {
@@ -106,20 +172,20 @@ function fetchDropdownOptions() {
             return portOptions;
         }),
         $.getJSON('http://localhost:5062/api/vessels/vessel-lines').then(data => {
-            // Save the full vessel line list
+            // Save the full vessel line list with links
             vesselLineOptions = data.map(v => ({
                 id: v.id,
-                name: v.name
+                name: v.name,
+                link: v.link,
+                isDynamicLink: v.isDynamicLink
             }));
 
-            // 🧠 Save vessel line ID lookup map
+            // Keep the ID lookup map as before
             data.forEach(v => {
                 vesselLineIdByName[v.name] = v.id;
             });
 
             console.log("🧠 Vessel Lines Options:", vesselLineOptions);
-            console.log("📦 Vessel Line ID by Name:", vesselLineIdByName);
-
             return vesselLineOptions;
         }),
     ]).then(() => {
@@ -140,6 +206,7 @@ function fetchAllTerminalsByPort() {
 
     return Promise.all(promises)
         .then(results => {
+            // Now terminalOptions will include link information
             terminalOptions = results.flat();
             window.terminalOptions = terminalOptions;
             console.log("🌐 Loaded all terminals:", terminalOptions.length);
@@ -285,6 +352,7 @@ function initializeContainerTable () {
         <button id="bulkEditBtn" class="btn btn-primary btn-sm">✏️ Bulk Edit</button>
         <button id="bulkDeleteBtn" class="btn btn-danger btn-sm">🗑️ Bulk Delete</button>
         <button id="customColVisBtn" class="btn btn-secondary btn-sm">🔧 Choose Columns</button>
+        <button id="manageDynamicLinksBtn" class="btn btn-info btn-sm">🔗 Manage Links</button>
         </div>
     `;
 
@@ -354,7 +422,22 @@ function initializeContainerTable () {
             { data: 'containerSize', name: 'containerSize', className: 'editable' },
             { data: 'mainSource', name: 'mainSource', className: 'editable' },
             { data: 'transload', name: 'transload', className: 'editable' },
-            { data: 'shipline', name: 'shipline', className: 'editable' },
+            { 
+                data: 'shipline', 
+                name: 'shipline', 
+                className: 'editable',
+                render: function(data, type, row) {
+                    if (type === 'display' && data) {
+                        const shipline = shiplineOptions.find(s => s.name === data);
+                        const isDynamic = shipline?.isDynamicLink || false;
+                        const link = getProcessedLink('shipline', data, row.containerNumber);
+                        const tooltipText = isDynamic ? `Track container ${row.containerNumber || ''}` : `Visit ${data} website`;
+                        const iconHtml = link ? createLinkIcon(link, tooltipText, isDynamic) : '';
+                        return data + iconHtml;
+                    }
+                    return data;
+                }
+            },
             { data: 'shiplineID', name: 'shiplineID' },
             { data: 'bolBookingNumber', name: 'bolBookingNumber', className: 'editable' },
             { data: 'rail', name: 'rail', className: 'editable' },
@@ -371,7 +454,22 @@ function initializeContainerTable () {
             { data: 'poNumber', name: 'poNumber', className: 'editable' },
             { data: 'vendor', name: 'vendor', className: 'editable' },
             { data: 'vendorIDNumber', name: 'vendorIDNumber', className: 'editable' },
-            { data: 'vesselLine', name: 'vesselLine', className: 'editable' },
+            { 
+                data: 'vesselLine', 
+                name: 'vesselLine', 
+                className: 'editable',
+                render: function(data, type, row) {
+                    if (type === 'display' && data) {
+                        const vesselLine = vesselLineOptions.find(v => v.name === data);
+                        const isDynamic = vesselLine?.isDynamicLink || false;
+                        const link = getProcessedLink('vesselLine', data, row.containerNumber);
+                        const tooltipText = isDynamic ? `Track container ${row.containerNumber || ''}` : `Visit ${data} website`;
+                        const iconHtml = link ? createLinkIcon(link, tooltipText, isDynamic) : '';
+                        return data + iconHtml;
+                    }
+                    return data;
+                }
+            },
             { data: 'vesselLineID', name: 'vesselLineID' },
             { data: 'vesselName', name: 'vesselName', className: 'editable' },
             { data: 'vesselID', name: 'vesselID' },
@@ -381,7 +479,19 @@ function initializeContainerTable () {
             { data: 'sailActual', name: 'sailActual', className: 'editable' },
             { data: 'portOfEntry', name: 'portOfEntry', className: 'editable' },
             { data: 'portID', name: 'portID' },
-            { data: 'terminal', name: 'terminal', className: 'editable' },
+            { 
+                data: 'terminal', 
+                name: 'terminal', 
+                className: 'editable',
+                render: function(data, type, row) {
+                    if (type === 'display' && data) {
+                        const link = getProcessedLink('terminal', data, row.containerNumber);
+                        const iconHtml = link ? createLinkIcon(link, `Visit ${data} website`) : '';
+                        return data + iconHtml;
+                    }
+                    return data;
+                }
+            },
             { data: 'terminalID', name: 'terminalID' },
             { data: 'arrival', name: 'arrival', className: 'editable', render: data => data ? new Date(data).toLocaleDateString() : '' },
             { data: 'arrivalActual', name: 'arrivalActual', className: 'editable' },
@@ -414,6 +524,22 @@ function initializeContainerTable () {
         initComplete: function() {
             const table = this.api();
             window.ContainerTable = table;
+
+            // Initialize tooltips for link icons
+            function initTooltips() {
+                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltips.forEach(tooltip => {
+                    new bootstrap.Tooltip(tooltip);
+                });
+            }
+            
+            // Initialize tooltips when DataTable is drawn
+            $('#ContainerList').on('draw.dt', function() {
+                initTooltips();
+            });
+            
+            // Initialize tooltips on initial load
+            initTooltips();
 
             // Get the search input
             const searchInput = $('.sticky-toolbar-container input[type="search"]');
@@ -762,62 +888,61 @@ function initializeContainerTable () {
             // At the END of initComplete, add:
             console.log("✅ initComplete finished");
         },
-                rowCallback: function(row, data) {
-                    if (!data) return;
-                    const status = (data.currentStatus || '').trim().toUpperCase();
-                    $(row).removeClass('status-returned status-vessel status-appt');
-        
-                    if (status === 'RETURNED') {
-                        $(row).addClass('status-returned');
-                    } else if (status === 'ON VESSEL') {
-                        $(row).addClass('status-vessel');
-                    } else if (status === 'DEL APPT SET') {
-                        $(row).addClass('status-appt');
-                    }
-                }
-            });
-        
-            // Keep layout aligned after ordering or filtering
-            table.on('order.dt search.dt column-visibility.dt', function () {
-                preserveScrollPosition(() => {
-                    table.columns.adjust(); // ❌ remove .draw(false)
-                });
-            });
-        
-            table.on('init', function() {
-                setTimeout(() => {
-                    const dtSettings = table.settings()[0];
-                    if (dtSettings._colResize && typeof dtSettings._colResize.restore === 'function') {
-                        table.on('order.dt search.dt', function () {
-                            preserveScrollPosition(() => {
-                                table.columns.adjust(); // ✅ no draw()
-                            });
-                        });
-                    }
-        
-                }, 200); // Small delay to make sure table is ready
-            });
-        
-            new $.fn.dataTable.FixedHeader(table, {
-                header: true,
-                headerOffset: 56,
-                scrollContainer: '#table-container' // 👈 This anchors the header
-            });
-        
-            // 🔁 Reset "Select All" checkbox whenever the table redraws (pagination, search, etc.)
-            table.on('draw', function() {
-                $('#selectAll').prop('checked', false);
-            });
-        
-            // Master select all checkbox control
-            $(document).on('change', '#selectAll', function() {
-                const checked = $(this).is(':checked');
-                $('.row-select').prop('checked', checked);
-            });
-        
-            // To keep checkboxes in sync after table redraws
-            $('#ContainerList').on('draw.dt', function() {
-                $('#selectAll').prop('checked', false); // reset master checkbox
-            });
+        rowCallback: function(row, data) {
+            if (!data) return;
+            const status = (data.currentStatus || '').trim().toUpperCase();
+            $(row).removeClass('status-returned status-vessel status-appt');
 
-        };
+            if (status === 'RETURNED') {
+                $(row).addClass('status-returned');
+            } else if (status === 'ON VESSEL') {
+                $(row).addClass('status-vessel');
+            } else if (status === 'DEL APPT SET') {
+                $(row).addClass('status-appt');
+            }
+        }
+    });
+        
+    // Keep layout aligned after ordering or filtering
+    table.on('order.dt search.dt column-visibility.dt', function () {
+        preserveScrollPosition(() => {
+            table.columns.adjust(); // ❌ remove .draw(false)
+        });
+    });
+
+    table.on('init', function() {
+        setTimeout(() => {
+            const dtSettings = table.settings()[0];
+            if (dtSettings._colResize && typeof dtSettings._colResize.restore === 'function') {
+                table.on('order.dt search.dt', function () {
+                    preserveScrollPosition(() => {
+                        table.columns.adjust(); // ✅ no draw()
+                    });
+                });
+            }
+
+        }, 200); // Small delay to make sure table is ready
+    });
+
+    new $.fn.dataTable.FixedHeader(table, {
+        header: true,
+        headerOffset: 56,
+        scrollContainer: '#table-container' // 👈 This anchors the header
+    });
+
+    // 🔁 Reset "Select All" checkbox whenever the table redraws (pagination, search, etc.)
+    table.on('draw', function() {
+        $('#selectAll').prop('checked', false);
+    });
+
+    // Master select all checkbox control
+    $(document).on('change', '#selectAll', function() {
+        const checked = $(this).is(':checked');
+        $('.row-select').prop('checked', checked);
+    });
+
+    // To keep checkboxes in sync after table redraws
+    $('#ContainerList').on('draw.dt', function() {
+        $('#selectAll').prop('checked', false); // reset master checkbox
+    });
+};

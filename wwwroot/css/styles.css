@@ -223,3 +223,42 @@ body {
   /* Bootstrap's default text-dark */
   font-weight: 700;
 }
+
+/* Add these styles for the link icons */
+
+.external-link {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.external-link .fas {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.external-link:hover .fas {
+  opacity: 1;
+}
+
+/* Prevent click on link from triggering cell edit */
+td.editable .external-link {
+  pointer-events: auto;
+}
+
+/* Stop propagation for link clicks */
+td.editable .external-link:active {
+  background-color: transparent !important;
+}
+
+/* Add styles for dynamic links */
+
+.external-link.dynamic-link .fas {
+  color: #0d6efd;
+  /* Bootstrap primary blue */
+}
+
+.external-link.dynamic-link:hover .fas {
+  color: #0a58ca;
+  /* Darker blue on hover */
+}

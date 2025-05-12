@@ -6,7 +6,12 @@ namespace DataEntryAPI.Models
     {
         public int VesselLineID { get; set; }
 
-        [Column("VesselLine")] // 👈 Maps the property to the actual SQL column
+        [Column("VesselLine")]
         public string vesselLineName { get; set; } = string.Empty;
+
+        public string? Link { get; set; }
+
+        // Add this property
+        public bool IsDynamicLink { get; set; }
     }
 }

@@ -10,4 +10,8 @@ public class Shipline
     [Column("Shipline")]
     public string ShiplineName { get; set; } = string.Empty;
 
+    public string? Link { get; set; }
+
+    // Add this property
+    public bool IsDynamicLink { get; set; }
 }

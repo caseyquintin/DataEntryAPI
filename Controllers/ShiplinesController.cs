@@ -22,7 +22,8 @@ public class ShiplinesController : ControllerBase
         var connectionString = _configuration.GetConnectionString("DefaultConnection");
 
         using var conn = new SqlConnection(connectionString);
-        using var cmd = new SqlCommand("SELECT Shipline, ShiplineID, Link FROM Shiplines ORDER BY ShiplineID", conn);
+        // Updated query to include IsDynamicLink column
+        using var cmd = new SqlCommand("SELECT Shipline, ShiplineID, Link, IsDynamicLink FROM Shiplines ORDER BY ShiplineID", conn);
 
         try
         {
@@ -30,13 +31,13 @@ public class ShiplinesController : ControllerBase
             using var reader = await cmd.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                shiplines.Add(new {
+                shiplines.Add(new
+                {
                     Id = (int)reader["ShiplineID"],
                     Name = reader["Shipline"].ToString(),
                     Link = reader["Link"]?.ToString() ?? string.Empty,
-                    // Add a flag if the link appears to be a template (contains a placeholder)
-                    IsLinkTemplate = (reader["Link"]?.ToString() ?? string.Empty).Contains("container=\\r") ||
-                                    (reader["Link"]?.ToString() ?? string.Empty).Contains("{container}")
+                    // Get the value from the database column
+                    IsDynamicLink = Convert.ToBoolean(reader["IsDynamicLink"])
                 });
             }
 
@@ -47,6 +48,5 @@ public class ShiplinesController : ControllerBase
             Console.WriteLine($"❌ Error fetching shiplines: {ex.Message}");
             return StatusCode(500, $"Failed to retrieve shiplines: {ex.Message}");
         }
-        
     }
 }

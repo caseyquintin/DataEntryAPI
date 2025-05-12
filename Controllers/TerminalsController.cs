@@ -23,12 +23,13 @@ public class TerminalsController : ControllerBase
         var connectionString = _configuration.GetConnectionString("DefaultConnection");
 
         using var conn = new SqlConnection(connectionString);
+        // Add Link column to the query
         using var cmd = new SqlCommand(@"
-            SELECT TerminalID, Terminal, PortID
-            FROM Terminals
-            WHERE PortID = @PortID
-            ORDER BY Terminal
-        ", conn);
+        SELECT TerminalID, Terminal, PortID, Link
+        FROM Terminals
+        WHERE PortID = @PortID
+        ORDER BY Terminal
+    ", conn);
 
         cmd.Parameters.AddWithValue("@PortID", portId);
 
@@ -39,10 +40,13 @@ public class TerminalsController : ControllerBase
 
             while (await reader.ReadAsync())
             {
-                results.Add(new {
+                results.Add(new
+                {
                     terminalID = Convert.ToInt32(reader["TerminalID"]),
                     terminal = reader["Terminal"].ToString(),
-                    portID = Convert.ToInt32(reader["PortID"])
+                    portID = Convert.ToInt32(reader["PortID"]),
+                    // Include the link from the database (regular, not dynamic)
+                    link = reader["Link"]?.ToString() ?? string.Empty
                 });
             }
 
