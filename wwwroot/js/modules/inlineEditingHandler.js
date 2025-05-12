@@ -348,11 +348,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ✅ INLINE EDITING HANDLER: Save changes to backend
     window.initializeDataTableHandlers = function (table) {
-        $('#ContainerList tbody').on('click', 'td.editable', async function () {
+        $('#ContainerList tbody').on('click', 'td.editable', async function (e) { // Add the 'e' parameter here
             // If this was a click on a link icon, don't start editing
             if (handleLinkIconClick(e)) {
                 return;
-        }            
+            }         
             console.log("🖱️ Editable cell clicked");
             
             // Debug what happens before fade
