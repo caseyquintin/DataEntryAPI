@@ -1,4 +1,11 @@
 // inlineEditingHandler.js
+
+const navigationOptions = {
+    saveOnArrowNavigation: true,   // Set to false if you only want to save on Tab/Enter
+    wrapAtEdges: false,            // Set to true to wrap around at table edges
+    skipHiddenColumns: true        // Whether to skip hidden columns when navigating
+};
+
 // Utility function to handle clicks on link icons
 function handleLinkIconClick(event) {
     // If clicking a link icon, stop propagation to prevent inline editing
@@ -7,6 +14,29 @@ function handleLinkIconClick(event) {
         return true; // Event was handled
     }
     return false; // Not a link icon, proceed with normal handling
+}
+
+function debugCell(cell, prefix = "Cell") {
+    if (!cell) {
+        console.log(`${prefix}: null`);
+        return;
+    }
+    
+    try {
+        const table = $('#ContainerList').DataTable();
+        const cellInfo = table.cell(cell).index();
+        if (!cellInfo) {
+            console.log(`${prefix}: Invalid cell, no index`);
+            return;
+        }
+        
+        const rowData = table.row(cellInfo.row).data();
+        const colDef = table.settings()[0].aoColumns[cellInfo.column];
+        
+        console.log(`${prefix}: [${cellInfo.row},${cellInfo.column}] ${colDef.data}`);
+    } catch (err) {
+        console.log(`${prefix}: Error getting info: ${err.message}`);
+    }
 }
 
 // Now modify your existing click event handler for editable cells
@@ -115,7 +145,83 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#ContainerList').on('draw.dt', function() {
         updateRailFieldsForAllRows();
     });
-    
+
+    function findAdjacentCell(currentCell, direction) {
+        const table = $('#ContainerList').DataTable();
+        const $cells = $('#ContainerList td.editable:visible');
+        const currentIndex = $cells.index(currentCell);
+        
+        if (currentIndex === -1) return null;
+        
+        // Get the current cell's row and column indices
+        const cellInfo = table.cell(currentCell).index();
+        if (!cellInfo) return null;
+        
+        const currentRow = cellInfo.row;
+        const currentCol = cellInfo.column;
+        
+        // Find visible rows (accounting for filtering/search)
+        const visibleRows = table.rows({ search: 'applied' }).indexes().toArray();
+        const currentRowIndex = visibleRows.indexOf(currentRow);
+        
+        // Get all visible columns that are editable
+        const editableColIndexes = [];
+        table.columns().every(function(colIdx) {
+            // Get column definition directly
+            const colDef = table.settings()[0].aoColumns[colIdx];
+            // Check the className from the column definition
+            if (colDef && (colDef.className || '').includes('editable')) {
+                editableColIndexes.push(colIdx);
+            }
+        });
+       
+        // Find the current column's position in the editable columns array
+        const currentEditableColIndex = editableColIndexes.indexOf(currentCol);
+        
+        let targetRow, targetCol;
+        
+        switch (direction) {
+            case 'up':
+                // Move up one row, same column
+                if (currentRowIndex > 0) {
+                    targetRow = visibleRows[currentRowIndex - 1];
+                    targetCol = currentCol;
+                }
+                break;
+            case 'down':
+                // Move down one row, same column
+                if (currentRowIndex < visibleRows.length - 1) {
+                    targetRow = visibleRows[currentRowIndex + 1];
+                    targetCol = currentCol;
+                }
+                break;
+            case 'left':
+                // Move left one column, same row
+                if (currentEditableColIndex > 0) {
+                    targetRow = currentRow;
+                    targetCol = editableColIndexes[currentEditableColIndex - 1];
+                }
+                break;
+            case 'right':
+                // Move right one column, same row
+                if (currentEditableColIndex < editableColIndexes.length - 1) {
+                    targetRow = currentRow;
+                    targetCol = editableColIndexes[currentEditableColIndex + 1];
+                }
+                break;
+        }
+        
+        // If we found a valid target
+        if (targetRow !== undefined && targetCol !== undefined) {
+            const targetCell = table.cell(targetRow, targetCol).node();
+            if (targetCell && $(targetCell).hasClass('editable')) {
+                return targetCell;
+            }
+        }
+        
+        return null;
+    }
+
     // Define the utility functions inside DOMContentLoaded too
     function isRailDisabled(rowData) {
         if (!rowData) return true;
@@ -436,15 +542,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ✅ INLINE EDITING HANDLER: Save changes to backend
     window.initializeDataTableHandlers = function (table) {
-        $('#ContainerList tbody').on('click', 'td.editable', async function (event) {
-            // Handle synthetic events from moveToNextEditable
-            if (event && event.synthetic) {
-                // Skip link icon check for synthetic events
-            } else if (handleLinkIconClick(event)) {
+        $('#ContainerList tbody').on('click', 'td.editable', async function (e, options) {
+            // Check for synthetic events from options parameter that jQuery passes
+            const isSyntheticEvent = options && options.synthetic;
+            
+            if (!isSyntheticEvent && handleLinkIconClick(e)) {
                 return;
             }
             
-            console.log("🖱️ Editable cell clicked");
+            console.log("🖱️ Editable cell clicked", isSyntheticEvent ? "(synthetic)" : "");
             
             // NEW CODE: Skip if this is a disabled rail field
             if ($(this).data('rail-disabled')) {
@@ -1163,6 +1269,118 @@ document.addEventListener('DOMContentLoaded', function () {
                             $(cell.node()).removeClass('editing processing-update');
                         }
                     });
+                }
+
+                // Only handle arrows with no modifiers (not shift, ctrl, alt)
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && 
+                    !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                    
+                    e.preventDefault(); // Prevent default arrow key behaviors
+                    
+                    // Map the arrow key to a direction
+                    const direction = {
+                        'ArrowUp': 'up',
+                        'ArrowDown': 'down',
+                        'ArrowLeft': 'left',
+                        'ArrowRight': 'right'
+                    }[e.key];
+                    
+                    // Get current values
+                    const currentValue = $(this).val().trim();
+                    let shouldSave = navigationOptions.saveOnArrowNavigation;
+                    
+                    // Check if value changed - only save if changed AND saveOnArrowNavigation is true
+                    if (navigationOptions.saveOnArrowNavigation && currentValue !== originalValue) {
+                        shouldSave = true;
+                    }
+                    
+                    // Find the next cell - store this so we can use it later
+                    const targetCell = findAdjacentCell(cell.node(), direction);
+                    
+                    // Log info for debugging
+                    console.log(`Navigation: ${direction}, Target found: ${!!targetCell}`);
+                    
+                    // If we found a valid target cell
+                    if (targetCell) {
+                        // Save current cell value if changed
+                        if (shouldSave && currentValue !== originalValue) {
+                            console.log(`Saving value before navigation: "${currentValue}"`);
+                            
+                            // Mark cell as being processed
+                            $(cell.node()).addClass('processing-update');
+                            
+                            // Save the current value
+                            cell.data(currentValue);
+                            
+                            // Get field info for PATCH request
+                            const fieldIndex = cell.index().column;
+                            const fieldName = table.settings().init().columns[fieldIndex].data;
+                            const rowID = table.row(cell.index().row).data().containerID;
+                            
+                            // Format field name properly for API
+                            const fieldNameForPatch = fieldName === 'lastUpdated' ? 'LastUpdated' : 
+                                                    fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+                            
+                            // Send PATCH request
+                            patchField(rowID, fieldNameForPatch, currentValue)
+                                .catch(err => {
+                                    console.error(`❌ Failed to save ${fieldName}:`, err);
+                                    showToast(`❌ Failed to update ${fieldName}`, 'danger');
+                                });
+                        }
+                        
+                        // Cleanup all editing cells first (important!)
+                        $('#ContainerList td.editing').not(cell.node()).removeClass('editing');
+                        
+                        // Remove editing classes from current cell
+                        $(cell.node()).removeClass('editing processing-update');
+                        
+                        // Redraw the table before moving to ensure clean state
+                        try {
+                            preserveScrollPosition(() => {
+                                table.draw(false);
+                            });
+                        } catch (err) {
+                            console.warn("⚠️ Table redraw failed during navigation:", err);
+                        }
+                        
+                        // Create a small delay to ensure DOM is stable
+                        setTimeout(() => {
+                            // Make sure target cell still exists and is in the document
+                            if (targetCell && document.body.contains(targetCell)) {
+                                console.log('Moving to cell:', $(targetCell).text());
+                                
+                                // Use a clean approach to trigger cell edit
+                                $(targetCell).trigger('click', {synthetic: true});
+                                
+                                // Focus on the input after a brief delay
+                                setTimeout(() => {
+                                    const newInput = $(targetCell).find('input, select');
+                                    if (newInput.length) {
+                                        newInput.focus();
+                                        
+                                        // If it's a text input, place cursor at the end
+                                        if (newInput.is('input:text')) {
+                                            const length = newInput.val().length;
+                                            newInput[0].setSelectionRange(length, length);
+                                        }
+                                    }
+                                }, 50);
+                            } else {
+                                console.warn("Target cell is no longer available");
+                            }
+                        }, 100);
+                    } else {
+                        console.log(`No valid target found for direction: ${direction}`);
+                        
+                        // Optional: provide feedback that we can't move in that direction
+                        if (navigationOptions.wrapAtEdges) {
+                            // Implement wrapping at edges if needed
+                            console.log("Edge wrapping not implemented yet");
+                        }
+                    }
+                    
+                    return false; // Prevent default behavior
                 }
             });
 
