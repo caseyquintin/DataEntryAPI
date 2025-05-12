@@ -1,10 +1,12 @@
+// File: Controllers/VesselsController.cs
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataEntryAPI.DTOs;
-using DataEntryAPI.Models; // if needed for your VesselLine model
+using DataEntryAPI.Models; // For VesselLine model
 
 [ApiController]
 [Route("api/vessels")]
@@ -17,13 +19,16 @@ public class VesselsController : ControllerBase
         _context = context;
     }
 
+    // Keep your existing endpoints...
+
     // GET: api/vessels/by-line/{vesselLineId}
     [HttpGet("by-line/{vesselLineId}")]
     public IActionResult GetVesselsByLine(int vesselLineId)
     {
         var vessels = _context.Vessels
             .Where(v => v.VesselLineID == vesselLineId)
-            .Select(v => new {
+            .Select(v => new
+            {
                 vesselID = v.VesselID,
                 vesselName = v.VesselName,
                 mmsi = v.MMSI,
@@ -34,12 +39,8 @@ public class VesselsController : ControllerBase
 
         return Ok(vessels);
     }
-    // File: VesselsController.cs
-    // Update the GetVesselLines method to include Link column
 
-    // File: VesselsController.cs
-    // Update the GetVesselLines method with a more explicit approach
-
+    // GET: api/vessels/vessel-lines
     [HttpGet("vessel-lines")]
     public IActionResult GetVesselLines()
     {
@@ -49,7 +50,6 @@ public class VesselsController : ControllerBase
                 id = vl.VesselLineID,
                 name = vl.vesselLineName,
                 link = vl.Link ?? string.Empty,
-                // Get the value from the database property
                 isDynamicLink = vl.IsDynamicLink
             })
             .OrderBy(v =>
@@ -60,5 +60,62 @@ public class VesselsController : ControllerBase
             .ToList();
 
         return Ok(result);
+    }
+
+    // PATCH: api/vessels/vessel-lines/{id}
+    [HttpPatch("vessel-lines/{id}")]
+    public async Task<IActionResult> UpdateVesselLine(int id, [FromBody] VesselLineUpdateDto update)
+    {
+        if (update == null)
+            return BadRequest("Invalid update data");
+
+        var vesselLine = await _context.VesselLines.FindAsync(id);
+        if (vesselLine == null)
+            return NotFound($"Vessel line with ID {id} not found");
+
+        // Update the properties
+        vesselLine.Link = update.Link;
+        vesselLine.IsDynamicLink = update.IsDynamicLink;
+
+        try
+        {
+            _context.Entry(vesselLine).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Vessel line updated successfully" });
+        }
+        catch (DbUpdateException ex)
+        {
+            return StatusCode(500, $"Error updating vessel line: {ex.Message}");
+        }
+    }
+
+    // PUT: api/vessels/vessel-lines/batch-update
+    [HttpPut("vessel-lines/batch-update")]
+    public async Task<IActionResult> BatchUpdateVesselLines([FromBody] List<VesselLineUpdateDto> updates)
+    {
+        if (updates == null || !updates.Any())
+            return BadRequest("No updates provided");
+
+        foreach (var update in updates)
+        {
+            if (!update.Id.HasValue) continue;
+
+            var vesselLine = await _context.VesselLines.FindAsync(update.Id.Value);
+            if (vesselLine == null) continue;
+
+            vesselLine.Link = update.Link;
+            vesselLine.IsDynamicLink = update.IsDynamicLink;
+            _context.Entry(vesselLine).State = EntityState.Modified;
+        }
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Batch update successful" });
+        }
+        catch (DbUpdateException ex)
+        {
+            return StatusCode(500, $"Error in batch update: {ex.Message}");
+        }
     }
 }

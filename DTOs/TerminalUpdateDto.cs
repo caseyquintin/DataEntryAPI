@@ -1,10 +1,9 @@
-// File: DTOs/VesselLineDto.cs
 namespace DataEntryAPI.DTOs
 {
-    public class VesselLineUpdateDto
+    public class TerminalUpdateDto
     {
         public int? Id { get; set; }
+        public int PortId { get; set; }
         public string? Link { get; set; }
-        public bool IsDynamicLink { get; set; }
     }
 }

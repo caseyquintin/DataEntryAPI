@@ -1,8 +1,8 @@
 // File: wwwroot/js/modules/linkManager.js
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle clicking the Manage Links button
-    $('#manageDynamicLinksBtn').on('click', function() {
+    // Use event delegation for dynamically added button
+    $(document).on('click', '#manageDynamicLinksBtn', function() {
         loadLinkData();
         const modal = new bootstrap.Modal(document.getElementById('dynamicLinksModal'));
         modal.show();

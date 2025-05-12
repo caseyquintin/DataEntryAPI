@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DataEntryAPI.DTOs;
 
 [ApiController]
 [Route("api/shiplines")]
@@ -47,6 +48,77 @@ public class ShiplinesController : ControllerBase
         {
             Console.WriteLine($"❌ Error fetching shiplines: {ex.Message}");
             return StatusCode(500, $"Failed to retrieve shiplines: {ex.Message}");
+        }
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> UpdateShipline(int id, [FromBody] ShiplineUpdateDto update)
+    {
+        if (update == null)
+            return BadRequest("Invalid update data");
+
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        using var conn = new SqlConnection(connectionString);
+        using var cmd = new SqlCommand(
+            "UPDATE Shiplines SET Link = @Link, IsDynamicLink = @IsDynamicLink WHERE ShiplineID = @ID",
+            conn);
+
+        cmd.Parameters.AddWithValue("@ID", id);
+        cmd.Parameters.AddWithValue("@Link", update.Link ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@IsDynamicLink", update.IsDynamicLink);
+
+        try
+        {
+            await conn.OpenAsync();
+            var rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+            if (rowsAffected == 0)
+                return NotFound($"Shipline with ID {id} not found");
+
+            return Ok(new { message = "Shipline updated successfully" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error updating shipline: {ex.Message}");
+        }
+    }
+
+    [HttpPut("batch-update")]
+    public async Task<IActionResult> BatchUpdateShiplines([FromBody] List<ShiplineUpdateDto> updates)
+    {
+        if (updates == null || !updates.Any())
+            return BadRequest("No updates provided");
+
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        using var conn = new SqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        using var transaction = conn.BeginTransaction();
+
+        try
+        {
+            foreach (var update in updates)
+            {
+                if (!update.Id.HasValue) continue;
+
+                using var cmd = new SqlCommand(
+                    "UPDATE Shiplines SET Link = @Link, IsDynamicLink = @IsDynamicLink WHERE ShiplineID = @ID",
+                    conn, transaction);
+
+                cmd.Parameters.AddWithValue("@ID", update.Id.Value);
+                cmd.Parameters.AddWithValue("@Link", update.Link ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsDynamicLink", update.IsDynamicLink);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+
+            transaction.Commit();
+            return Ok(new { message = "Batch update successful" });
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+            return StatusCode(500, $"Error in batch update: {ex.Message}");
         }
     }
 }

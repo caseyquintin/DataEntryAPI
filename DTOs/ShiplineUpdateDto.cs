@@ -1,7 +1,7 @@
-// File: DTOs/VesselLineDto.cs
+
 namespace DataEntryAPI.DTOs
 {
-    public class VesselLineUpdateDto
+    public class ShiplineUpdateDto
     {
         public int? Id { get; set; }
         public string? Link { get; set; }
