@@ -250,6 +250,21 @@ function fetchVesselNamesByVesselLineId(vesselLineId) {
     return $.getJSON(`http://localhost:5062/api/vessels/by-line/${vesselLineId}`);
 }
 
+function alignCheckboxes() {
+    // Get position of the first row checkbox
+    const firstRowCheckbox = $('.row-select').first();
+    if (firstRowCheckbox.length) {
+        const rowPosition = firstRowCheckbox.position();
+        
+        // Adjust the "Select All" checkbox to match
+        $('#selectAll').css({
+        'position': 'relative',
+        'top': (rowPosition.top > 0 ? 0 : '0px'),
+        'margin': '0'
+        });
+    }
+}
+
 function showToast(message, type = 'success') {
     const toastId = `toast-${Date.now()}`;
     const toastHtml = `
@@ -303,6 +318,17 @@ window.addEventListener('DOMContentLoaded', async () => {
         $('#ContainerList').show();
 
         initializeContainerTable();
+
+        $(document).ready(function() {
+            // Wait for DataTables to finish rendering
+            setTimeout(alignCheckboxes, 100);
+            
+            // Also call when window resizes
+            $(window).on('resize', alignCheckboxes);
+            
+            // Call when table redraws
+            $('#ContainerList').on('draw.dt', alignCheckboxes);
+        });
 
         // ✅ Sidebar Toggle
         const sidebarToggle = document.body.querySelector('#sidebarToggle');
@@ -362,7 +388,6 @@ function initializeContainerTable () {
         <button id="bulkEditBtn" class="btn btn-primary btn-sm">✏️ Bulk Edit</button>
         <button id="bulkDeleteBtn" class="btn btn-danger btn-sm">🗑️ Bulk Delete</button>
         <button id="customColVisBtn" class="btn btn-secondary btn-sm">🔧 Choose Columns</button>
-        <button id="manageDynamicLinksBtn" class="btn btn-info btn-sm">🔗 Manage Links</button>
         </div>
     `;
 

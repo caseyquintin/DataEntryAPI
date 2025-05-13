@@ -45,15 +45,12 @@
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
-                                <li class="nav-item active"><a class="nav-link" href="#!">Home</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#!">Link</a></li>
+                                <li class="nav-item active"><a class="nav-link" href="https://alot.auditlogistics.com/projects">ALOT</a></li>
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Configuration</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="#!">Action</a>
-                                        <a class="dropdown-item" href="#!">Another action</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#!">Something else here</a>
+                                        <a class="dropdown-item" id="bulkUploadBtn" href="#">Bulk Import</a>
+                                        <a class="dropdown-item" id="manageDynamicLinksBtn" href="#">Manage Links</a>
                                     </div>
                                 </li>
                             </ul>
@@ -1456,6 +1453,72 @@
                 </div>
             </div>
         </div>
+
+        <!-- Bulk Upload Modal -->
+        <div class="modal fade" id="bulkUploadModal" tabindex="-1" aria-labelledby="bulkUploadModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="bulkUploadModalLabel">📤 Bulk Import Containers</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="uploadForm">
+                            <div class="mb-3">
+                                <label for="csvFile" class="form-label">CSV File</label>
+                                <input class="form-control" type="file" id="csvFile" accept=".csv">
+                                <div class="form-text">
+                                    Upload a CSV file with container data.
+                                    <a href="#" id="downloadTemplate">Download template</a>
+                                </div>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="updateExisting">
+                                <label class="form-check-label" for="updateExisting">Update existing containers if found</label>
+                            </div>
+                            <div id="uploadStatus" class="alert alert-info d-none">
+                                <div class="mb-2">Uploading and processing file...</div>
+                                <div class="progress" style="height: 20px;">
+                                    <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                        aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small id="processedCount">Processed: 0 rows</small>
+                                    <small id="totalCount">Total: 0 rows</small>
+                                </div>
+                                <!-- Add this time estimate element here -->
+                                <div class="text-center mt-1">
+                                    <small id="timeRemaining" class="text-muted"></small>
+                                </div>                      
+                            </div>
+                            <div id="uploadResults" class="alert alert-success d-none">
+                                <div>
+                                    <h6 class="mb-2">Upload Results:</h6>
+                                    <ul class="list-unstyled mb-0">
+                                        <li>Records processed: <span id="recordsProcessed">0</span></li>
+                                        <li>Successfully imported: <span id="recordsSuccess" class="text-success">0</span></li>
+                                        <li>Failed to import: <span id="recordsFailed" class="text-danger">0</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="errorDetails" class="mt-3 d-none">
+                                <h6 class="mb-2 text-danger">Error Details:</h6>
+                                <div class="alert alert-danger p-2">
+                                    <div class="mb-2"><strong>Found <span id="errorCount">0</span> errors while processing</strong></div>
+                                    <div class="error-list small bg-light p-2 rounded" style="max-height: 200px; overflow-y: auto;">
+                                        <!-- Error details will be added here -->
+                                    </div>
+                                </div>                      
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" id="uploadBtn" class="btn btn-primary">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
        
         <!-- Core Libraries -->
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -1517,6 +1580,35 @@
 
         <!-- Link Manager -->
         <script src="./js/modules/linkManager.js"></script>
+
+        <!-- Bulk Upload -->
+        <script src="./js/modules/bulkUpload.js"></script>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Find your configuration dropdown toggle
+            const configDropdown = document.getElementById('navbarDropdown');
+
+            if (configDropdown) {
+                // Create a new Dropdown instance with custom configuration
+                const dropdown = new bootstrap.Dropdown(configDropdown, {
+                    reference: 'parent',  // Position relative to parent element
+                    boundary: 'viewport'  // Respect viewport boundaries
+                });
+
+                // Optional: manually position the dropdown when shown
+                configDropdown.addEventListener('shown.bs.dropdown', function () {
+                    const menu = document.querySelector('[aria-labelledby="navbarDropdown"]');
+                    if (menu) {
+                        // Force position directly under the toggle button
+                        menu.style.top = '100%';
+                        menu.style.left = 'auto';
+                        menu.style.right = '0';
+                    }
+                });
+            }
+        });
+        </script>
 
     </body>
 </html>
