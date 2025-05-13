@@ -162,7 +162,7 @@ DataEntryAPI
     ✅ Blank Line (5/10/2025)  
  ✅ Basic link generation for SSLs, Vessel Owners and Terminals (started 5/12/2025, completed 5/12/2025)
  ⏹️ Color coding for Actual/Estimate, Current Status and Main Source
- ⏹️ Make Search function more robust
+ ✅ Make Search function more robust (5/10/2025)
  ⏹️ Filter table by status using pages and show only relevant columns
     ✅ All Active Containers
     ⏹️ Not Sailed
