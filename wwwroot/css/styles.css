@@ -7,6 +7,7 @@ body {
 }
 
 /* ===== LAYOUT STRUCTURE ===== */
+/* Main container */
 #wrapper {
   display: flex;
   overflow-x: hidden;
@@ -77,14 +78,36 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   }
 }
 
+/* ===== Z-INDEX HIERARCHY ===== */
+/* Standardized z-index values for consistent layering */
+.navbar,
+.dropdown-menu {
+  z-index: 1060;
+}
+
+.sticky-toolbar-container {
+  z-index: 1049;
+}
+
+#columnModal {
+  z-index: 1055;
+}
+
+.modal-backdrop {
+  z-index: 1065;
+}
+
+.modal {
+  z-index: 1070;
+}
+
 /* ===== TABLE STYLING ===== */
 /* Base table styles */
 table.dataTable {
   table-layout: fixed;
   border-collapse: collapse;
   border-spacing: 0;
-  margin-top: 0;
-  margin-bottom: 0;
+  margin: 0;
 }
 
 #ContainerList {
@@ -98,15 +121,7 @@ table.dataTable {
   overflow: visible;
 }
 
-/* Table header and cells */
-table.dataTable thead th {
-  position: relative;
-  min-width: 100px;
-  padding: 8px;
-  vertical-align: middle;
-  border-bottom-width: 1px;
-}
-
+/* Table header and cells - common properties */
 table.dataTable td,
 table.dataTable th {
   white-space: nowrap;
@@ -117,42 +132,38 @@ table.dataTable th {
   box-sizing: border-box;
 }
 
-/* First column specific styling (checkbox column) */
+table.dataTable thead th {
+  position: relative;
+  min-width: 100px;
+  vertical-align: middle;
+  border-bottom-width: 1px;
+}
+
+/* First column (checkbox column) */
 table.dataTable thead th:first-child,
 table.dataTable tbody td:first-child {
   width: 40px !important;
   min-width: 40px !important;
   max-width: 40px !important;
   padding: 0 !important;
-  /* Remove all padding */
   position: static !important;
-  /* Changed from relative */
   text-align: center !important;
   vertical-align: middle !important;
-}
-
-/* Fix checkbox container positioning */
-table.dataTable th:first-child,
-table.dataTable td:first-child {
-  text-align: center !important;
 }
 
 /* Checkbox positioning */
 #selectAll,
 .row-select {
   position: static !important;
-  /* Changed from absolute */
   transform: none !important;
-  /* Remove transform */
   margin: 0 auto !important;
   padding: 0 !important;
   display: block !important;
-  /* Make the checkbox a block element */
   top: auto !important;
   left: auto !important;
 }
 
-/* Add specific CSS for DataTables' wrapper div around checkboxes if any */
+/* Checkbox wrapper styling */
 .dt-checkbox-div,
 .dt-checkbox-wrapper {
   text-align: center !important;
@@ -232,25 +243,12 @@ table.dataTable td:nth-child(2) {
 .sticky-toolbar-container {
   position: sticky;
   top: 56px;
-  z-index: 1049;
   background-color: white;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid #dee2e6;
 }
 
-/* ===== MODAL AND DROPDOWN Z-INDEX HIERARCHY ===== */
-.modal-backdrop {
-  z-index: 1065;
-}
-
-.modal {
-  z-index: 1070;
-}
-
-#columnModal {
-  z-index: 1055;
-}
-
+/* ===== DROPDOWNS AND MODALS ===== */
 /* Dropdown positioning */
 .nav-item.dropdown {
   position: relative;
@@ -261,16 +259,11 @@ table.dataTable td:nth-child(2) {
   right: 0;
   left: auto;
   top: 100%;
-  z-index: 1060;
   margin-top: 0.125rem;
 }
 
 #configDropdown+.dropdown-menu {
   min-width: 10rem;
-}
-
-.navbar .dropdown-menu {
-  z-index: 1060;
 }
 
 /* Modal positioning */
@@ -340,13 +333,4 @@ td.editable .external-link:active {
 /* Debug helper */
 .debug-highlight {
   outline: 2px dashed red;
-}
-
-.rail-field-disabled {
-  background-color:
-    #f8f9fa !important;
-  color:
-    #adb5bd !important;
-  cursor: not-allowed !important;
-  pointer-events: none;
 }
