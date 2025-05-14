@@ -29,6 +29,8 @@ let terminalOptions = [];
 let vesselNameOptions = [];
 let vesselLineIdByName = {};
 
+let tableInitialized = false;
+
 // Dynamic Link Processing
 // Utility function to create link icons
 function createLinkIcon(url, tooltip = 'Visit website', isDynamic = false) {
@@ -131,20 +133,20 @@ function fetchDropdownOptions() {
             return carrierOptions;
         }),
         $.getJSON('http://localhost:5062/api/shiplines').then(data => {
-            // Save the full shipline list with links
+            // Save the full shipline list with links, CLEANED of \r characters
             shiplineOptions = data.map(s => ({
                 id: s.id,
                 name: s.name,
-                link: s.link,
+                link: s.link ? s.link.replace(/[\r\n]+/g, '') : '',
                 isDynamicLink: s.isDynamicLink
             }));
-
+        
             // Keep the ID lookup map as before
             data.forEach(s => {
                 shiplineIdByName[s.name] = s.id;
             });
-
-            console.log("🧠 Shipline Options:", shiplineOptions);
+        
+            console.log("🧠 Shipline Options (cleaned URLs):", shiplineOptions);
             return shiplineOptions;
         }),
         $.getJSON('http://localhost:5062/api/FPMs').then(data => {
@@ -295,37 +297,64 @@ function preserveScrollPosition(action) {
     scrollContainer.scrollTop(pos);
 }
 
+// Simplified test configuration - add to scripts.js as new function
+function testInitializeTable() {
+    console.log("Testing table initialization with simplified config");
+    
+    $('#ContainerList').DataTable({
+        ajax: {
+            url: 'http://localhost:5062/api/containers',
+            dataSrc: '',
+            error: function(xhr, status, error) {
+                console.error('API Error:', error);
+                alert('Could not load data from API: ' + error);
+            }
+        },
+        columns: [
+            { data: null, defaultContent: '<input type="checkbox">' },
+            { data: null, defaultContent: '<button class="btn btn-sm btn-primary">Edit</button>' },
+            { data: 'containerID' },
+            { data: 'containerNumber' },
+            { data: 'currentStatus' },
+            // Add a few more basic columns
+        ]
+    });
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
-    let loadingDotsInterval;
+    if (tableInitialized) {
+        console.log("Table already initialized, skipping");
+        return;
+    }
 
     try {
         $('#ContainerList').hide();
         $('#tableSpinner').show();
-
+        
         // Load all dropdown data first
+        console.log("Loading dropdown data...");
         await fetchDropdownOptions();
+        console.log("Loading terminal data...");
         await fetchAllTerminalsByPort();
+        console.log("Loading vessel data...");
         await fetchAllVesselNamesByVesselLine();
         
-        // Show the table container
+        // Now initialize the table directly (no setTimeout)
+        console.log("Initializing main table...");
+        const table = initializeContainerTable();
+        window.ContainerTable = table;
+        tableInitialized = true;
+        
+        console.log("Table initialization complete");
+        
+        // Show the table and hide spinner
+        $('#tableSpinner').hide();
         $('#ContainerList').show();
         
-        // Add a small delay to ensure DOM is ready
-        setTimeout(() => {
-            // Initialize DataTable with a clean state
-            const table = initializeContainerTable();
-            window.ContainerTable = table; // Make it globally accessible
-            
-            // Call any post-initialization functions
-            setTimeout(alignCheckboxes, 100);
-        }, 100);
-
     } catch (err) {
-        console.error("❌ DROPDOWN FETCH ERROR:", err);
-        showToast("Failed to load dropdown data.", "danger");
-    } finally {
-        $('#tableSpinner').fadeOut(400);
-        $('#ContainerList').fadeIn();
+        console.error("❌ INITIALIZATION ERROR:", err);
+        showToast("Failed to initialize table. Check console for details.", "danger");
+        $('#tableSpinner').hide();
     }
 });
 
