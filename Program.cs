@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
 var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Add the database connection

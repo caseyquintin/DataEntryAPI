@@ -162,7 +162,7 @@ DataEntryAPI
     ✅ Blank Line (5/10/2025)  
  ✅ Basic link generation for SSLs, Vessel Owners and Terminals (started 5/12/2025, completed 5/12/2025)
  ⏹️ Color coding for Actual/Estimate, Current Status and Main Source
- ✅ Make Search function more robust (5/10/2025)
+ ⏹️ Make Search function more robust
  ⏹️ Filter table by status using pages and show only relevant columns
     ✅ All Active Containers
     ⏹️ Not Sailed
@@ -172,7 +172,17 @@ DataEntryAPI
     ⏹️ Set To Return
     ⏹️ Set To Pick Up
     ⏹️ Returned (1 year)
- ✅ Bulk Upload feature (.csv now, .xls/.xlsx later) (5/13/2025)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+ ⏹️ Bulk Upload feature (.csv now, .xls/.xlsx later) (started 5/13/2025)
+>>>>>>> parent of 5823f4d (feat: Implement bulk upload feature for containers with progress tracking and error handling)
+=======
+>>>>>>> parent of 3d25433 (feat: Add Bulk Upload feature to new container modal in README)
+=======
+ ⏹️ Bulk Upload feature (.csv now, .xls/.xlsx later) (started 5/13/2025)
+>>>>>>> parent of 5823f4d (feat: Implement bulk upload feature for containers with progress tracking and error handling)
     
  ***New Container Modal***
  ⏹️ Add multiple containers with the same information
