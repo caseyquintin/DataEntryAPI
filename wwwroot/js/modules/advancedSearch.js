@@ -1,26 +1,47 @@
 // File: wwwroot/js/modules/advancedSearch.js
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Add the button to the toolbar
-    const searchBtn = $(`<button id="advancedSearchBtn" class="btn btn-primary btn-sm me-2">
-        <i class="fas fa-search"></i> Advanced Search
-    </button>`);
+    // Get reference to the existing button in the HTML
+    const searchBtn = document.getElementById('advancedSearchBtn');
     
-    // Add the button after the existing buttons
-    $('#bulkButtons').append(searchBtn);
+    if (!searchBtn) {
+        console.error('Advanced search button not found in HTML');
+        return;
+    }
+    
+    console.log('Found advanced search button, attaching handler');
     
     // Get reference to the DataTable
     const table = $('#ContainerList').DataTable();
     
     // Initialize the modal when button is clicked
-    $('#advancedSearchBtn').on('click', function() {
+    $(searchBtn).on('click', function(e) {
+        console.log('Advanced search button clicked');
+        e.preventDefault(); // Prevent any default behavior
+        
         initializeSearchModal();
-        const modal = new bootstrap.Modal(document.getElementById('advancedSearchModal'));
-        modal.show();
+        
+        // Check if modal element exists
+        const modalElement = document.getElementById('advancedSearchModal');
+        if (!modalElement) {
+            console.error('Modal element not found! ID: advancedSearchModal');
+            return;
+        }
+        
+        // Create and show modal
+        try {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+            console.log('Modal shown successfully');
+        } catch (error) {
+            console.error('Error showing modal:', error);
+        }
     });
     
     // Initialize the search form with dropdown options
     function initializeSearchModal() {
+        console.log('Initializing search modal fields');
+        
         // Populate status dropdown
         const $statusSelect = $('select[name="currentStatus"]');
         $statusSelect.empty().append('<option value="">Any Status</option>');

@@ -302,61 +302,57 @@ window.addEventListener('DOMContentLoaded', async () => {
         $('#ContainerList').hide();
         $('#tableSpinner').show();
 
-        let dotCount = 0;
-        loadingDotsInterval = setInterval(() => {
-            const loadingText = document.getElementById('loadingText');
-            if (!loadingText) return;
-
-            dotCount = (dotCount + 1) % 4; // 0 → 1 → 2 → 3 → 0
-            loadingText.textContent = 'Loading' + '.'.repeat(dotCount);
-        }, 500);
-
+        // Load all dropdown data first
         await fetchDropdownOptions();
         await fetchAllTerminalsByPort();
         await fetchAllVesselNamesByVesselLine();
-
+        
+        // Show the table container
         $('#ContainerList').show();
-
-        initializeContainerTable();
-
-        $(document).ready(function() {
-            // Wait for DataTables to finish rendering
+        
+        // Add a small delay to ensure DOM is ready
+        setTimeout(() => {
+            // Initialize DataTable with a clean state
+            const table = initializeContainerTable();
+            window.ContainerTable = table; // Make it globally accessible
+            
+            // Call any post-initialization functions
             setTimeout(alignCheckboxes, 100);
-            
-            // Also call when window resizes
-            $(window).on('resize', alignCheckboxes);
-            
-            // Call when table redraws
-            $('#ContainerList').on('draw.dt', alignCheckboxes);
-        });
-
-        // ✅ Sidebar Toggle
-        const sidebarToggle = document.body.querySelector('#sidebarToggle');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', event => {
-                event.preventDefault();
-                document.body.classList.toggle('sb-sidenav-toggled');
-                localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-            });
-        }
+        }, 100);
 
     } catch (err) {
         console.error("❌ DROPDOWN FETCH ERROR:", err);
         showToast("Failed to load dropdown data.", "danger");
     } finally {
-        // ✅ Hide spinner and remove it
         $('#tableSpinner').fadeOut(400);
-    
-        // ✅ Show the table
         $('#ContainerList').fadeIn();
-
     }
-
 });
 
-let deleteTimeouts = {};
-function initializeContainerTable () {
+function manuallyLoadTable() {
+    $.ajax({
+        url: 'http://localhost:5062/api/containers',
+        type: 'GET',
+        success: function(data) {
+            console.log("🔄 Manually loading data:", data.length);
+            
+            const table = $('#ContainerList').DataTable();
+            table.clear();
+            table.rows.add(data);
+            table.draw();
+            
+            showToast(`Loaded ${data.length} containers`, 'success');
+        },
+        error: function(xhr, status, error) {
+            console.error('🛑 Manual load error:', error);
+            showToast('Failed to load data', 'danger');
+        }
+    });
+}
 
+let deleteTimeouts = {};
+// Add this debugging code at the start of your initializeContainerTable function
+function initializeContainerTable() {
     console.log("🚀 initializeContainerTable called");
     
     // Prevent multiple initializations
@@ -396,11 +392,20 @@ function initializeContainerTable () {
         ajax: {
             url: 'http://localhost:5062/api/containers',
             dataSrc: function (json) {
+                console.log("📊 Data received:", json);
+                console.log("📊 Data count:", Array.isArray(json) ? json.length : 'Not an array!');
+                
+                if (!json || (Array.isArray(json) && json.length === 0)) {
+                    console.warn("⚠️ No data returned from API!");
+                    showToast('No container data found', 'warning');
+                }
+                
                 return json;
             },
             error: function(xhr, status, error) {
-                console.error('🛑 Failed to load data:', status, error);
-                showToast('Failed to load table data!', 'danger');
+                console.error('🛑 API Error:', xhr.status, status, error);
+                console.error('🛑 Response Text:', xhr.responseText);
+                showToast(`API Error: ${xhr.status} - ${error}`, 'danger');
             }
         },
         rowId: 'containerID',
@@ -575,8 +580,6 @@ function initializeContainerTable () {
             
             // Initialize tooltips on initial load
             initTooltips();
-
-            window.initializeSmartSearch = initializeOptimizedSearch;
 
             table.buttons().container().appendTo('.dt-buttons');
 
@@ -798,4 +801,7 @@ function initializeContainerTable () {
     $('#ContainerList').on('draw.dt', function() {
         $('#selectAll').prop('checked', false); // reset master checkbox
     });
+
+    // Return the table instance
+    return table;
 };

@@ -242,7 +242,7 @@ public class ContainerController : ControllerBase
                     ? null
                     : Convert.ChangeType(update.Value, property.PropertyType);
             }
-            
+
             // Check if the value is actually changing
             var currentValue = property.GetValue(container);
             if (currentValue?.ToString() == convertedValue?.ToString())
