@@ -174,11 +174,15 @@ DataEntryAPI
     ⏹️ Returned (1 year)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
  ⏹️ Bulk Upload feature (.csv now, .xls/.xlsx later) (started 5/13/2025)
 >>>>>>> parent of 5823f4d (feat: Implement bulk upload feature for containers with progress tracking and error handling)
 =======
 >>>>>>> parent of 3d25433 (feat: Add Bulk Upload feature to new container modal in README)
+=======
+ ⏹️ Bulk Upload feature (.csv now, .xls/.xlsx later) (started 5/13/2025)
+>>>>>>> parent of 5823f4d (feat: Implement bulk upload feature for containers with progress tracking and error handling)
     
  ***New Container Modal***
  ⏹️ Add multiple containers with the same information
