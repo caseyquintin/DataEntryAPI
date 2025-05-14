@@ -50,10 +50,9 @@ body {
 }
 
 #table-container {
-  flex: 1 1 auto;
   overflow-y: auto;
-  overflow-x: auto;
-  position: relative;
+  overflow-x: auto; 
+  max-height: calc(100vh - 120px)
 }
 
 /* Sidebar toggle behavior */
@@ -342,3 +341,48 @@ td.editable .external-link:active {
   outline: 2px dashed red;
 }
 
+        /* Ensure DataTables headers are visible */
+        .dataTables_scrollHead {
+          overflow: visible !important;
+          z-index: 1000;
+        }
+    
+        /* Fix for header row visibility */
+        .dataTables_scrollHead .dataTable thead tr {
+          position: relative;
+          display: block;
+        }
+    
+        /* Increase space for header content */
+        .dataTables_scrollHead .dataTable thead th {
+          height: auto;
+          padding: 8px;
+        }
+
+        /* Force fixed header to be visible */
+        .dataTables_scrollHead {
+          position: sticky !important;
+          top: 116px !important;
+          /* Adjust based on your top navbar + toolbar height */
+          z-index: 1030 !important;
+          background-color: white;
+          overflow: visible !important;
+        }
+    
+        /* Make the table head cells visible */
+        .dataTable thead th {
+          position: sticky !important;
+          background-color: white;
+          z-index: 1030 !important;
+        }
+    
+        /* Ensure container doesn't hide overflow */
+        #table-container {
+          overflow: visible !important;
+        }
+    
+        /* Adjust main scrolling container */
+        .dataTables_scrollBody {
+          max-height: calc(100vh - 180px) !important;
+          overflow-y: auto !important;
+        }
