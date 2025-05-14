@@ -722,4 +722,160 @@ public class ContainerController : ControllerBase
         result.Add(field.ToString());
         return result.ToArray();
     }
+
+    [HttpPost("search")]
+    public async Task<ActionResult<IEnumerable<object>>> SearchContainers([FromBody] Dictionary<string, string> searchCriteria)
+    {
+        try
+        {
+            // Start with base query
+            IQueryable<Container> query = _context.Containers;
+
+            // Apply filters based on provided criteria
+            foreach (var criterion in searchCriteria)
+            {
+                string key = criterion.Key;
+                string value = criterion.Value?.Trim() ?? string.Empty;
+
+                if (string.IsNullOrEmpty(value))
+                    continue;
+
+                // Handle different search fields
+                switch (key.ToLower())
+                {
+                    case "containernumber":
+                        query = query.Where(c => c.ContainerNumber != null && c.ContainerNumber.Contains(value));
+                        break;
+
+                    case "currentstatus":
+                        query = query.Where(c => c.CurrentStatus == value);
+                        break;
+
+                    case "bolbookingnumber":
+                        query = query.Where(c => c.BOLBookingNumber != null && c.BOLBookingNumber.Contains(value));
+                        break;
+
+                    case "projectnumber":
+                        query = query.Where(c => c.ProjectNumber != null && c.ProjectNumber.Contains(value));
+                        break;
+
+                    case "ponumber":
+                        query = query.Where(c => c.PONumber != null && c.PONumber.Contains(value));
+                        break;
+
+                    case "vendor":
+                        query = query.Where(c => c.Vendor != null && c.Vendor.Contains(value));
+                        break;
+
+                    case "shipline":
+                        query = query.Where(c => c.Shipline == value);
+                        break;
+
+                    case "vesselname":
+                        query = query.Where(c => c.VesselName != null && c.VesselName.Contains(value));
+                        break;
+
+                    case "portofentry":
+                        query = query.Where(c => c.PortOfEntry == value);
+                        break;
+
+                    // Handle date ranges
+                    case "sailfrom":
+                        if (DateTime.TryParse(value, out DateTime sailFrom))
+                            query = query.Where(c => c.Sail >= sailFrom);
+                        break;
+
+                    case "sailto":
+                        if (DateTime.TryParse(value, out DateTime sailTo))
+                            query = query.Where(c => c.Sail <= sailTo);
+                        break;
+
+                    case "arrivalfrom":
+                        if (DateTime.TryParse(value, out DateTime arrivalFrom))
+                            query = query.Where(c => c.Arrival >= arrivalFrom);
+                        break;
+
+                    case "arrivalto":
+                        if (DateTime.TryParse(value, out DateTime arrivalTo))
+                            query = query.Where(c => c.Arrival <= arrivalTo);
+                        break;
+                }
+            }
+
+            // Get final results
+            var results = await query
+                .Select(c => new
+                {
+                    c.ContainerID,
+                    c.FPM,
+                    c.FpmID,
+                    c.ProjectNumber,
+                    c.ContainerNumber,
+                    c.Shipline,
+                    c.ContainerSize,
+                    c.CurrentStatus,
+                    c.ShipmentNumber,
+                    c.PONumber,
+                    c.Vendor,
+                    c.VendorIDNumber,
+                    c.Sail,
+                    c.Carrier,
+                    c.CarrierID,
+                    c.Arrival,
+                    c.Offload,
+                    PortOfEntry = c.PortID != null
+                        ? _context.Ports
+                            .Where(p => p.PortId == c.PortID)
+                            .Select(p => p.PortOfEntry)
+                            .FirstOrDefault()
+                        : c.PortOfEntry,
+                    Terminal = c.TerminalID != null
+                        ? _context.Terminals
+                            .Where(t => t.TerminalID == c.TerminalID)
+                            .Select(t => t.TerminalName)
+                            .FirstOrDefault()
+                        : c.Terminal,
+                    c.TerminalID,
+                    c.BOLBookingNumber,
+                    c.Available,
+                    c.PickupLFD,
+                    c.PortRailwayPickup,
+                    c.ReturnLFD,
+                    c.Delivered,
+                    c.Returned,
+                    c.Notes,
+                    c.SailActual,
+                    c.BerthActual,
+                    c.ArrivalActual,
+                    c.OffloadActual,
+                    c.LastUpdated,
+                    c.MainSource,
+                    c.PortOfDeparture,
+                    c.Rail,
+                    c.RailDestination,
+                    c.RailwayLine,
+                    c.LoadToRail,
+                    c.RailDeparture,
+                    c.RailETA,
+                    c.Transload,
+                    c.RailPickupNumber,
+                    c.Berth,
+                    c.VesselLine,
+                    c.VesselName,
+                    c.Voyage,
+                    c.ShiplineID,
+                    c.VesselLineID,
+                    c.VesselID,
+                    c.PortID
+                })
+                .ToListAsync();
+
+            // Return the results
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error searching containers: {ex.Message}");
+        }
+    }
 }
