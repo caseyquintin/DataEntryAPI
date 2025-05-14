@@ -172,7 +172,6 @@ DataEntryAPI
     ⏹️ Set To Return
     ⏹️ Set To Pick Up
     ⏹️ Returned (1 year)
- ⏹️ Bulk Upload feature (.csv now, .xls/.xlsx later) (started 5/13/2025)
     
  ***New Container Modal***
  ⏹️ Add multiple containers with the same information
