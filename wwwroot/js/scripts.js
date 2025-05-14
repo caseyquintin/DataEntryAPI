@@ -29,8 +29,6 @@ let terminalOptions = [];
 let vesselNameOptions = [];
 let vesselLineIdByName = {};
 
-let tableInitialized = false;
-
 // Dynamic Link Processing
 // Utility function to create link icons
 function createLinkIcon(url, tooltip = 'Visit website', isDynamic = false) {
@@ -133,20 +131,20 @@ function fetchDropdownOptions() {
             return carrierOptions;
         }),
         $.getJSON('http://localhost:5062/api/shiplines').then(data => {
-            // Save the full shipline list with links, CLEANED of \r characters
+            // Save the full shipline list with links
             shiplineOptions = data.map(s => ({
                 id: s.id,
                 name: s.name,
-                link: s.link ? s.link.replace(/[\r\n]+/g, '') : '',
+                link: s.link,
                 isDynamicLink: s.isDynamicLink
             }));
-        
+
             // Keep the ID lookup map as before
             data.forEach(s => {
                 shiplineIdByName[s.name] = s.id;
             });
-        
-            console.log("🧠 Shipline Options (cleaned URLs):", shiplineOptions);
+
+            console.log("🧠 Shipline Options:", shiplineOptions);
             return shiplineOptions;
         }),
         $.getJSON('http://localhost:5062/api/FPMs').then(data => {
@@ -252,6 +250,21 @@ function fetchVesselNamesByVesselLineId(vesselLineId) {
     return $.getJSON(`http://localhost:5062/api/vessels/by-line/${vesselLineId}`);
 }
 
+function alignCheckboxes() {
+    // Get position of the first row checkbox
+    const firstRowCheckbox = $('.row-select').first();
+    if (firstRowCheckbox.length) {
+        const rowPosition = firstRowCheckbox.position();
+        
+        // Adjust the "Select All" checkbox to match
+        $('#selectAll').css({
+        'position': 'relative',
+        'top': (rowPosition.top > 0 ? 0 : '0px'),
+        'margin': '0'
+        });
+    }
+}
+
 function showToast(message, type = 'success') {
     const toastId = `toast-${Date.now()}`;
     const toastHtml = `
@@ -282,51 +295,40 @@ function preserveScrollPosition(action) {
     scrollContainer.scrollTop(pos);
 }
 
-// Simplified test configuration - add to scripts.js as new function
-function testInitializeTable() {
-    console.log("Testing table initialization with simplified config");
-    
-    $('#ContainerList').DataTable({
-        ajax: {
-            url: 'http://localhost:5062/api/containers',
-            dataSrc: '',
-            error: function(xhr, status, error) {
-                console.error('API Error:', error);
-                alert('Could not load data from API: ' + error);
-            }
-        },
-        columns: [
-            { data: null, defaultContent: '<input type="checkbox">' },
-            { data: null, defaultContent: '<button class="btn btn-sm btn-primary">Edit</button>' },
-            { data: 'containerID' },
-            { data: 'containerNumber' },
-            { data: 'currentStatus' },
-            // Add a few more basic columns
-        ]
-    });
-}
-
 window.addEventListener('DOMContentLoaded', async () => {
-    if (tableInitialized) {
-        console.log("Table already initialized, skipping");
-        return;
-    }
+    let loadingDotsInterval;
 
     try {
         $('#ContainerList').hide();
         $('#tableSpinner').show();
-        
-        // Load all dropdown data first
-        console.log("Loading dropdown data...");
+
+        let dotCount = 0;
+        loadingDotsInterval = setInterval(() => {
+            const loadingText = document.getElementById('loadingText');
+            if (!loadingText) return;
+
+            dotCount = (dotCount + 1) % 4; // 0 → 1 → 2 → 3 → 0
+            loadingText.textContent = 'Loading' + '.'.repeat(dotCount);
+        }, 500);
+
         await fetchDropdownOptions();
-        console.log("Loading terminal data...");
         await fetchAllTerminalsByPort();
-        console.log("Loading vessel data...");
         await fetchAllVesselNamesByVesselLine();
 
         $('#ContainerList').show();
 
         initializeContainerTable();
+
+        $(document).ready(function() {
+            // Wait for DataTables to finish rendering
+            setTimeout(alignCheckboxes, 100);
+            
+            // Also call when window resizes
+            $(window).on('resize', alignCheckboxes);
+            
+            // Call when table redraws
+            $('#ContainerList').on('draw.dt', alignCheckboxes);
+        });
 
         // ✅ Sidebar Toggle
         const sidebarToggle = document.body.querySelector('#sidebarToggle');
@@ -353,8 +355,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 let deleteTimeouts = {};
-// Add this debugging code at the start of your initializeContainerTable function
-function initializeContainerTable() {
+function initializeContainerTable () {
+
     console.log("🚀 initializeContainerTable called");
     
     // Prevent multiple initializations
@@ -386,7 +388,6 @@ function initializeContainerTable() {
         <button id="bulkEditBtn" class="btn btn-primary btn-sm">✏️ Bulk Edit</button>
         <button id="bulkDeleteBtn" class="btn btn-danger btn-sm">🗑️ Bulk Delete</button>
         <button id="customColVisBtn" class="btn btn-secondary btn-sm">🔧 Choose Columns</button>
-        <button id="manageDynamicLinksBtn" class="btn btn-info btn-sm">🔗 Manage Links</button>
         </div>
     `;
 
@@ -395,26 +396,16 @@ function initializeContainerTable() {
         ajax: {
             url: 'http://localhost:5062/api/containers',
             dataSrc: function (json) {
-                console.log("📊 Data received:", json);
-                console.log("📊 Data count:", Array.isArray(json) ? json.length : 'Not an array!');
-                
-                if (!json || (Array.isArray(json) && json.length === 0)) {
-                    console.warn("⚠️ No data returned from API!");
-                    showToast('No container data found', 'warning');
-                }
-                
                 return json;
             },
             error: function(xhr, status, error) {
-                console.error('🛑 API Error:', xhr.status, status, error);
-                console.error('🛑 Response Text:', xhr.responseText);
-                showToast(`API Error: ${xhr.status} - ${error}`, 'danger');
+                console.error('🛑 Failed to load data:', status, error);
+                showToast('Failed to load table data!', 'danger');
             }
         },
         rowId: 'containerID',
-        scrollY: 'calc(100vh - 180px)', // More dynamic height calculation
-        scrollX: true,
-        fixedHeader: true, // Add this directly to the DataTable initialization
+        scrollY: '1000px', // or your existing calc height
+        scrollX: true, // ✅ fix horizontal scroll issue
         autoWidth: true, // ✅ allow dynamic sizing once
         stateSave: true, // ✅ So it loads column sizes and visibility settings
         scroller: true,
@@ -585,6 +576,190 @@ function initializeContainerTable() {
             // Initialize tooltips on initial load
             initTooltips();
 
+            // Get the search input
+            const searchInput = $('.sticky-toolbar-container input[type="search"]');
+            
+            // Check if we've already initialized this search input
+            if (searchInput.data('search-initialized')) {
+                return; // Skip if already initialized
+            }
+            
+            // Mark as initialized
+            searchInput.data('search-initialized', true);
+
+            // Create column selector dropdown
+            const columnSelector = $(`
+                <select class="form-select form-select-sm me-2" style="width: auto;">
+                    <option value="">All Columns</option>
+                    <option value="containerNumber">Container #</option>
+                    <option value="projectNumber">Project #</option>
+                    <option value="shipmentNumber">Shipment #</option>
+                    <option value="currentStatus">Status</option>
+                    <option value="shipline">Shipline</option>
+                    <option value="vendor">Vendor</option>
+                    <option value="vesselName">Vessel Name</option>
+                    <option value="poNumber">PO Number</option>
+                    <option value="fpm">FPM</option>
+                    <option value="railDestination">Rail Destination</option>
+                    <option value="portOfEntry">Port of Entry</option>
+                    <option value="terminal">Terminal</option>
+                    <option value="carrier">Carrier</option>
+                </select>
+            `);
+
+            // Insert column selector before search box
+            searchInput.before(columnSelector);
+
+            // Search configuration
+            const searchConfig = {
+                delay: 300,
+                minLength: 0,
+                highlightResults: true,
+                caseSensitive: false
+            };
+
+            // Debounce function
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // Search feedback functions
+            function showSearchFeedback(filtered, total, term, column = 'All Columns') {
+                let feedback = $('.search-feedback');
+                if (!feedback.length) {
+                    feedback = $('<div class="search-feedback text-muted small mt-1"></div>');
+                    $('.search-wrapper').append(feedback);
+                }
+                feedback.html(`Found <strong>${filtered}</strong> of ${total} containers matching "<strong>${term}</strong>" in <strong>${column}</strong>`);
+            }
+
+            function hideSearchFeedback() {
+                $('.search-feedback').remove();
+            }
+
+            // DEFINE performSearch BEFORE using it in event handlers
+            const performSearch = debounce(function(searchTerm) {
+                const selectedColumn = columnSelector.val();
+                
+                // Clear all previous searches
+                table.columns().search('');
+                
+                if (searchTerm.length < searchConfig.minLength && searchConfig.minLength > 0) {
+                    table.search('').draw();
+                    hideSearchFeedback();
+                    return;
+                }
+                
+                if (selectedColumn) {
+                    // Search specific column
+                    table.column(`${selectedColumn}:name`).search(searchTerm, !searchConfig.caseSensitive, true).draw();
+                } else {
+                    // Search all columns
+                    table.search(searchTerm, !searchConfig.caseSensitive, true).draw();
+                }
+                
+                // Show feedback
+                const info = table.page.info();
+                if (searchTerm) {
+                    const columnName = selectedColumn ? columnSelector.find('option:selected').text() : 'All Columns';
+                    showSearchFeedback(info.recordsDisplay, info.recordsTotal, searchTerm, columnName);
+                } else {
+                    hideSearchFeedback();
+                }
+                
+                // Save to session
+                sessionStorage.setItem('containerSearch', searchTerm);
+                sessionStorage.setItem('containerSearchColumn', selectedColumn);
+            }, searchConfig.delay);
+
+            // Check if already wrapped
+            const isAlreadyWrapped = searchInput.parent().hasClass('search-wrapper');
+            
+            // Count existing clear buttons
+            const existingClearButtons = $('.search-clear').length;
+
+            // Wrap search input ONCE and add clear button
+            if (!isAlreadyWrapped) {
+                const wrapper = $('<div class="search-wrapper" style="position: relative;"></div>');
+                searchInput.wrap(wrapper);
+                
+                const clearButton = $('<button class="btn btn-sm btn-link search-clear" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none;"><i class="fa fa-times"></i></button>');
+                searchInput.after(clearButton);
+                
+                // Store reference to the clear button for this specific search input
+                searchInput.data('clear-button', clearButton);
+                
+                // Clear button functionality
+                clearButton.on('click', function() {
+                    searchInput.val('').trigger('input');
+                    columnSelector.val(''); // Reset column selector too
+                    table.columns().search('');
+                    table.search('').draw();
+                    hideSearchFeedback();
+                    sessionStorage.removeItem('containerSearch');
+                });
+            } else {
+                console.log("⚠️ Search input already wrapped, skipping clear button creation");
+            }
+
+            // Check clear buttons again after potentially adding one
+            const finalClearButtons = $('.search-clear').length;
+
+            // NOW we can use performSearch in event handlers
+            // Single event handler for search input
+            searchInput.off('input').on('input', function() {
+                const searchTerm = this.value.trim();
+                performSearch(searchTerm);
+                
+                // Toggle THIS search input's clear button specifically
+                const clearBtn = $(this).data('clear-button');
+                
+                if (clearBtn) {
+                    clearBtn.toggle(searchTerm.length > 0);
+                }
+            });
+
+            // Column selector change handler
+            columnSelector.off('change').on('change', function() {
+                performSearch(searchInput.val().trim());
+            });
+
+            // Restore search from session
+            const savedSearch = sessionStorage.getItem('containerSearch');
+            const savedColumn = sessionStorage.getItem('containerSearchColumn');
+            if (savedSearch) {
+                searchInput.val(savedSearch);
+                if (savedColumn) {
+                    columnSelector.val(savedColumn);
+                }
+                performSearch(savedSearch);
+            }
+
+            // Keyboard shortcuts
+            $(document).on('keydown', function(e) {
+                // Ctrl/Cmd + F to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                
+                // Escape to clear search
+                if (e.key === 'Escape' && searchInput.is(':focus')) {
+                    const clearBtn = searchInput.data('clear-button');
+                    if (clearBtn) {
+                        clearBtn.trigger('click');
+                    }
+                }
+            });
+
             table.buttons().container().appendTo('.dt-buttons');
 
             initializeDataTableHandlers(table);
@@ -745,12 +920,7 @@ function initializeContainerTable() {
                     cell.removeAttr('title');
                 }
             });
-
-            setTimeout(function() {
-                table.fixedHeader.adjust(); // Force FixedHeader to readjust
-                table.columns.adjust();      // Force columns to readjust
-            }, 300);
-            
+            // At the END of initComplete, add:
             console.log("✅ initComplete finished");
         },
         rowCallback: function(row, data) {
@@ -789,6 +959,12 @@ function initializeContainerTable() {
         }, 200); // Small delay to make sure table is ready
     });
 
+    new $.fn.dataTable.FixedHeader(table, {
+        header: true,
+        headerOffset: 56,
+        scrollContainer: '#table-container' // 👈 This anchors the header
+    });
+
     // 🔁 Reset "Select All" checkbox whenever the table redraws (pagination, search, etc.)
     table.on('draw', function() {
         $('#selectAll').prop('checked', false);
@@ -804,7 +980,4 @@ function initializeContainerTable() {
     $('#ContainerList').on('draw.dt', function() {
         $('#selectAll').prop('checked', false); // reset master checkbox
     });
-
-    // Return the table instance
-    return table;
 };
