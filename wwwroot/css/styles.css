@@ -1,25 +1,5 @@
-/* ===== BASE ELEMENTS ===== */
-html,
-body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-}
-
-/* ===== LAYOUT STRUCTURE ===== */
-#wrapper {
-  display: flex;
-  overflow-x: hidden;
-  height: 100%;
-}
-
-/* Sidebar styling */
 #sidebar-wrapper {
-  width: 250px;
   min-height: 100vh;
-  height: 100vh;
-  flex-shrink: 0;
-  overflow-y: auto;
   margin-left: -15rem;
   transition: margin 0.25s ease-out;
 }
@@ -33,7 +13,6 @@ body {
   width: 15rem;
 }
 
-/* Main content area */
 #page-content-wrapper {
   flex-grow: 1;
   display: flex;
@@ -43,24 +22,10 @@ body {
   min-width: 100vw;
 }
 
-#navbar {
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1060;
-}
-
-#table-container {
-  overflow-y: auto;
-  overflow-x: auto; 
-  max-height: calc(100vh - 120px)
-}
-
-/* Sidebar toggle behavior */
 body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   margin-left: 0;
 }
 
-/* ===== RESPONSIVE ADJUSTMENTS ===== */
 @media (min-width: 768px) {
   #sidebar-wrapper {
     margin-left: 0;
@@ -76,34 +41,83 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   }
 }
 
-/* ===== TABLE STYLING ===== */
-/* Base table styles */
-table.dataTable {
-  table-layout: fixed;
-  border-collapse: collapse;
-  border-spacing: 0;
-  margin-top: 0;
-  margin-bottom: 0;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  /* Prevent page scroll */
 }
 
-#ContainerList {
-  min-width: 1500px;
-  width: auto;
+#wrapper {
+  display: flex;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+#sidebar-wrapper {
+  width: 250px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+#page-content-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#navbar {
+  flex-shrink: 0;
+}
+
+#table-container {
+  flex: 1 1 auto;
+  /* Remove horizontal scrolling */
+  overflow-y: hidden;
+  /* keep vertical if needed */
+  overflow-x: hidden;
+  position: relative;
+}
+
+.toolbar {
+  padding: 0 1rem;
+}
+
+.dataTables_filter {
+  margin-bottom: 0 !important;
+}
+
+.dataTables_scrollBody {
+  scroll-behavior: auto !important;
+}
+
+th:first-child,
+td:first-child {
+  width: 40px;
+  text-align: center;
 }
 
 #ContainerList_wrapper {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+  width: '100%';
+  height: '100%';
 }
 
-/* Table header and cells */
-table.dataTable thead th {
-  position: relative;
-  min-width: 100px;
-  padding: 8px;
-  vertical-align: middle;
-  border-bottom-width: 1px;
+table.dataTable.fixedHeader-floating {
+  top: 56px !important;
+  /* Or match your navbar height */
+  z-index: 1050;
+  /* Ensure it stays above content */
+}
+
+table.dataTable.fixedHeader-floating {
+  background-color: white;
+  z-index: 1055;
+  top: 56px !important;
+  /* Match your navbar */
 }
 
 table.dataTable td,
@@ -111,191 +125,107 @@ table.dataTable th {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 80px;
-  padding: 8px;
-  box-sizing: border-box;
 }
 
-/* First column specific styling (checkbox column) */
-table.dataTable thead th:first-child,
-table.dataTable tbody td:first-child {
-  width: 40px !important;
-  min-width: 40px !important;
-  max-width: 40px !important;
-  padding: 0 !important;
-  /* Remove all padding */
-  position: static !important;
-  /* Changed from relative */
-  text-align: center !important;
-  vertical-align: middle !important;
+.dt-colresizable-hover {
+  cursor: col-resize !important;
 }
 
-/* Fix checkbox container positioning */
-table.dataTable th:first-child,
-table.dataTable td:first-child {
-  text-align: center !important;
-}
-
-/* Checkbox positioning */
-#selectAll,
-.row-select {
-  position: static !important;
-  /* Changed from absolute */
-  transform: none !important;
-  /* Remove transform */
-  margin: 0 auto !important;
-  padding: 0 !important;
-  display: block !important;
-  /* Make the checkbox a block element */
-  top: auto !important;
-  left: auto !important;
-}
-
-/* Add specific CSS for DataTables' wrapper div around checkboxes if any */
-.dt-checkbox-div,
-.dt-checkbox-wrapper {
-  text-align: center !important;
-  margin: 0 auto !important;
-}
-
-/* Second column (actions) styling */
-table.dataTable th:nth-child(2),
-table.dataTable td:nth-child(2) {
-  min-width: 90px;
-}
-
-/* Table scrolling behavior */
-.dataTables_wrapper .dataTables_scroll {
-  overflow: visible;
-}
-
-.dataTables_wrapper .dataTables_scrollBody {
-  overflow-x: auto;
-  scroll-behavior: auto;
-  min-width: 100%;
-  border-top: none;
-  margin-top: -1px;
-}
-
-.dataTables_scrollHead {
-  min-height: 65px;
-  border-bottom: none;
-}
-
-/* Header filter styling */
-#ContainerList thead th {
-  padding-bottom: 30px;
-  position: relative;
-  vertical-align: top;
-}
-
-#ContainerList thead .dt-filter-button,
-#ContainerList thead .sorting_asc,
-#ContainerList thead .sorting_desc,
-#ContainerList thead .sorting {
-  padding-bottom: 25px;
-}
-
-#ContainerList th:first-child {
-  padding-bottom: 8px;
-  vertical-align: middle;
-}
-
-.dt-filter-button-container,
-.dt-filter-container {
+.dt-colresizable-handler {
+  cursor: col-resize !important;
+  width: 10px;
   position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: auto;
-  text-align: center;
+  top: 0;
+  right: 0;
+  height: 100%;
+  z-index: 2;
 }
 
-#ContainerList thead th .dt-header-text {
+table.dataTable {
+  table-layout: fixed !important;
+  /*width: 100%*/
+}
+
+table.dataTable thead th {
+  position: relative;
+}
+
+/* Keep table layout stable */
+#ContainerList {
+  table-layout: fixed !important;
+  /* Ensures columns don't auto-expand */
+  width: 100% !important;
+}
+
+/* Prevent text from wrapping or overflowing */
+#ContainerList th,
+#ContainerList td {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: block;
-  margin-bottom: 5px;
 }
 
-/* ===== TOOLBAR AND UTILITY ===== */
-.toolbar {
-  padding: 0 1rem;
+/* Ensure inline input doesn't break layout */
+#ContainerList td.editing input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-.dataTables_filter {
-  margin-bottom: 0;
+.debug-highlight {
+  outline: 2px dashed red !important;
 }
 
 .sticky-toolbar-container {
   position: sticky;
   top: 56px;
+  /* same as navbar height */
   z-index: 1049;
   background-color: white;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid #dee2e6;
 }
 
-/* ===== MODAL AND DROPDOWN Z-INDEX HIERARCHY ===== */
-.modal-backdrop {
-  z-index: 1065;
-}
-
-.modal {
-  z-index: 1070;
-}
-
 #columnModal {
   z-index: 1055;
+  /* higher than modal-backdrop (1050) */
 }
 
-/* Dropdown positioning */
-.nav-item.dropdown {
-  position: relative;
+.modal-backdrop {
+  z-index: 1050;
 }
 
-.dropdown-menu {
-  position: absolute;
-  right: 0;
-  left: auto;
-  top: 100%;
-  z-index: 1060;
-  margin-top: 0.125rem;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  /* ⛔ outer scrollbars */
 }
 
-#configDropdown+.dropdown-menu {
-  min-width: 10rem;
+.dataTables_wrapper .dataTables_scroll {
+  overflow: hidden;
 }
 
-.navbar .dropdown-menu {
-  z-index: 1060;
+.dataTables_wrapper .dataTables_scrollBody {
+  overflow-x: auto !important;
+  /* only this handles horizontal scroll */
 }
 
-/* Modal positioning */
-.modal-dialog {
-  margin: 1.75rem auto;
-  max-height: calc(100vh - 3.5rem);
-  overflow-y: auto;
-}
-
-.modal.show .modal-dialog {
-  transform: none;
-}
-
-/* ===== VISUAL ELEMENTS ===== */
-/* Warning styling */
 .bg-warning {
-  background-color: #f39c12;
-  color: #fff;
+  background-color: #f39c12 !important;
+  /* Darker amber/orange */
+  color: #fff !important;
 }
 
 .bg-warning .toast-body {
-  color: #212529;
+  color: #212529 !important;
+  /* Bootstrap's default text-dark */
   font-weight: 700;
 }
 
-/* Link icon styling */
+/* Add these styles for the link icons */
+
 .external-link {
   display: inline-block;
   vertical-align: middle;
@@ -311,24 +241,40 @@ table.dataTable td:nth-child(2) {
   opacity: 1;
 }
 
-.external-link.dynamic-link .fas {
-  color: #0d6efd;
-}
-
-.external-link.dynamic-link:hover .fas {
-  color: #0a58ca;
-}
-
-/* Prevent link interaction issues */
+/* Prevent click on link from triggering cell edit */
 td.editable .external-link {
   pointer-events: auto;
 }
 
+/* Stop propagation for link clicks */
 td.editable .external-link:active {
-  background-color: transparent;
+  background-color: transparent !important;
 }
 
-/* Disabled rail field styling */
+/* Add styles for dynamic links */
+
+.external-link.dynamic-link .fas {
+  color: #0d6efd;
+  /* Bootstrap primary blue */
+}
+
+.external-link.dynamic-link:hover .fas {
+  color: #0a58ca;
+  /* Darker blue on hover */
+}
+
+.rail-field-disabled {
+  background-color: #f8f9fa !important;
+  color: #adb5bd !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+td.editing {
+  box-shadow: inset 0 0 0 2px #007bff;
+  position: relative;
+}
+
 .rail-field-disabled {
   background-color: #f8f9fa;
   color: #adb5bd;
@@ -340,49 +286,3 @@ td.editable .external-link:active {
 .debug-highlight {
   outline: 2px dashed red;
 }
-
-        /* Ensure DataTables headers are visible */
-        .dataTables_scrollHead {
-          overflow: visible !important;
-          z-index: 1000;
-        }
-    
-        /* Fix for header row visibility */
-        .dataTables_scrollHead .dataTable thead tr {
-          position: relative;
-          display: block;
-        }
-    
-        /* Increase space for header content */
-        .dataTables_scrollHead .dataTable thead th {
-          height: auto;
-          padding: 8px;
-        }
-
-        /* Force fixed header to be visible */
-        .dataTables_scrollHead {
-          position: sticky !important;
-          top: 116px !important;
-          /* Adjust based on your top navbar + toolbar height */
-          z-index: 1030 !important;
-          background-color: white;
-          overflow: visible !important;
-        }
-    
-        /* Make the table head cells visible */
-        .dataTable thead th {
-          position: sticky !important;
-          background-color: white;
-          z-index: 1030 !important;
-        }
-    
-        /* Ensure container doesn't hide overflow */
-        #table-container {
-          overflow: visible !important;
-        }
-    
-        /* Adjust main scrolling container */
-        .dataTables_scrollBody {
-          max-height: calc(100vh - 180px) !important;
-          overflow-y: auto !important;
-        }

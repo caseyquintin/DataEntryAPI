@@ -252,21 +252,6 @@ function fetchVesselNamesByVesselLineId(vesselLineId) {
     return $.getJSON(`http://localhost:5062/api/vessels/by-line/${vesselLineId}`);
 }
 
-function alignCheckboxes() {
-    // Get position of the first row checkbox
-    const firstRowCheckbox = $('.row-select').first();
-    if (firstRowCheckbox.length) {
-        const rowPosition = firstRowCheckbox.position();
-        
-        // Adjust the "Select All" checkbox to match
-        $('#selectAll').css({
-        'position': 'relative',
-        'top': (rowPosition.top > 0 ? 0 : '0px'),
-        'margin': '0'
-        });
-    }
-}
-
 function showToast(message, type = 'success') {
     const toastId = `toast-${Date.now()}`;
     const toastHtml = `
@@ -338,50 +323,34 @@ window.addEventListener('DOMContentLoaded', async () => {
         await fetchAllTerminalsByPort();
         console.log("Loading vessel data...");
         await fetchAllVesselNamesByVesselLine();
-        
-        // Now initialize the table directly (no setTimeout)
-        console.log("Initializing main table...");
-        const table = initializeContainerTable();
-        window.ContainerTable = table;
-        tableInitialized = true;
 
-        console.log('Header element height:', $('.dataTables_scrollHead').height());
-        console.log('Header visibility:', $('.dataTables_scrollHead').css('display'));
-        console.log('Header element:', $('.dataTables_scrollHead')[0]);
-        
-        console.log("Table initialization complete");
-        
-        // Show the table and hide spinner
-        $('#tableSpinner').hide();
         $('#ContainerList').show();
-        
-    } catch (err) {
-        console.error("❌ INITIALIZATION ERROR:", err);
-        showToast("Failed to initialize table. Check console for details.", "danger");
-        $('#tableSpinner').hide();
-    }
-});
 
-function manuallyLoadTable() {
-    $.ajax({
-        url: 'http://localhost:5062/api/containers',
-        type: 'GET',
-        success: function(data) {
-            console.log("🔄 Manually loading data:", data.length);
-            
-            const table = $('#ContainerList').DataTable();
-            table.clear();
-            table.rows.add(data);
-            table.draw();
-            
-            showToast(`Loaded ${data.length} containers`, 'success');
-        },
-        error: function(xhr, status, error) {
-            console.error('🛑 Manual load error:', error);
-            showToast('Failed to load data', 'danger');
+        initializeContainerTable();
+
+        // ✅ Sidebar Toggle
+        const sidebarToggle = document.body.querySelector('#sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', event => {
+                event.preventDefault();
+                document.body.classList.toggle('sb-sidenav-toggled');
+                localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
+            });
         }
-    });
-}
+
+    } catch (err) {
+        console.error("❌ DROPDOWN FETCH ERROR:", err);
+        showToast("Failed to load dropdown data.", "danger");
+    } finally {
+        // ✅ Hide spinner and remove it
+        $('#tableSpinner').fadeOut(400);
+    
+        // ✅ Show the table
+        $('#ContainerList').fadeIn();
+
+    }
+
+});
 
 let deleteTimeouts = {};
 // Add this debugging code at the start of your initializeContainerTable function
@@ -417,6 +386,7 @@ function initializeContainerTable() {
         <button id="bulkEditBtn" class="btn btn-primary btn-sm">✏️ Bulk Edit</button>
         <button id="bulkDeleteBtn" class="btn btn-danger btn-sm">🗑️ Bulk Delete</button>
         <button id="customColVisBtn" class="btn btn-secondary btn-sm">🔧 Choose Columns</button>
+        <button id="manageDynamicLinksBtn" class="btn btn-info btn-sm">🔗 Manage Links</button>
         </div>
     `;
 
