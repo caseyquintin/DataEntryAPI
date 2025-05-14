@@ -277,12 +277,5 @@ td.editing {
 
 .rail-field-disabled {
   background-color: #f8f9fa;
-  color: #adb5bd;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* Debug helper */
-.debug-highlight {
-  outline: 2px dashed red;
+  color: #6c757d;
 }
