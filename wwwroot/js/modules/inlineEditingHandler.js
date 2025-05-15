@@ -1,6 +1,9 @@
 // inlineEditingHandler.js
 
 let railFieldsInitialized = false;
+window.railStylingInitialized = false;
+let dtEventsBound = false;
+let drawCounter = 0;
 
 const navigationOptions = {
     saveOnArrowNavigation: true,   // Set to false if you only want to save on Tab/Enter
@@ -43,6 +46,8 @@ function debugCell(cell, prefix = "Cell") {
 
 // Now modify your existing click event handler for editable cells
 document.addEventListener('DOMContentLoaded', function () {
+    setupDataTableEvents();
+    
     let lastEditingCell = null;
     let moveLock = false;
 
@@ -136,19 +141,36 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // CONSOLIDATED EVENT HANDLER - replace all separate event handlers
-    $('#ContainerList').on('draw.dt', function(e, settings, json) {
-        // Run tooltip and checkbox handlers every time
-        initTooltips();
-        alignCheckboxes();
+    function setupDataTableEvents() {
+        // Remove previous handlers first
+        $('#ContainerList').off('draw.dt');
         
-        // Apply rail styling if we've already initialized
-        if (railStylingApplied) {
-            console.log("✅ Applying rail styling during table redraw");
-            window.updateRailFieldsForAllRows();
-        }
+        // Only bind events once
+        if (dtEventsBound) return;
         
-        console.log("✅ Table redrawn - all handlers executed");
-    });
+        $('#ContainerList').on('draw.dt', function(e, settings, json) {
+            // Track draw count
+            drawCounter++;
+            
+            // Always run these essential functions
+            window.initTooltips();
+            window.alignCheckboxes();
+            
+            // Only apply rail styling during normal operation (after initial load)
+            if (window.railStylingInitialized) {
+                // No need to log during regular redraws
+                window.updateRailFieldsForAllRows();
+            }
+            
+            // Only log for the first draw event or after initialization
+            if (drawCounter <= 1 || window.railStylingInitialized) {
+                console.log(`✅ Table draw #${drawCounter} completed`);
+            }
+        });
+        
+        dtEventsBound = true;
+        console.log("🔄 DataTable event handlers initialized");
+    }
 
     function findAdjacentCell(currentCell, direction) {
         const table = $('#ContainerList').DataTable();

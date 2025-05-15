@@ -30,6 +30,7 @@ let vesselNameOptions = [];
 let vesselLineIdByName = {};
 
 let railStylingApplied = false;
+let railStylingInitialized = false;
 
 // Rail-related fields that should be toggled
 window.railRelatedFields = [
@@ -740,30 +741,15 @@ function initializeContainerTable () {
         initComplete: function() {
             const table = this.api();
             window.ContainerTable = table;
-
-            // CONSOLIDATED EVENT HANDLER - replace all separate event handlers
-            $('#ContainerList').on('draw.dt', function(e, settings, json) {
-                // Run tooltip and checkbox handlers every time
-                window.initTooltips();
-                alignCheckboxes();
-                
-                // APPLY RAIL STYLING JUST ONCE with a slight delay to ensure everything is ready
-                setTimeout(function() {
-                    console.log("🚀 Initial rail styling application");
-                    window.updateRailFieldsForAllRows();
-                    railStylingApplied = true;  // Set the flag AFTER styling is applied
-                }, 800);
-                
-                console.log("✅ Table redrawn - all handlers executed");
-            });
-
+        
             // Initialize tooltips on initial load
-            initTooltips();
-
+            window.initTooltips();
+        
             table.buttons().container().appendTo('.dt-buttons');
-
+        
+            // Initialize all handlers from inlineEditingHandler.js
             initializeDataTableHandlers(table);
-
+        
             // 🌐 Read the status filter from the DOM (if any)
             const $tableEl = $('#ContainerList');
             const statusFilter = $tableEl.data('status-filter');
@@ -791,7 +777,7 @@ function initializeContainerTable () {
             }
             
             table.draw();
-
+        
             // ✅ Only allow autoWidth once, then disable it to prevent layout thrash
             const settings = table.settings()[0];
             if (settings.oInit.autoWidth) {
@@ -801,9 +787,9 @@ function initializeContainerTable () {
                 settings.oInit.autoWidth = false; // turn it off after first sizing
                 settings.oFeatures.bAutoWidth = false;
             }
-
+        
             $('#bulkButtons').html(bulkButtons);
-
+        
             const addBlankBtn = $(`<button class="btn btn-secondary btn-sm"><i class="fa fa-plus"></i> Add Blank Row</button>`);
             addBlankBtn.on('click', async function () {
                 try {
@@ -890,7 +876,7 @@ function initializeContainerTable () {
                     // ✅ Scroll to the new row using Scroller plugin
                     table.row(rowIndex).scrollTo(false); // or true for animated scroll
                     
-                    // Highlight + start editing once it’s in view
+                    // Highlight + start editing once it's in view
                     setTimeout(() => {
                         const rowNode = table.row(rowIndex).node();
                         $(rowNode).addClass('table-warning');
@@ -908,8 +894,8 @@ function initializeContainerTable () {
                     showToast("Failed to create new container", "danger");
                 }
             });
-    
-    
+        
+        
             $('#bulkButtons').append(addBlankBtn);
         
             $('#ContainerList').on('mouseenter', 'td', function() {
@@ -920,12 +906,15 @@ function initializeContainerTable () {
                     cell.removeAttr('title');
                 }
             });
-
-            // APPLY RAIL STYLING JUST ONCE with a slight delay to ensure everything is ready
+        
+            // Do a one-time initialization of rail styling with delay
             setTimeout(function() {
-                console.log("🚀 Initial rail styling application");
-                applyRailStyling();
-                railStylingApplied = true;  // Set the flag AFTER styling is applied
+                if (!window.railStylingInitialized) {
+                    console.log("🚀 Initial rail styling application");
+                    window.updateRailFieldsForAllRows();
+                    window.railStylingInitialized = true;
+                    console.log("✅ Rail styling initialization complete");
+                }
             }, 800);
             
             console.log("✅ initComplete finished");
