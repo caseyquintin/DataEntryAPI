@@ -322,15 +322,20 @@ td.editable .external-link:active {
   background-color: transparent;
 }
 
-/* Disabled rail field styling - with increased specificity */
+/* Debug helper */
+.debug-highlight {
+  outline: 2px dashed red;
+}
+
+/* Rail field styling for disabled fields */
 table.dataTable td.rail-field-disabled {
-  background-color: #f8f9fa !important;
+  background-color: #d3dae2 !important;
   color: #adb5bd !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
 }
 
-/* Debug helper */
-.debug-highlight {
-  outline: 2px dashed red;
+/* You might also want a transition effect for a smoother look */
+table.dataTable td {
+  transition: background-color 0.2s, color 0.2s, cursor 0.2s;
 }

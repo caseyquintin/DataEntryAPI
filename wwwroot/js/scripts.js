@@ -410,29 +410,16 @@ function initializeContainerTable () {
                             const $cell = $(cell.node());
                             
                             if (isDisabled) {
+                                // Just use the CSS class instead of inline styles
                                 $cell.addClass('rail-field-disabled');
                                 $cell.removeClass('editable');
                                 $cell.data('rail-disabled', true);
                                 $cell.attr('data-rail-disabled', 'true');
-                                
-                                $cell.css({
-                                    'background-color': '#f8f9fa',
-                                    'color': '#adb5bd',
-                                    'cursor': 'not-allowed',
-                                    'pointer-events': 'none'
-                                });
                             } else {
                                 $cell.removeClass('rail-field-disabled');
                                 $cell.addClass('editable');
                                 $cell.data('rail-disabled', false);
                                 $cell.removeAttr('data-rail-disabled');
-                                
-                                $cell.css({
-                                    'background-color': '',
-                                    'color': '',
-                                    'cursor': '',
-                                    'pointer-events': ''
-                                });
                             }
                         }
                     }
@@ -644,13 +631,16 @@ function initializeContainerTable () {
             }
 
             // CONSOLIDATED EVENT HANDLER - replace all separate event handlers
-            $('#ContainerList').on('draw.dt', function() {
-                // Run all handlers in one place
+            $('#ContainerList').on('draw.dt', function(e, settings, json) {
+                // Run tooltip and checkbox handlers every time
                 initTooltips();
                 alignCheckboxes();
                 
-                // Only apply rail styling if it hasn't been applied already or during a redraw
-                applyRailStyling();
+                // Only apply rail styling if it's NOT the initial draw or we're redrawing later
+                if (railStylingApplied) {
+                    console.log("✅ Applying rail styling during table redraw");
+                    applyRailStyling();
+                }
                 
                 console.log("✅ Table redrawn - all handlers executed");
             });
@@ -823,7 +813,7 @@ function initializeContainerTable () {
             setTimeout(function() {
                 console.log("🚀 Initial rail styling application");
                 applyRailStyling();
-                railStylingApplied = true;
+                railStylingApplied = true;  // Set the flag AFTER styling is applied
             }, 800);
             
             console.log("✅ initComplete finished");
@@ -879,10 +869,5 @@ function initializeContainerTable () {
     $(document).on('change', '#selectAll', function() {
         const checked = $(this).is(':checked');
         $('.row-select').prop('checked', checked);
-    });
-
-    // To keep checkboxes in sync after table redraws
-    $('#ContainerList').on('draw.dt', function() {
-        $('#selectAll').prop('checked', false); // reset master checkbox
     });
 };
