@@ -326,8 +326,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             // Also call when window resizes
             $(window).on('resize', alignCheckboxes);
             
-            // Call when table redraws
-            $('#ContainerList').on('draw.dt', alignCheckboxes);
         });
 
         // ✅ Sidebar Toggle
@@ -368,6 +366,81 @@ function initializeContainerTable () {
     console.log('✅ Initializing new DataTable');
 
     let currentEditRow = null;
+
+    function applyRailStyling() {
+        console.log("⚙️ Manually applying rail styling to all rows");
+        try {
+            const table = $('#ContainerList').DataTable();
+            
+            // Loop through each row
+            table.rows().every(function(rowIdx) {
+                const rowData = this.data();
+                const railValue = rowData.rail;
+                
+                // Check if rail is disabled
+                const isDisabled = !railValue || 
+                    railValue === 'No' || 
+                    railValue === 'no' || 
+                    railValue === 'NO' || 
+                    railValue === 'n' || 
+                    railValue === false ||
+                    railValue === '0';
+                
+                console.log(`🛠️ Setting rail for row ${rowIdx}, value: ${railValue}, disabled: ${isDisabled}`);
+                
+                // List of rail-related fields
+                const railFields = [
+                    'railDestination', 
+                    'railwayLine', 
+                    'loadToRail', 
+                    'railDeparture', 
+                    'railETA', 
+                    'railPickupNumber'
+                ];
+                
+                // Apply styling to each field
+                railFields.forEach(fieldName => {
+                    // Get column index
+                    const colIdx = table.column(`${fieldName}:name`).index();
+                    if (colIdx !== undefined) {
+                        const cell = table.cell(rowIdx, colIdx);
+                        if (cell && cell.node()) {
+                            const $cell = $(cell.node());
+                            
+                            if (isDisabled) {
+                                $cell.addClass('rail-field-disabled');
+                                $cell.removeClass('editable');
+                                $cell.data('rail-disabled', true);
+                                $cell.attr('data-rail-disabled', 'true');
+                                
+                                $cell.css({
+                                    'background-color': '#f8f9fa',
+                                    'color': '#adb5bd',
+                                    'cursor': 'not-allowed',
+                                    'pointer-events': 'none'
+                                });
+                            } else {
+                                $cell.removeClass('rail-field-disabled');
+                                $cell.addClass('editable');
+                                $cell.data('rail-disabled', false);
+                                $cell.removeAttr('data-rail-disabled');
+                                
+                                $cell.css({
+                                    'background-color': '',
+                                    'color': '',
+                                    'cursor': '',
+                                    'pointer-events': ''
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+            console.log("✅ Rail styling completed");
+        } catch (err) {
+            console.error("❌ Error applying rail styling:", err);
+        }
+    }
 
     // Bulk select checkbox helper
     function getSelectedContainerIDs() {
@@ -568,9 +641,18 @@ function initializeContainerTable () {
                 });
             }
             
-            // Initialize tooltips when DataTable is drawn
             $('#ContainerList').on('draw.dt', function() {
+                // 1. First, run any tooltip initializations
                 initTooltips();
+                
+                // 2. Then align checkboxes
+                alignCheckboxes();
+                
+                // 3. Finally apply rail styling
+                applyRailStyling();
+                
+                // Add any other functions that need to run on redraw here
+                console.log("✅ Table redrawn - all handlers executed");
             });
             
             // Initialize tooltips on initial load
@@ -737,13 +819,24 @@ function initializeContainerTable () {
                 }
             });
 
-            // Make sure to apply rail field styling after initial table load
-            setTimeout(function() {
-                window.updateRailFieldsForAllRows();
-                console.log("✅ Initial rail fields styling applied");
-            }, 500);
+            // Only apply initial styling once
+            if (!window.railFieldsInitialized) {
+                console.log("🚀 Initial rail field styling");
+                setTimeout(function() {
+                    applyRailStyling();
+                    console.log("✅ Initial rail fields styling applied");
+                }, 500);
+            }
 
-            // At the END of initComplete, add:
+            console.log("🔄 Initial rail styling from initComplete");
+            applyRailStyling();
+            
+            // Also call with delay to ensure everything is ready
+            setTimeout(function() {
+                console.log("⏱️ Delayed rail styling");
+                applyRailStyling();
+            }, 1000);
+            
             console.log("✅ initComplete finished");
         },
         rowCallback: function(row, data) {

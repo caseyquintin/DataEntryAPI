@@ -1,5 +1,7 @@
 // inlineEditingHandler.js
 
+let railFieldsInitialized = false;
+
 const navigationOptions = {
     saveOnArrowNavigation: true,   // Set to false if you only want to save on Tab/Enter
     wrapAtEdges: false,            // Set to true to wrap around at table edges
@@ -133,8 +135,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    $('#ContainerList').on('draw.dt', function() {
-        window.updateRailFieldsForAllRows();
+    $('#ContainerList').on('draw.dt', function(e, settings, json) {
+        // Only run on redraw, not during initial draw
+        if (railFieldsInitialized) {
+            console.log("🔄 Refreshing rail fields after table redraw");
+            window.updateRailFieldsForAllRows();
+        }
     });
 
     function findAdjacentCell(currentCell, direction) {
@@ -229,6 +235,12 @@ document.addEventListener('DOMContentLoaded', function () {
     
     window.updateRailFieldsForAllRows = function() {
         const table = $('#ContainerList').DataTable();
+        
+        // Add debug log to help track calls
+        console.log("📊 updateRailFieldsForAllRows called");
+        
+        // Set the flag to true after first run
+        railFieldsInitialized = true;
         
         table.rows().every(function(rowIdx) {
             const rowData = this.data();
