@@ -739,7 +739,7 @@ function initializeContainerTable () {
 
             // Make sure to apply rail field styling after initial table load
             setTimeout(function() {
-                updateRailFieldsForAllRows();
+                window.updateRailFieldsForAllRows();
                 console.log("✅ Initial rail fields styling applied");
             }, 500);
 

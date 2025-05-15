@@ -133,17 +133,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    const railRelatedFields = [
-        'railDestination', 
-        'railwayLine', 
-        'loadToRail', 
-        'railDeparture', 
-        'railETA', 
-        'railPickupNumber'
-    ];
-
     $('#ContainerList').on('draw.dt', function() {
-        updateRailFieldsForAllRows();
+        window.updateRailFieldsForAllRows();
     });
 
     function findAdjacentCell(currentCell, direction) {
@@ -222,8 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return null;
     }
 
-    // Define the utility functions inside DOMContentLoaded too
-    function isRailDisabled(rowData) {
+    window.isRailDisabled = function(rowData) {
         if (!rowData) return true;
         
         const railValue = rowData.rail;
@@ -236,26 +226,32 @@ document.addEventListener('DOMContentLoaded', function () {
                railValue === false ||
                railValue === '0';
     }
-
-    function updateRailFieldsForAllRows() {
+    
+    window.updateRailFieldsForAllRows = function() {
         const table = $('#ContainerList').DataTable();
         
         table.rows().every(function(rowIdx) {
             const rowData = this.data();
-            updateRailFieldsForRow(rowIdx, rowData);
+            window.updateRailFieldsForRow(rowIdx, rowData);
         });
     }
-
-    function updateRailFieldsForRow(rowIdx, rowData) {
+    
+    window.updateRailFieldsForRow = function(rowIdx, rowData) {
         const table = $('#ContainerList').DataTable();
-        const isDisabled = isRailDisabled(rowData);
+        const isDisabled = window.isRailDisabled(rowData);
         
         // Log for debugging
         console.log(`🚂 Updating rail fields for row ${rowIdx}, rail value: ${rowData.rail}, disabled: ${isDisabled}`);
         
+        // Get column indexes only once for performance
+        const colIndexes = {};
+        railRelatedFields.forEach(fieldName => {
+            colIndexes[fieldName] = window.getColumnIndex(table, fieldName);
+        });
+        
         // Update each rail-related field
         railRelatedFields.forEach(fieldName => {
-            const colIdx = getColumnIndex(table, fieldName);
+            const colIdx = colIndexes[fieldName];
             if (colIdx !== -1) {
                 try {
                     const cell = table.cell(rowIdx, colIdx);
@@ -267,9 +263,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             $cell.addClass('rail-field-disabled');
                             $cell.removeClass('editable');
                             $cell.data('rail-disabled', true);
-                            $cell.attr('data-rail-disabled', 'true'); // Add HTML attribute as well
+                            $cell.attr('data-rail-disabled', 'true'); 
                             
-                            // Apply inline styles as a last resort
                             $cell.css({
                                 'background-color': '#f8f9fa',
                                 'color': '#adb5bd',
@@ -282,7 +277,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             $cell.data('rail-disabled', false);
                             $cell.removeAttr('data-rail-disabled');
                             
-                            // Remove inline styles
                             $cell.css({
                                 'background-color': '',
                                 'color': '',
@@ -297,9 +291,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
+    
     // Helper function to safely get column index by data name
-    function getColumnIndex(table, columnName) {
+    window.getColumnIndex = function(table, columnName) {
         const columns = table.settings()[0].aoColumns;
         for (let i = 0; i < columns.length; i++) {
             if (columns[i].data === columnName) {
@@ -308,6 +302,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return -1; // Column not found
     }
+    
+    // Define railRelatedFields globally too
+    const railRelatedFields = [
+        'railDestination', 
+        'railwayLine', 
+        'loadToRail', 
+        'railDeparture', 
+        'railETA', 
+        'railPickupNumber'
+    ];
 
     // Helper function for safely updating a cell
     function safeUpdateCell(table, rowIdx, colIdx, value) {
@@ -586,12 +590,12 @@ document.addEventListener('DOMContentLoaded', function () {
             
             console.log("🖱️ Editable cell clicked", isSyntheticEvent ? "(synthetic)" : "");
             
-            // NEW CODE: Skip if this is a disabled rail field
+            // Skip if this is a disabled rail field
             if ($(this).data('rail-disabled')) {
                 console.log("🔒 Skipping edit for disabled rail field");
                 return;
             }
-
+            
             // Debug what happens before fade
             setTimeout(() => {
                 fadeNewRowHighlights();
