@@ -62,8 +62,6 @@ window.updateRailFieldsForRow = function(rowIdx, rowData) {
     const table = $('#ContainerList').DataTable();
     const isDisabled = window.isRailDisabled(rowData);
     
-    console.log(`🛠️ Setting rail for row ${rowIdx}, value: ${rowData.rail}, disabled: ${isDisabled}`);
-    
     // Update each rail-related field
     window.railRelatedFields.forEach(fieldName => {
         // Find the column index for this field
@@ -113,7 +111,6 @@ window.updateRailFieldsForRow = function(rowIdx, rowData) {
 
 // Update rail fields for all rows
 window.updateRailFieldsForAllRows = function() {
-    console.log("⚙️ Manually applying rail styling to all rows");
     const table = $('#ContainerList').DataTable();
     
     let count = 0;
@@ -123,7 +120,6 @@ window.updateRailFieldsForAllRows = function() {
         count++;
     });
     
-    console.log(`✅ Rail styling completed for ${count} rows`);
     window.railFieldsInitialized = true;
 }
 
@@ -247,9 +243,6 @@ function fetchDropdownOptions() {
                 carrierIdByName[c.name] = c.id;
             });
 
-            console.log("🧠 Carrier Options:", carrierOptions);
-            console.log("📦 Carrier ID by Name:", carrierIdByName);
-
             return carrierOptions;
         }),
         $.getJSON('http://localhost:5062/api/shiplines').then(data => {
@@ -266,7 +259,6 @@ function fetchDropdownOptions() {
                 shiplineIdByName[s.name] = s.id;
             });
 
-            console.log("🧠 Shipline Options:", shiplineOptions);
             return shiplineOptions;
         }),
         $.getJSON('http://localhost:5062/api/FPMs').then(data => {
@@ -281,9 +273,6 @@ function fetchDropdownOptions() {
                 fpmIdByName[f.name] = f.id;
             });
 
-            console.log("🧠 Fpm Options:", fpmOptions);
-            console.log("📦 Fpm ID by Name:", fpmIdByName);
-
             return fpmOptions;
         }),
         $.getJSON('http://localhost:5062/api/ports').then(data => {
@@ -297,9 +286,6 @@ function fetchDropdownOptions() {
             data.forEach(p => {
                 portIdByName[p.name] = p.id;
             });
-
-            console.log("🧠 Port Options:", portOptions);
-            console.log("📦 Port ID by Name:", portIdByName);
 
             return portOptions;
         }),
@@ -317,7 +303,6 @@ function fetchDropdownOptions() {
                 vesselLineIdByName[v.name] = v.id;
             });
 
-            console.log("🧠 Vessel Lines Options:", vesselLineOptions);
             return vesselLineOptions;
         }),
     ]).then(() => {
@@ -341,7 +326,6 @@ function fetchAllTerminalsByPort() {
             // Now terminalOptions will include link information
             terminalOptions = results.flat();
             window.terminalOptions = terminalOptions;
-            console.log("🌐 Loaded all terminals:", terminalOptions.length);
         });
 }
 
@@ -359,7 +343,6 @@ function fetchAllVesselNamesByVesselLine() {
         .then(results => {
             vesselNameOptions = results.flat();
             window.vesselNameOptions = vesselNameOptions;
-            console.log("🌐 Loaded all vessel names:", vesselNameOptions.length);
         });
 } 
 
@@ -507,8 +490,6 @@ function initializeContainerTable () {
                     railValue === 'n' || 
                     railValue === false ||
                     railValue === '0';
-                
-                console.log(`🛠️ Setting rail for row ${rowIdx}, value: ${railValue}, disabled: ${isDisabled}`);
                 
                 // List of rail-related fields
                 const railFields = [
@@ -910,10 +891,8 @@ function initializeContainerTable () {
             // Do a one-time initialization of rail styling with delay
             setTimeout(function() {
                 if (!window.railStylingInitialized) {
-                    console.log("🚀 Initial rail styling application");
                     window.updateRailFieldsForAllRows();
                     window.railStylingInitialized = true;
-                    console.log("✅ Rail styling initialization complete");
                 }
             }, 800);
             
