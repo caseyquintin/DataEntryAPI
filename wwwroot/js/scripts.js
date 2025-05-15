@@ -920,6 +920,13 @@ function initializeContainerTable () {
                     cell.removeAttr('title');
                 }
             });
+
+            // Make sure to apply rail field styling after initial table load
+            setTimeout(function() {
+                updateRailFieldsForAllRows();
+                console.log("✅ Initial rail fields styling applied");
+            }, 500);
+
             // At the END of initComplete, add:
             console.log("✅ initComplete finished");
         },

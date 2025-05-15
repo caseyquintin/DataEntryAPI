@@ -322,12 +322,12 @@ td.editable .external-link:active {
   background-color: transparent;
 }
 
-/* Disabled rail field styling */
-.rail-field-disabled {
-  background-color: #f8f9fa;
-  color: #adb5bd;
-  cursor: not-allowed;
-  pointer-events: none;
+/* Disabled rail field styling - with increased specificity */
+table.dataTable td.rail-field-disabled {
+  background-color: #f8f9fa !important;
+  color: #adb5bd !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
 }
 
 /* Debug helper */
