@@ -135,12 +135,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    // CONSOLIDATED EVENT HANDLER - replace all separate event handlers
     $('#ContainerList').on('draw.dt', function(e, settings, json) {
-        // Only run on redraw, not during initial draw
-        if (railFieldsInitialized) {
-            console.log("🔄 Refreshing rail fields after table redraw");
+        // Run tooltip and checkbox handlers every time
+        initTooltips();
+        alignCheckboxes();
+        
+        // Apply rail styling if we've already initialized
+        if (railStylingApplied) {
+            console.log("✅ Applying rail styling during table redraw");
             window.updateRailFieldsForAllRows();
         }
+        
+        console.log("✅ Table redrawn - all handlers executed");
     });
 
     function findAdjacentCell(currentCell, direction) {

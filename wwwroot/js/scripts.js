@@ -31,6 +31,125 @@ let vesselLineIdByName = {};
 
 let railStylingApplied = false;
 
+// Rail-related fields that should be toggled
+window.railRelatedFields = [
+    'railDestination', 
+    'railwayLine', 
+    'loadToRail', 
+    'railDeparture', 
+    'railETA', 
+    'railPickupNumber'
+];
+
+// Check if rail is disabled based on row data
+window.isRailDisabled = function(rowData) {
+    if (!rowData) return true;
+    
+    const railValue = rowData.rail;
+    // Check for all variations of "No"
+    return !railValue || 
+           railValue === 'No' || 
+           railValue === 'no' || 
+           railValue === 'NO' || 
+           railValue === 'n' || 
+           railValue === false ||
+           railValue === '0';
+}
+
+// Update rail fields for a specific row
+window.updateRailFieldsForRow = function(rowIdx, rowData) {
+    const table = $('#ContainerList').DataTable();
+    const isDisabled = window.isRailDisabled(rowData);
+    
+    console.log(`🛠️ Setting rail for row ${rowIdx}, value: ${rowData.rail}, disabled: ${isDisabled}`);
+    
+    // Update each rail-related field
+    window.railRelatedFields.forEach(fieldName => {
+        // Find the column index for this field
+        const colIdx = table.column(`${fieldName}:name`).index();
+        if (colIdx !== undefined) {
+            try {
+                const cell = table.cell(rowIdx, colIdx);
+                if (cell && cell.node()) {
+                    const $cell = $(cell.node());
+                    
+                    if (isDisabled) {
+                        // Disable the field
+                        $cell.addClass('rail-field-disabled');
+                        $cell.removeClass('editable');
+                        $cell.data('rail-disabled', true);
+                        $cell.attr('data-rail-disabled', 'true');
+                        
+                        // Apply inline styles for stronger effect
+                        $cell.css({
+                            'background-color': '#f8f9fa',
+                            'color': '#adb5bd',
+                            'cursor': 'not-allowed',
+                            'pointer-events': 'none'
+                        });
+                    } else {
+                        // Enable the field
+                        $cell.removeClass('rail-field-disabled');
+                        $cell.addClass('editable');
+                        $cell.data('rail-disabled', false);
+                        $cell.removeAttr('data-rail-disabled');
+                        
+                        // Remove inline styles
+                        $cell.css({
+                            'background-color': '',
+                            'color': '',
+                            'cursor': '',
+                            'pointer-events': ''
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error(`❌ Error updating rail field ${fieldName}:`, err);
+            }
+        }
+    });
+}
+
+// Update rail fields for all rows
+window.updateRailFieldsForAllRows = function() {
+    console.log("⚙️ Manually applying rail styling to all rows");
+    const table = $('#ContainerList').DataTable();
+    
+    let count = 0;
+    table.rows().every(function(rowIdx) {
+        const rowData = this.data();
+        window.updateRailFieldsForRow(rowIdx, rowData);
+        count++;
+    });
+    
+    console.log(`✅ Rail styling completed for ${count} rows`);
+    window.railFieldsInitialized = true;
+}
+
+// Add this function near the top of scripts.js, outside any other functions
+window.initTooltips = function() {
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(tooltip => {
+        new bootstrap.Tooltip(tooltip);
+    });
+}
+
+// Make alignCheckboxes global too
+window.alignCheckboxes = function() {
+    // Get position of the first row checkbox
+    const firstRowCheckbox = $('.row-select').first();
+    if (firstRowCheckbox.length) {
+        const rowPosition = firstRowCheckbox.position();
+        
+        // Adjust the "Select All" checkbox to match
+        $('#selectAll').css({
+            'position': 'relative',
+            'top': (rowPosition.top > 0 ? 0 : '0px'),
+            'margin': '0'
+        });
+    }
+}
+
 // Dynamic Link Processing
 // Utility function to create link icons
 function createLinkIcon(url, tooltip = 'Visit website', isDynamic = false) {
@@ -622,25 +741,18 @@ function initializeContainerTable () {
             const table = this.api();
             window.ContainerTable = table;
 
-            // Initialize tooltips for link icons
-            function initTooltips() {
-                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-                tooltips.forEach(tooltip => {
-                    new bootstrap.Tooltip(tooltip);
-                });
-            }
-
             // CONSOLIDATED EVENT HANDLER - replace all separate event handlers
             $('#ContainerList').on('draw.dt', function(e, settings, json) {
                 // Run tooltip and checkbox handlers every time
-                initTooltips();
+                window.initTooltips();
                 alignCheckboxes();
                 
-                // Only apply rail styling if it's NOT the initial draw or we're redrawing later
-                if (railStylingApplied) {
-                    console.log("✅ Applying rail styling during table redraw");
-                    applyRailStyling();
-                }
+                // APPLY RAIL STYLING JUST ONCE with a slight delay to ensure everything is ready
+                setTimeout(function() {
+                    console.log("🚀 Initial rail styling application");
+                    window.updateRailFieldsForAllRows();
+                    railStylingApplied = true;  // Set the flag AFTER styling is applied
+                }, 800);
                 
                 console.log("✅ Table redrawn - all handlers executed");
             });
