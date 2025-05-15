@@ -11,6 +11,20 @@ const navigationOptions = {
     skipHiddenColumns: true        // Whether to skip hidden columns when navigating
 };
 
+// Add this function at the top level of your inlineEditingHandler.js file
+function optimizedCellUpdate(cell, value) {
+    // Update only the cell's content without table redraw
+    if (cell && cell.node() && document.body.contains(cell.node())) {
+        // Just update the data in memory
+        cell.data(value);
+        
+        // Update the cell's display without redraw
+        $(cell.node()).html(value === null ? '' : value);
+        return true;
+    }
+    return false;
+}
+
 // Utility function to handle clicks on link icons
 function handleLinkIconClick(event) {
     // If clicking a link icon, stop propagation to prevent inline editing
@@ -768,7 +782,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.warn("⚠️ No dropdown options found for field:", fieldName);
                 inputHtml = `<input type="text" class="form-control form-control-sm" value="${originalValue ?? ''}" placeholder="No options available">`;
             }
-                else if (isDateField) {
+            else if (isDateField) {
                 const value = originalValue ? new Date(originalValue).toLocaleDateString('en-US') : '';
                 inputHtml = `<input type="text" class="form-control form-control-sm date-field" value="${value}">`;                
             } else {
@@ -1168,15 +1182,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let preventBlur = false;
 
-            input.on('keydown', function (e) {
+            input.on('keydown', function(e) {
                 if (e.key === 'Tab' || e.key === 'Enter') {
-                    e.preventDefault();
-                    preventBlur = true;
-
-                    let newValue = input.val().trim();
-                    if (newValue === 'null') newValue = '';
-
-                    if (isDateField && newValue) {
+                e.preventDefault();
+                preventBlur = true;
+            
+                let newValue = input.val().trim();
+                if (newValue === 'null') newValue = '';
+            
+                if (isDateField && newValue) {
                         let parsed;
                         
                         // First check if there's a flatpickr instance
@@ -1204,18 +1218,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Mark cell as being processed
                     $(cell.node()).addClass('processing-update');
 
-                    // Update data without immediate draw
+                    // IMPORTANT CHANGE: Only redraw if absolutely necessary
                     if (changed) {
-                        cell.data(newValue);
-                        
-                        // Draw with scroll position preserved
-                        preserveScrollPosition(() => {
-                            try {
-                                table.draw(false);
-                            } catch (err) {
-                                console.warn("⚠️ Tab/Enter update draw failed:", err);
-                            }
-                        });
+                        // Update cell without table redraw
+                        optimizedCellUpdate(cell, newValue);
                         
                         // Skip certain fields that are handled elsewhere
                         const skipFields = ['carrier', 'shipline', 'fpm', 'portOfEntry', 'vesselLine'];
@@ -1233,15 +1239,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             console.warn(`⚠️ Skipping fallback PATCH — ${fieldName} already patched on change.`);
                         }
                     } else {
-                        // Even if unchanged, just draw to ensure proper display
-                        preserveScrollPosition(() => {
-                            try {
-                                cell.data(originalValue);
-                                table.draw(false);
-                            } catch (err) {
-                                console.warn("⚠️ Draw failed on unchanged value:", err);
-                            }
-                        });
+                        // Just update the displayed value without table redraw
+                        optimizedCellUpdate(cell, originalValue);
                     }
                     
                     // Remove editing state
@@ -1267,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Only handle arrows with no modifiers (not shift, ctrl, alt)
                 if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && 
-                    !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
                     
                     e.preventDefault(); // Prevent default arrow key behaviors
                     
@@ -1291,9 +1290,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Find the next cell - store this so we can use it later
                     const targetCell = findAdjacentCell(cell.node(), direction);
                     
-                    // Log info for debugging
-                    console.log(`Navigation: ${direction}, Target found: ${!!targetCell}`);
-                    
                     // If we found a valid target cell
                     if (targetCell) {
                         // Save current cell value if changed
@@ -1303,8 +1299,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             // Mark cell as being processed
                             $(cell.node()).addClass('processing-update');
                             
-                            // Save the current value
-                            cell.data(currentValue);
+                            // Use optimized update without redraw
+                            optimizedCellUpdate(cell, currentValue);
                             
                             // Get field info for PATCH request
                             const fieldIndex = cell.index().column;
@@ -1329,21 +1325,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Remove editing classes from current cell
                         $(cell.node()).removeClass('editing processing-update');
                         
-                        // Redraw the table before moving to ensure clean state
-                        try {
-                            preserveScrollPosition(() => {
-                                table.draw(false);
-                            });
-                        } catch (err) {
-                            console.warn("⚠️ Table redraw failed during navigation:", err);
-                        }
+                        // IMPORTANT: Skip the redraw entirely, no need during navigation
                         
                         // Create a small delay to ensure DOM is stable
                         setTimeout(() => {
                             // Make sure target cell still exists and is in the document
                             if (targetCell && document.body.contains(targetCell)) {
-                                console.log('Moving to cell:', $(targetCell).text());
-                                
                                 // Use a clean approach to trigger cell edit
                                 $(targetCell).trigger('click', {synthetic: true});
                                 
@@ -1364,17 +1351,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 console.warn("Target cell is no longer available");
                             }
                         }, 100);
-                    } else {
-                        console.log(`No valid target found for direction: ${direction}`);
-                        
-                        // Optional: provide feedback that we can't move in that direction
-                        if (navigationOptions.wrapAtEdges) {
-                            // Implement wrapping at edges if needed
-                            console.log("Edge wrapping not implemented yet");
-                        }
                     }
-                    
-                    return false; // Prevent default behavior
                 }
             });
 
@@ -1584,101 +1561,102 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         });
-    }
 
-    function handleLinkedDropdownChange(input, cell, table, fieldName, rowID) {
-        const config = linkedFieldHandlers[fieldName];
-        if (!config) return;
+        function handleLinkedDropdownChange(input, cell, table, fieldName, rowID) {
+            const config = linkedFieldHandlers[fieldName];
+            if (!config) return;
+        
+            const selectedLabel = $(input).val();
+            // Check if the dropdown was set to blank/empty
+            const isClearing = selectedLabel === "" || selectedLabel === null;
+            const selectedId = isClearing ? null : config.idLookup[selectedLabel];
+        
+            // Create the patchRequests array
+            const patchRequests = config.patchFields.map((field, i) => {
+                // If clearing, set both the name and ID to null
+                if (isClearing) {
+                    return {
+                        field: field,
+                        value: null
+                    };
+                } else {
+                    const value = i === 0 ? selectedLabel : String(selectedId);
+                    return {
+                        field: field,
+                        value: value
+                    };
+                }
+            });
     
-        const selectedLabel = $(input).val();
-        // Check if the dropdown was set to blank/empty
-        const isClearing = selectedLabel === "" || selectedLabel === null;
-        const selectedId = isClearing ? null : config.idLookup[selectedLabel];
+            const rowIdx = cell.index().row;
+            const cellNode = cell.node();
     
-        // Create the patchRequests array
-        const patchRequests = config.patchFields.map((field, i) => {
-            // If clearing, set both the name and ID to null
-            if (isClearing) {
-                return {
-                    field: field,
-                    value: null
-                };
-            } else {
-                const value = i === 0 ? selectedLabel : String(selectedId);
-                return {
-                    field: field,
-                    value: value
-                };
+            // Check if the cell is still attached to the DOM
+            if (!cellNode || !document.body.contains(cellNode)) {
+                return;
             }
-        });
-
-        const rowIdx = cell.index().row;
-        const cellNode = cell.node();
-
-        // Check if the cell is still attached to the DOM
-        if (!cellNode || !document.body.contains(cellNode)) {
-            return;
-        }
-
-        // Detach all event handlers and mark cell as being processed
-        $(cellNode).off('blur change').addClass('processing-update');
-
-        // Use a safer approach to update the visible cell
-        cell.data(selectedLabel);
-
-        // Update the ID in the hidden column using direct index access
-        const idColIdx = getColumnIndex(table, config.idColumn);
-        if (idColIdx !== -1) {
-            table.cell(rowIdx, idColIdx).data(selectedId);
-        }
-
-        // Remove editing state before we redraw
-        $(cellNode).removeClass('editing');
-
-        // Perform a single redraw that preserves the scroll position
-        preserveScrollPosition(() => {
-            try {
-                table.draw(false);
-            } catch (err) {
-                console.warn("⚠️ Draw failed, using safer approach:", err);
-                
+    
+            // Detach all event handlers and mark cell as being processed
+            $(cellNode).off('blur change').addClass('processing-update');
+    
+            // Use a safer approach to update the visible cell
+            cell.data(selectedLabel);
+    
+            // Update the ID in the hidden column using direct index access
+            const idColIdx = getColumnIndex(table, config.idColumn);
+            if (idColIdx !== -1) {
+                table.cell(rowIdx, idColIdx).data(selectedId);
+            }
+    
+            // Remove editing state before we redraw
+            $(cellNode).removeClass('editing');
+    
+            // Perform a single redraw that preserves the scroll position
+            preserveScrollPosition(() => {
                 try {
-                    const row = table.row(rowIdx);
-                    if (row && row.node() && document.body.contains(row.node())) {
-                        row.invalidate();
-                    }
-                } catch (innerErr) {
-                    console.error("⛔ Row invalidation also failed:", innerErr);
-                }
-            }
-        });
-
-        const sendPatchRequests = async () => {
-            try {
-                // Send all patch requests using patchField function
-                for (const patch of patchRequests) {
-                    await patchField(rowID, patch.field, patch.value);
-                }
-                
-                // Run any post-update handlers if needed
-                if (config.onPatchComplete) {
-                    setTimeout(() => {
-                        try {
-                            config.onPatchComplete(table, rowID, rowIdx);
-                        } catch (err) {
-                            console.error(`❌ Error in onPatchComplete handler for ${fieldName}:`, err);
+                    table.draw(false);
+                } catch (err) {
+                    console.warn("⚠️ Draw failed, using safer approach:", err);
+                    
+                    try {
+                        const row = table.row(rowIdx);
+                        if (row && row.node() && document.body.contains(row.node())) {
+                            row.invalidate();
                         }
-                    }, 50);
+                    } catch (innerErr) {
+                        console.error("⛔ Row invalidation also failed:", innerErr);
+                    }
                 }
-            } catch (err) {
-                console.error(`❌ Failed to PATCH ${fieldName}:`, err);
-                showToast(`❌ Failed to update ${fieldName}`, 'danger');
-            } finally {
-                $(cellNode).removeClass('processing-update');
-            }
-        };
-
-        // Use setTimeout to ensure DOM operations complete before network requests
-        setTimeout(sendPatchRequests, 50);
-    }
+            });
+    
+            const sendPatchRequests = async () => {
+                try {
+                    // Send all patch requests using patchField function
+                    for (const patch of patchRequests) {
+                        await patchField(rowID, patch.field, patch.value);
+                    }
+                    
+                    // Run any post-update handlers if needed
+                    if (config.onPatchComplete) {
+                        setTimeout(() => {
+                            try {
+                                config.onPatchComplete(table, rowID, rowIdx);
+                            } catch (err) {
+                                console.error(`❌ Error in onPatchComplete handler for ${fieldName}:`, err);
+                            }
+                        }, 50);
+                    }
+                } catch (err) {
+                    console.error(`❌ Failed to PATCH ${fieldName}:`, err);
+                    showToast(`❌ Failed to update ${fieldName}`, 'danger');
+                } finally {
+                    $(cellNode).removeClass('processing-update');
+                }
+            };
+    
+            // Use setTimeout to ensure DOM operations complete before network requests
+            setTimeout(sendPatchRequests, 50);
+        }
+    };
+    
 });
