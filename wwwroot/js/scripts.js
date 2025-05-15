@@ -29,6 +29,8 @@ let terminalOptions = [];
 let vesselNameOptions = [];
 let vesselLineIdByName = {};
 
+let railStylingApplied = false;
+
 // Dynamic Link Processing
 // Utility function to create link icons
 function createLinkIcon(url, tooltip = 'Visit website', isDynamic = false) {
@@ -640,21 +642,19 @@ function initializeContainerTable () {
                     new bootstrap.Tooltip(tooltip);
                 });
             }
-            
+
+            // CONSOLIDATED EVENT HANDLER - replace all separate event handlers
             $('#ContainerList').on('draw.dt', function() {
-                // 1. First, run any tooltip initializations
+                // Run all handlers in one place
                 initTooltips();
-                
-                // 2. Then align checkboxes
                 alignCheckboxes();
                 
-                // 3. Finally apply rail styling
+                // Only apply rail styling if it hasn't been applied already or during a redraw
                 applyRailStyling();
                 
-                // Add any other functions that need to run on redraw here
                 console.log("✅ Table redrawn - all handlers executed");
             });
-            
+
             // Initialize tooltips on initial load
             initTooltips();
 
@@ -819,23 +819,12 @@ function initializeContainerTable () {
                 }
             });
 
-            // Only apply initial styling once
-            if (!window.railFieldsInitialized) {
-                console.log("🚀 Initial rail field styling");
-                setTimeout(function() {
-                    applyRailStyling();
-                    console.log("✅ Initial rail fields styling applied");
-                }, 500);
-            }
-
-            console.log("🔄 Initial rail styling from initComplete");
-            applyRailStyling();
-            
-            // Also call with delay to ensure everything is ready
+            // APPLY RAIL STYLING JUST ONCE with a slight delay to ensure everything is ready
             setTimeout(function() {
-                console.log("⏱️ Delayed rail styling");
+                console.log("🚀 Initial rail styling application");
                 applyRailStyling();
-            }, 1000);
+                railStylingApplied = true;
+            }, 800);
             
             console.log("✅ initComplete finished");
         },
