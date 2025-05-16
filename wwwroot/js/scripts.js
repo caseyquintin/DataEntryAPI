@@ -29,6 +29,7 @@ let terminalOptions = [];
 let vesselNameOptions = [];
 let vesselLineIdByName = {};
 
+<<<<<<< HEAD
 // Add this function near the top of scripts.js, outside any other functions
 window.initTooltips = function() {
     const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -52,6 +53,9 @@ window.alignCheckboxes = function() {
         });
     }
 }
+=======
+let tableInitialized = false;
+>>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 
 // Dynamic Link Processing
 // Utility function to create link icons
@@ -152,19 +156,24 @@ function fetchDropdownOptions() {
             return carrierOptions;
         }),
         $.getJSON('http://localhost:5062/api/shiplines').then(data => {
-            // Save the full shipline list with links
+            // Save the full shipline list with links, CLEANED of \r characters
             shiplineOptions = data.map(s => ({
                 id: s.id,
                 name: s.name,
-                link: s.link,
+                link: s.link ? s.link.replace(/[\r\n]+/g, '') : '',
                 isDynamicLink: s.isDynamicLink
             }));
-
+        
             // Keep the ID lookup map as before
             data.forEach(s => {
                 shiplineIdByName[s.name] = s.id;
             });
+<<<<<<< HEAD
 
+=======
+        
+            console.log("🧠 Shipline Options (cleaned URLs):", shiplineOptions);
+>>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
             return shiplineOptions;
         }),
         $.getJSON('http://localhost:5062/api/FPMs').then(data => {
@@ -261,21 +270,6 @@ function fetchVesselNamesByVesselLineId(vesselLineId) {
     return $.getJSON(`http://localhost:5062/api/vessels/by-line/${vesselLineId}`);
 }
 
-function alignCheckboxes() {
-    // Get position of the first row checkbox
-    const firstRowCheckbox = $('.row-select').first();
-    if (firstRowCheckbox.length) {
-        const rowPosition = firstRowCheckbox.position();
-        
-        // Adjust the "Select All" checkbox to match
-        $('#selectAll').css({
-        'position': 'relative',
-        'top': (rowPosition.top > 0 ? 0 : '0px'),
-        'margin': '0'
-        });
-    }
-}
-
 function showToast(message, type = 'success') {
     const toastId = `toast-${Date.now()}`;
     const toastHtml = `
@@ -306,30 +300,53 @@ function preserveScrollPosition(action) {
     scrollContainer.scrollTop(pos);
 }
 
+// Simplified test configuration - add to scripts.js as new function
+function testInitializeTable() {
+    console.log("Testing table initialization with simplified config");
+    
+    $('#ContainerList').DataTable({
+        ajax: {
+            url: 'http://localhost:5062/api/containers',
+            dataSrc: '',
+            error: function(xhr, status, error) {
+                console.error('API Error:', error);
+                alert('Could not load data from API: ' + error);
+            }
+        },
+        columns: [
+            { data: null, defaultContent: '<input type="checkbox">' },
+            { data: null, defaultContent: '<button class="btn btn-sm btn-primary">Edit</button>' },
+            { data: 'containerID' },
+            { data: 'containerNumber' },
+            { data: 'currentStatus' },
+            // Add a few more basic columns
+        ]
+    });
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
-    let loadingDotsInterval;
+    if (tableInitialized) {
+        console.log("Table already initialized, skipping");
+        return;
+    }
 
     try {
         $('#ContainerList').hide();
         $('#tableSpinner').show();
-
-        let dotCount = 0;
-        loadingDotsInterval = setInterval(() => {
-            const loadingText = document.getElementById('loadingText');
-            if (!loadingText) return;
-
-            dotCount = (dotCount + 1) % 4; // 0 → 1 → 2 → 3 → 0
-            loadingText.textContent = 'Loading' + '.'.repeat(dotCount);
-        }, 500);
-
+        
+        // Load all dropdown data first
+        console.log("Loading dropdown data...");
         await fetchDropdownOptions();
+        console.log("Loading terminal data...");
         await fetchAllTerminalsByPort();
+        console.log("Loading vessel data...");
         await fetchAllVesselNamesByVesselLine();
 
         $('#ContainerList').show();
 
         initializeContainerTable();
 
+<<<<<<< HEAD
         $(document).ready(function() {
             // Wait for DataTables to finish rendering
             setTimeout(alignCheckboxes, 100);
@@ -339,6 +356,8 @@ window.addEventListener('DOMContentLoaded', async () => {
             
         });
 
+=======
+>>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
         // ✅ Sidebar Toggle
         const sidebarToggle = document.body.querySelector('#sidebarToggle');
         if (sidebarToggle) {
@@ -364,8 +383,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 let deleteTimeouts = {};
-function initializeContainerTable () {
-
+// Add this debugging code at the start of your initializeContainerTable function
+function initializeContainerTable() {
     console.log("🚀 initializeContainerTable called");
     
     // Prevent multiple initializations
@@ -470,6 +489,7 @@ function initializeContainerTable () {
         <button id="bulkEditBtn" class="btn btn-primary btn-sm">✏️ Bulk Edit</button>
         <button id="bulkDeleteBtn" class="btn btn-danger btn-sm">🗑️ Bulk Delete</button>
         <button id="customColVisBtn" class="btn btn-secondary btn-sm">🔧 Choose Columns</button>
+        <button id="manageDynamicLinksBtn" class="btn btn-info btn-sm">🔗 Manage Links</button>
         </div>
     `;
 
@@ -478,18 +498,33 @@ function initializeContainerTable () {
         ajax: {
             url: 'http://localhost:5062/api/containers',
             dataSrc: function (json) {
+                console.log("📊 Data received:", json);
+                console.log("📊 Data count:", Array.isArray(json) ? json.length : 'Not an array!');
+                
+                if (!json || (Array.isArray(json) && json.length === 0)) {
+                    console.warn("⚠️ No data returned from API!");
+                    showToast('No container data found', 'warning');
+                }
+                
                 return json;
             },
             error: function(xhr, status, error) {
-                console.error('🛑 Failed to load data:', status, error);
-                showToast('Failed to load table data!', 'danger');
+                console.error('🛑 API Error:', xhr.status, status, error);
+                console.error('🛑 Response Text:', xhr.responseText);
+                showToast(`API Error: ${xhr.status} - ${error}`, 'danger');
             }
         },
         rowId: 'containerID',
+<<<<<<< HEAD
         scrollX: true,
         scrollY: true, // ✅ fix horizontal scroll issue
         scrollCollapse: false, // Disable unnecessary collapsing
         paging: true, // disables or enables pagination
+=======
+        scrollY: 'calc(100vh - 180px)', // More dynamic height calculation
+        scrollX: true,
+        fixedHeader: true, // Add this directly to the DataTable initialization
+>>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
         autoWidth: true, // ✅ allow dynamic sizing once
         responsive: false,
         FixedHeader: {
@@ -666,8 +701,13 @@ function initializeContainerTable () {
             });
 
             // Initialize tooltips on initial load
+<<<<<<< HEAD
             window.initTooltips();
         
+=======
+            initTooltips();
+
+>>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
             table.buttons().container().appendTo('.dt-buttons');
         
             // Initialize all handlers from inlineEditingHandler.js
@@ -829,6 +869,7 @@ function initializeContainerTable () {
                     cell.removeAttr('title');
                 }
             });
+<<<<<<< HEAD
         
             // Do a one-time initialization of rail styling with delay
             setTimeout(function() {
@@ -836,6 +877,13 @@ function initializeContainerTable () {
                 applyRailStyling();
                 railStylingApplied = true;
             }, 800);
+=======
+
+            setTimeout(function() {
+                table.fixedHeader.adjust(); // Force FixedHeader to readjust
+                table.columns.adjust();      // Force columns to readjust
+            }, 300);
+>>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
             
             console.log("✅ initComplete finished");
         },
@@ -886,12 +934,6 @@ function initializeContainerTable () {
         }, 200); // Small delay to make sure table is ready
     });
 
-    new $.fn.dataTable.FixedHeader(table, {
-        header: true,
-        headerOffset: 56,
-        scrollContainer: '#table-container' // 👈 This anchors the header
-    });
-
     // 🔁 Reset "Select All" checkbox whenever the table redraws (pagination, search, etc.)
     table.on('draw', function() {
         $('#selectAll').prop('checked', false);
@@ -908,6 +950,7 @@ function initializeContainerTable () {
         $('#selectAll').prop('checked', false); // reset master checkbox
     });
 
+<<<<<<< HEAD
     $(document).ready(function() {
         $('.modal').on('show.bs.modal', function () {
           // Reset any inline positioning that might be causing issues
@@ -918,4 +961,8 @@ function initializeContainerTable () {
           });
         });
       });
+=======
+    // Return the table instance
+    return table;
+>>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 };
