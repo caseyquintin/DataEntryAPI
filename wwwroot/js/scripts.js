@@ -417,16 +417,29 @@ function initializeContainerTable () {
                             const $cell = $(cell.node());
                             
                             if (isDisabled) {
-                                // Just use the CSS class instead of inline styles
                                 $cell.addClass('rail-field-disabled');
                                 $cell.removeClass('editable');
                                 $cell.data('rail-disabled', true);
                                 $cell.attr('data-rail-disabled', 'true');
+                                
+                                $cell.css({
+                                    'background-color': '#f8f9fa',
+                                    'color': '#adb5bd',
+                                    'cursor': 'not-allowed',
+                                    'pointer-events': 'none'
+                                });
                             } else {
                                 $cell.removeClass('rail-field-disabled');
                                 $cell.addClass('editable');
                                 $cell.data('rail-disabled', false);
                                 $cell.removeAttr('data-rail-disabled');
+                                
+                                $cell.css({
+                                    'background-color': '',
+                                    'color': '',
+                                    'cursor': '',
+                                    'pointer-events': ''
+                                });
                             }
                         }
                     }
@@ -628,7 +641,27 @@ function initializeContainerTable () {
         initComplete: function() {
             const table = this.api();
             window.ContainerTable = table;
-        
+
+            // Initialize tooltips for link icons
+            function initTooltips() {
+                const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltips.forEach(tooltip => {
+                    new bootstrap.Tooltip(tooltip);
+                });
+            }
+
+            // CONSOLIDATED EVENT HANDLER - replace all separate event handlers
+            $('#ContainerList').on('draw.dt', function() {
+                // Run all handlers in one place
+                initTooltips();
+                alignCheckboxes();
+                
+                // Only apply rail styling if it hasn't been applied already or during a redraw
+                applyRailStyling();
+                
+                console.log("✅ Table redrawn - all handlers executed");
+            });
+
             // Initialize tooltips on initial load
             window.initTooltips();
         
@@ -796,10 +829,9 @@ function initializeContainerTable () {
         
             // Do a one-time initialization of rail styling with delay
             setTimeout(function() {
-                if (!window.railStylingInitialized) {
-                    window.updateRailFieldsForAllRows();
-                    window.railStylingInitialized = true;
-                }
+                console.log("🚀 Initial rail styling application");
+                applyRailStyling();
+                railStylingApplied = true;
             }, 800);
             
             console.log("✅ initComplete finished");
@@ -855,5 +887,10 @@ function initializeContainerTable () {
     $(document).on('change', '#selectAll', function() {
         const checked = $(this).is(':checked');
         $('.row-select').prop('checked', checked);
+    });
+
+    // To keep checkboxes in sync after table redraws
+    $('#ContainerList').on('draw.dt', function() {
+        $('#selectAll').prop('checked', false); // reset master checkbox
     });
 };
