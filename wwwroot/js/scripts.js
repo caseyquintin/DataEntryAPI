@@ -306,28 +306,6 @@ function preserveScrollPosition(action) {
     scrollContainer.scrollTop(pos);
 }
 
-// Adjust dropdown width based on column type
-function getDropdownWidth(fieldName) {
-    // Yes/No fields
-    if (fieldName === 'rail' || fieldName === 'transload') {
-        return '80px';
-    }
-    // Actual/Estimate fields
-    else if (fieldName.toLowerCase().includes('actual')) {
-        return '100px';
-    }
-    // Status, Container Size, etc.
-    else if (['currentStatus', 'containerSize', 'mainSource', 'fpm'].includes(fieldName)) {
-        return '140px';
-    }
-    // Long text fields
-    else if (['shipline', 'vesselLine', 'vesselName', 'portOfEntry', 'terminal', 'carrier'].includes(fieldName)) {
-        return '180px';
-    }
-    // Default
-    return '120px';
-}
-
 window.addEventListener('DOMContentLoaded', async () => {
     let loadingDotsInterval;
 
@@ -399,22 +377,6 @@ function initializeContainerTable () {
     console.log('✅ Initializing new DataTable');
 
     let currentEditRow = null;
-
-    function finetuneColumnWidths(table) {
-        // Fine-tune Yes/No columns
-        const yesNoColumns = [7, 11]; // Transload, Rail
-        yesNoColumns.forEach(colIdx => {
-            $(table.column(colIdx).header()).css('width', '80px');
-        });
-        
-        // Ensure dropdown arrow is visible in edit mode
-        table.on('draw.dt', function() {
-            $('.narrow-dropdown-column td.editing select').css({
-                'min-width': '80px',
-                'padding-right': '25px'
-            });
-        });
-    }
 
     function applyRailStyling() {
         console.log("⚙️ Manually applying rail styling to all rows");
@@ -531,7 +493,6 @@ function initializeContainerTable () {
         dom: 'rt',
         buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
         columnDefs: [
-            // Your existing definitions
             {
                 targets: 1, // Actions column
                 width: "90px",
@@ -541,32 +502,6 @@ function initializeContainerTable () {
                 targets: 9, // Shipline column
                 width: "120px",
                 className: "text-center"
-            },
-            
-            // New definitions for dropdown types
-            // Yes/No columns (very narrow)
-            {
-                targets: [7, 11], // Transload and Rail columns (adjust these indices if needed)
-                width: "80px", 
-                className: "editable narrow-dropdown-column"
-            },
-            // Actual/Estimate columns (slightly wider)
-            {
-                targets: [33, 39, 41, 43], // SailActual, ArrivalActual, etc.
-                width: "100px",
-                className: "editable narrow-dropdown-column"
-            },
-            // Medium-width columns
-            {
-                targets: [4, 5, 6, 18], // Status, Size, Source, FPM
-                width: "140px",
-                className: "editable medium-dropdown-column"
-            },
-            // Wide columns
-            {
-                targets: [8, 25, 27, 35, 37, 43], // Shipline, VesselLine, etc.
-                width: "180px", 
-                className: "editable wide-dropdown-column"
             }
         ],
         columns: [
@@ -730,19 +665,13 @@ function initializeContainerTable () {
             
             table.draw();
         
-            // Replace the autoWidth section in initComplete
+            // ✅ Only allow autoWidth once, then disable it to prevent layout thrash
             const settings = table.settings()[0];
             if (settings.oInit.autoWidth) {
-                // Make sure initial sizing considers content
                 preserveScrollPosition(() => {
-                    // First adjust based on column definitions
-                    table.columns.adjust();
-                    
-                    // Then fine-tune specific problematic columns
-                    finetuneColumnWidths(table);
+                    table.columns.adjust(); // ensure it's sized first
                 });
-                // Turn off autoWidth after initial sizing
-                settings.oInit.autoWidth = false;
+                settings.oInit.autoWidth = false; // turn it off after first sizing
                 settings.oFeatures.bAutoWidth = false;
             }
         

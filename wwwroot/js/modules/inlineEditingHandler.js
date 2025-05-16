@@ -1244,28 +1244,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                         return flatpickr.parseDate(datestr, format);
                     },
-                    // Add these new positioning options
-                    appendTo: document.body, // This is critical - it attaches to body instead of inside the cell
-                    static: true, // Prevents issues with overflow:hidden containers
-                    positionElement: input[0], // Ensures position is relative to the input
-                    // Keep all your existing callbacks
                     onOpen: function() {
                         flatpickrActive = true;
                         preventBlur = true;
-                        
-                        // Add this to ensure calendar is visible
-                        setTimeout(() => {
-                            const calendar = document.querySelector('.flatpickr-calendar.open');
-                            if (calendar) {
-                                // Ensure it's visible and positioned correctly
-                                calendar.style.zIndex = '10000';
-                                // Position relative to input if needed
-                                const rect = input[0].getBoundingClientRect();
-                                if (rect.left + calendar.offsetWidth > window.innerWidth) {
-                                    calendar.style.left = Math.max(0, window.innerWidth - calendar.offsetWidth) + 'px';
-                                }
-                            }
-                        }, 0);
                     },
                     onChange: function(selectedDates, dateStr, instance) {
                         if (selectedDates.length > 0) {

@@ -1,31 +1,3 @@
-/* ===== CSS VARIABLES ===== */
-:root {
-  /* Colors */
-  --primary-color: #0d6efd;
-  --primary-hover: #0a58ca;
-  --warning-bg: #f39c12;
-  --warning-text: #212529;
-  --disabled-bg: #d3dae2;
-  --disabled-text: #adb5bd;
-  --border-light: #dee2e6;
-
-  /* Sizes */
-  --sidebar-width: 15rem;
-  --cell-min-width: 80px;
-  --column-min-width: 100px;
-  --dropdown-width: 180px;
-  --dropdown-max-width: 300px;
-  --checkbox-width: 40px;
-  --actions-width: 90px;
-
-  /* Z-indices */
-  --z-navbar: 1060;
-  --z-toolbar: 1049;
-  --z-column-modal: 1055;
-  --z-backdrop: 1065;
-  --z-modal: 1070;
-}
-
 /* ===== BASE ELEMENTS ===== */
 html,
 body {
@@ -49,7 +21,7 @@ body {
   height: 100vh;
   flex-shrink: 0;
   overflow-y: auto;
-  margin-left: calc(-1 * var(--sidebar-width));
+  margin-left: -15rem;
   transition: margin 0.25s ease-out;
 }
 
@@ -59,7 +31,7 @@ body {
 }
 
 #sidebar-wrapper .list-group {
-  width: var(--sidebar-width);
+  width: 15rem;
 }
 
 /* Main content area */
@@ -75,7 +47,7 @@ body {
 #navbar {
   flex-shrink: 0;
   position: relative;
-  z-index: var(--z-navbar);
+  z-index: 1060;
 }
 
 #table-container {
@@ -102,35 +74,31 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   }
 
   body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
-    margin-left: calc(-1 * var(--sidebar-width));
+    margin-left: -15rem;
   }
 }
 
 /* ===== Z-INDEX HIERARCHY ===== */
+/* Standardized z-index values for consistent layering */
 .navbar,
 .dropdown-menu {
-  z-index: var(--z-navbar);
+  z-index: 1060;
 }
 
 .sticky-toolbar-container {
-  z-index: var(--z-toolbar);
-  position: sticky;
-  top: 56px;
-  background-color: white;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--border-light);
+  z-index: 1049;
 }
 
 #columnModal {
-  z-index: var(--z-column-modal);
+  z-index: 1055;
 }
 
 .modal-backdrop {
-  z-index: var(--z-backdrop);
+  z-index: 1065;
 }
 
 .modal {
-  z-index: var(--z-modal);
+  z-index: 1070;
 }
 
 /* ===== TABLE STYLING ===== */
@@ -153,43 +121,37 @@ table.dataTable {
   overflow: visible;
 }
 
-/* Table cell transitions for smooth state changes */
-table.dataTable td {
-  transition: background-color 0.2s, color 0.2s, cursor 0.2s;
-}
-
-/* Common properties for all table cells and headers */
+/* Table header and cells - common properties */
 table.dataTable td,
 table.dataTable th {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: var(--cell-min-width);
+  min-width: 80px;
   padding: 8px;
   box-sizing: border-box;
 }
 
-/* Header-specific styling */
 table.dataTable thead th {
   position: relative;
-  min-width: var(--column-min-width);
+  min-width: 100px;
   vertical-align: middle;
   border-bottom-width: 1px;
 }
 
-/* First column (checkbox column) styling */
-table.dataTable th:first-child,
-table.dataTable td:first-child {
-  width: var(--checkbox-width) !important;
-  min-width: var(--checkbox-width) !important;
-  max-width: var(--checkbox-width) !important;
+/* First column (checkbox column) */
+table.dataTable thead th:first-child,
+table.dataTable tbody td:first-child {
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
   padding: 0 !important;
   position: static !important;
   text-align: center !important;
   vertical-align: middle !important;
 }
 
-/* Checkbox styling */
+/* Checkbox positioning */
 #selectAll,
 .row-select {
   position: static !important;
@@ -211,7 +173,7 @@ table.dataTable td:first-child {
 /* Second column (actions) styling */
 table.dataTable th:nth-child(2),
 table.dataTable td:nth-child(2) {
-  min-width: var(--actions-width);
+  min-width: 90px;
 }
 
 /* Table scrolling behavior */
@@ -278,6 +240,14 @@ table.dataTable td:nth-child(2) {
   margin-bottom: 0;
 }
 
+.sticky-toolbar-container {
+  position: sticky;
+  top: 56px;
+  background-color: white;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
 /* ===== DROPDOWNS AND MODALS ===== */
 /* Dropdown positioning */
 .nav-item.dropdown {
@@ -296,36 +266,6 @@ table.dataTable td:nth-child(2) {
   min-width: 10rem;
 }
 
-/* Form control styling in edit mode */
-td.editing select,
-td.editing .form-select,
-td.editing input {
-  min-width: var(--dropdown-width) !important;
-  width: auto !important;
-  max-width: var(--dropdown-max-width) !important;
-  padding-right: 30px !important;
-  /* Space for dropdown arrow */
-}
-
-/* Container divs for editing controls */
-td.editing div {
-  min-width: var(--dropdown-width) !important;
-  width: auto !important;
-}
-
-/* Ensure dropdown arrow visibility */
-.form-select {
-  background-position: right 0.75rem center !important;
-  background-size: 16px 12px !important;
-}
-
-/* Make dropdown wider when open for better readability */
-.select2-dropdown,
-.dropdown-menu {
-  min-width: var(--dropdown-width) !important;
-  max-width: var(--dropdown-max-width) !important;
-}
-
 /* Modal positioning */
 .modal-dialog {
   margin: 1.75rem auto;
@@ -340,12 +280,12 @@ td.editing div {
 /* ===== VISUAL ELEMENTS ===== */
 /* Warning styling */
 .bg-warning {
-  background-color: var(--warning-bg);
+  background-color: #f39c12;
   color: #fff;
 }
 
 .bg-warning .toast-body {
-  color: var(--warning-text);
+  color: #212529;
   font-weight: 700;
 }
 
@@ -366,11 +306,11 @@ td.editing div {
 }
 
 .external-link.dynamic-link .fas {
-  color: var(--primary-color);
+  color: #0d6efd;
 }
 
 .external-link.dynamic-link:hover .fas {
-  color: var(--primary-hover);
+  color: #0a58ca;
 }
 
 /* Prevent link interaction issues */
@@ -382,222 +322,20 @@ td.editable .external-link:active {
   background-color: transparent;
 }
 
-/* Rail field styling for disabled fields */
-table.dataTable td.rail-field-disabled {
-  background-color: var(--disabled-bg) !important;
-  color: var(--disabled-text) !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-}
-
 /* Debug helper */
 .debug-highlight {
   outline: 2px dashed red;
 }
 
-/* Ensure dropdowns don't appear under the wrong columns */
-.narrow-dropdown-column.editing div {
-  position: relative;
+/* Rail field styling for disabled fields */
+table.dataTable td.rail-field-disabled {
+  background-color: #d3dae2 !important;
+  color: #adb5bd !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
 }
 
-.narrow-dropdown-column.editing .form-select {
-  width: 80px !important;
-  min-width: 80px !important;
-  position: relative;
-}
-
-/* Styles for medium-width dropdowns */
-.medium-dropdown-column.editing .form-select {
-  width: 140px !important;
-  min-width: 140px !important;
-}
-
-/* Styles for wide dropdowns */
-.wide-dropdown-column.editing .form-select {
-  width: 180px !important;
-  min-width: 180px !important;
-}
-
-/* Make sure cell content doesn't cause column expansion */
+/* You might also want a transition effect for a smoother look */
 table.dataTable td {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Ensure dropdown lists don't extend beyond column width */
-.form-select option {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Override for narrow columns - these need to be at the END of your CSS file */
-table.dataTable th[data-name="transload"],
-table.dataTable td[data-name="transload"],
-table.dataTable th[data-name="rail"],
-table.dataTable td[data-name="rail"],
-table.dataTable th:nth-child(8),
-/* Transload column */
-table.dataTable td:nth-child(8),
-table.dataTable th:nth-child(12),
-/* Rail column */
-table.dataTable td:nth-child(12) {
-  min-width: 80px !important;
-  width: 80px !important;
-  max-width: 80px !important;
-}
-
-/* Override for actual/estimate columns */
-table.dataTable th[data-name="sailActual"],
-table.dataTable td[data-name="sailActual"],
-table.dataTable th[data-name="arrivalActual"],
-table.dataTable td[data-name="arrivalActual"],
-table.dataTable th[data-name="berthActual"],
-table.dataTable td[data-name="berthActual"],
-table.dataTable th[data-name="offloadActual"],
-table.dataTable td[data-name="offloadActual"],
-table.dataTable th:nth-child(33),
-/* SailActual */
-table.dataTable td:nth-child(33),
-table.dataTable th:nth-child(39),
-/* ArrivalActual */
-table.dataTable td:nth-child(39),
-table.dataTable th:nth-child(41),
-/* BerthActual */
-table.dataTable td:nth-child(41),
-table.dataTable th:nth-child(43),
-/* OffloadActual */
-table.dataTable td:nth-child(43) {
-  min-width: 100px !important;
-  width: 100px !important;
-  max-width: 100px !important;
-}
-
-/* Override for medium columns */
-table.dataTable th[data-name="currentStatus"],
-table.dataTable td[data-name="currentStatus"],
-table.dataTable th[data-name="containerSize"],
-table.dataTable td[data-name="containerSize"],
-table.dataTable th[data-name="mainSource"],
-table.dataTable td[data-name="mainSource"],
-table.dataTable th[data-name="fpm"],
-table.dataTable td[data-name="fpm"],
-table.dataTable th:nth-child(5),
-/* Status */
-table.dataTable td:nth-child(5),
-table.dataTable th:nth-child(6),
-/* Container Size */
-table.dataTable td:nth-child(6),
-table.dataTable th:nth-child(7),
-/* Main Source */
-table.dataTable td:nth-child(7),
-table.dataTable th:nth-child(19),
-/* FPM */
-table.dataTable td:nth-child(19) {
-  min-width: 140px !important;
-  width: 140px !important;
-  max-width: 140px !important;
-}
-
-/* General rule to make ALL edit fields respect their column width */
-td.editing div,
-td.editing select,
-td.editing .form-select,
-td.editing input {
-  box-sizing: border-box !important;
-  width: 100% !important; /* Fill parent width */
-  min-width: auto !important; /* Override previous min-width */
-  max-width: 100% !important; /* Don't exceed parent */
-  position: relative !important;
-  padding-right: 25px !important; /* Ensure space for dropdown arrow */
-}
-
-/* Make sure the container div doesn't exceed the cell */
-td.editing div {
-  width: 100% !important;
-  overflow: hidden !important;
-}
-
-/* Additional rules for specific problematic fields */
-td[data-name="portOfDeparture"].editing input,
-td[data-name="voyage"].editing input,
-td[data-name="sailActual"].editing select,
-td[data-name="arrivalActual"].editing select,
-td[data-name="berthActual"].editing select,
-td[data-name="offloadActual"].editing select {
-  width: 100% !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-}
-
-/* Fix for text overflow in inputs */
-td.editing input {
-  text-overflow: ellipsis !important;
-}
-
-/* Fix dropdown arrow positioning for very narrow fields */
-td.editing .form-select {
-  background-position: right 0.25rem center !important;
-  background-size: 14px 10px !important;
-}
-
-/* Better handling of date fields */
-td.editing input.date-field,
-td.editing input[type="date"] {
-  letter-spacing: -0.5px;
-  /* Compress letter spacing slightly */
-  font-family: 'Courier New', monospace;
-  /* Use monospace font for dates */
-  padding-right: 22px !important;
-  /* Space for calendar icon */
-}
-
-/* Fix for dropdown menus to show fully */
-.flatpickr-calendar.open {
-  position: absolute !important;
-  z-index: 10000 !important;
-  transform: none !important;
-  left: auto !important;
-  display: block !important;
-  top: auto !important;
-  /* Light shadow to make it stand out */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Make date fields display full dates */
-td.editing input.date-field,
-td.editing input[type="text"].flatpickr-input {
-  font-family: 'Courier New', monospace !important;
-  /* Monospace fonts fit more characters */
-  letter-spacing: -0.5px !important;
-  /* Compress text slightly */
-  font-size: 0.9em !important;
-  /* Slightly smaller text */
-  width: 100% !important;
-}
-
-/* Fix option lists for long dropdown items */
-select.form-select {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-}
-
-select.form-select option {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-/* Special rule for long text dropdown columns */
-td[data-name="portOfEntry"] select.form-select,
-td[data-name="terminal"] select.form-select {
-  font-size: 0.9em !important;
-}
-
-/* Make dropdown options display at fixed width */
-td.editing div {
-  width: 100% !important;
-  position: relative !important;
+  transition: background-color 0.2s, color 0.2s, cursor 0.2s;
 }
