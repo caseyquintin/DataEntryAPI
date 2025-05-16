@@ -1,23 +1,3 @@
-<<<<<<< HEAD
-/* ===== BASE ELEMENTS ===== */
-html,
-body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-}
-
-/* ===== LAYOUT STRUCTURE ===== */
-/* Main container */
-#wrapper {
-  display: flex;
-  overflow-x: hidden;
-  height: 100%;
-}
-
-/* Sidebar styling */
-=======
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 #sidebar-wrapper {
   min-height: 100vh;
   margin-left: -15rem;
@@ -42,24 +22,6 @@ body {
   min-width: 100vw;
 }
 
-<<<<<<< HEAD
-#navbar {
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1060;
-}
-
-/* Table container */
-#table-container {
-  flex: 1 1 auto;
-  height: calc(100vh - 150px);  /* Reduced from top elements */
-  overflow: auto;
-  position: relative;
-}
-
-/* Sidebar toggle behavior */
-=======
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   margin-left: 0;
 }
@@ -126,19 +88,6 @@ body.modal-open {
   max-width: 96%;
 }
 
-/* ===== TABLE STYLING ===== */
-/* Base table styles */
-table.dataTable {
-  table-layout: fixed;
-  border-collapse: collapse;
-  border-spacing: 0;
-  margin: 0;
-}
-
-#ContainerList {
-  min-width: 1500px; /* Adjust this value based on your needs */
-  width: auto;
-=======
 html,
 body {
   height: 100%;
@@ -197,17 +146,9 @@ th:first-child,
 td:first-child {
   width: 40px;
   text-align: center;
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 }
 
-/* DataTable wrapper adjustments */
 #ContainerList_wrapper {
-<<<<<<< HEAD
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-=======
   width: '100%';
   height: '100%';
 }
@@ -224,10 +165,8 @@ table.dataTable.fixedHeader-floating {
   z-index: 1055;
   top: 56px !important;
   /* Match your navbar */
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 }
 
-/* Table header and cells - common properties */
 table.dataTable td,
 table.dataTable th {
   white-space: nowrap;
@@ -235,97 +174,6 @@ table.dataTable th {
   text-overflow: ellipsis;
 }
 
-<<<<<<< HEAD
-table.dataTable thead th {
-  position: relative;
-  min-width: 100px;
-  vertical-align: middle;
-  border-bottom-width: 1px;
-}
-
-/* First column (checkbox column) */
-table.dataTable thead th:first-child,
-table.dataTable tbody td:first-child {
-  width: 40px !important;
-  min-width: 40px !important;
-  max-width: 40px !important;
-  padding: 0 !important;
-  position: static !important;
-  text-align: center !important;
-  vertical-align: middle !important;
-}
-
-/* Checkbox positioning */
-#selectAll,
-.row-select {
-  position: static !important;
-  transform: none !important;
-  margin: 0 auto !important;
-  padding: 0 !important;
-  display: block !important;
-  top: auto !important;
-  left: auto !important;
-}
-
-/* Checkbox wrapper styling */
-.dt-checkbox-div,
-.dt-checkbox-wrapper {
-  text-align: center !important;
-  margin: 0 auto !important;
-}
-
-/* Second column (actions) styling */
-table.dataTable th:nth-child(2),
-table.dataTable td:nth-child(2) {
-  min-width: 90px;
-}
-
-/* Table scrolling behavior */
-.dataTables_wrapper .dataTables_scroll {
-  overflow: visible;
-  height: calc(100vh - 200px);  /* Added explicit height */
-}
-
-.dataTables_wrapper .dataTables_scrollBody {
-  flex: 1 1 auto;
-  height: calc(100vh - 250px) !important;  /* Explicit height with more space */
-  min-height: 400px;  /* Increased minimum height */
-  max-height: none !important;  /* Remove max-height restriction */
-  overflow-x: auto !important;
-  overflow-y: auto !important;
-  scroll-behavior: auto;
-  min-width: 100%;
-  border-top: none;
-  margin-top: -1px;
-}
-
-.dataTables_scrollHead {
-  min-height: 65px;
-  border-bottom: none;
-}
-
-/* Header filter styling */
-#ContainerList thead th {
-  padding-bottom: 30px;
-  position: relative;
-  vertical-align: top;
-}
-
-#ContainerList thead .dt-filter-button,
-#ContainerList thead .sorting_asc,
-#ContainerList thead .sorting_desc,
-#ContainerList thead .sorting {
-  padding-bottom: 25px;
-}
-
-#ContainerList th:first-child {
-  padding-bottom: 8px;
-  vertical-align: middle;
-}
-
-.dt-filter-button-container,
-.dt-filter-container {
-=======
 .dt-colresizable-hover {
   cursor: col-resize !important;
 }
@@ -333,7 +181,6 @@ table.dataTable td:nth-child(2) {
 .dt-colresizable-handler {
   cursor: col-resize !important;
   width: 10px;
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
   position: absolute;
   top: 0;
   right: 0;
@@ -379,8 +226,6 @@ table.dataTable thead th {
 .sticky-toolbar-container {
   position: sticky;
   top: 56px;
-<<<<<<< HEAD
-=======
   /* same as navbar height */
   z-index: 1049;
 >>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
@@ -389,20 +234,6 @@ table.dataTable thead th {
   border-bottom: 1px solid #dee2e6;
 }
 
-<<<<<<< HEAD
-/* ===== DROPDOWNS AND MODALS ===== */
-/* Dropdown positioning */
-.nav-item.dropdown {
-  position: relative;
-}
-
-.dropdown-menu {
-  position: absolute;
-  right: 0;
-  left: auto;
-  top: 100%;
-  margin-top: 0.125rem;
-=======
 #columnModal {
   z-index: 1055;
   /* higher than modal-backdrop (1050) */
@@ -418,47 +249,17 @@ body {
   margin: 0;
   overflow: hidden;
   /* ⛔ outer scrollbars */
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 }
 
 .dataTables_wrapper .dataTables_scroll {
   overflow: hidden;
 }
 
-<<<<<<< HEAD
-/* Modal positioning */
-.modal-dialog {
-  margin: 2.5rem auto;
-  max-height: calc(100vh - 5rem);
-}
-
-.modal.show .modal-dialog {
-  transform: none;
-}
-
-.modal {
-  padding-right: 0 !important;
-}
-
-.modal-open {
-  padding-right: 0 !important;
-  overflow: auto !important;
-}
-
-body.modal-open .modal {
-  display: flex !important;
-  align-items: center;
-}
-
-/* ===== VISUAL ELEMENTS ===== */
-/* Warning styling */
-=======
 .dataTables_wrapper .dataTables_scrollBody {
   overflow-x: auto !important;
   /* only this handles horizontal scroll */
 }
 
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 .bg-warning {
   background-color: #f39c12 !important;
   /* Darker amber/orange */
@@ -510,20 +311,11 @@ td.editable .external-link:active {
   /* Darker blue on hover */
 }
 
-<<<<<<< HEAD
-/* Disabled rail field styling - with increased specificity */
-table.dataTable td.rail-field-disabled {
-  background-color: #f5f5f5 !important;
-  color: #adb5bd !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-=======
 .rail-field-disabled {
   background-color: #f8f9fa !important;
   color: #adb5bd !important;
   cursor: not-allowed !important;
   pointer-events: none;
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
 }
 
 td.editing {

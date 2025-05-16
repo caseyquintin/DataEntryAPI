@@ -443,16 +443,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         initializeContainerTable();
 
-<<<<<<< HEAD
-        $(document).ready(function() {
-            // Wait for DataTables to finish rendering
-            setTimeout(alignCheckboxes, 100);
-            
-            // Also call when window resizes
-            $(window).on('resize', alignCheckboxes);
-            
-        });
-
 =======
 >>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
         // ✅ Sidebar Toggle
