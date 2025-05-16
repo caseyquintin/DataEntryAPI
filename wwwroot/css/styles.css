@@ -95,11 +95,34 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
 }
 
 .modal-backdrop {
-  z-index: 1065;
+  z-index: 1070 !important; /* Keep backdrop below modal */
 }
 
 .modal {
-  z-index: 1070;
+  z-index: 1080 !important; /* Ensure modals are on top */
+}
+
+.modal-content {
+  position: relative;
+  z-index: 2; /* Ensure content is interactive */
+}
+
+/* This ensures modals are centered and fully visible */
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 3.5rem);
+}
+
+/* Fix for modal-open body overflow issues */
+body.modal-open {
+  overflow: hidden;
+  padding-right: 0 !important;
+}
+
+.modal-dialog {
+  margin: 1.75rem auto;
+  max-width: 96%;
 }
 
 /* ===== TABLE STYLING ===== */
@@ -277,13 +300,26 @@ table.dataTable td:nth-child(2) {
 
 /* Modal positioning */
 .modal-dialog {
-  margin: 1.75rem auto;
-  max-height: calc(100vh - 3.5rem);
-  overflow-y: auto;
+  margin: 2.5rem auto;
+  max-height: calc(100vh - 5rem);
 }
 
 .modal.show .modal-dialog {
   transform: none;
+}
+
+.modal {
+  padding-right: 0 !important;
+}
+
+.modal-open {
+  padding-right: 0 !important;
+  overflow: auto !important;
+}
+
+body.modal-open .modal {
+  display: flex !important;
+  align-items: center;
 }
 
 /* ===== VISUAL ELEMENTS ===== */

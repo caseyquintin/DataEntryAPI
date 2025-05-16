@@ -907,4 +907,15 @@ function initializeContainerTable () {
     $('#ContainerList').on('draw.dt', function() {
         $('#selectAll').prop('checked', false); // reset master checkbox
     });
+
+    $(document).ready(function() {
+        $('.modal').on('show.bs.modal', function () {
+          // Reset any inline positioning that might be causing issues
+          $(this).find('.modal-dialog').css({
+            'top': '',
+            'transform': '',
+            'margin': '1.75rem auto'
+          });
+        });
+      });
 };
