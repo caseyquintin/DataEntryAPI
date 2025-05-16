@@ -30,6 +30,103 @@ let vesselNameOptions = [];
 let vesselLineIdByName = {};
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+let railStylingApplied = false;
+let railStylingInitialized = false;
+
+// Rail-related fields that should be toggled
+window.railRelatedFields = [
+    'railDestination', 
+    'railwayLine', 
+    'loadToRail', 
+    'railDeparture', 
+    'railETA', 
+    'railPickupNumber'
+];
+
+// Check if rail is disabled based on row data
+window.isRailDisabled = function(rowData) {
+    if (!rowData) return true;
+    
+    const railValue = rowData.rail;
+    // Check for all variations of "No"
+    return !railValue || 
+           railValue === 'No' || 
+           railValue === 'no' || 
+           railValue === 'NO' || 
+           railValue === 'n' || 
+           railValue === false ||
+           railValue === '0';
+}
+
+// Update rail fields for a specific row
+window.updateRailFieldsForRow = function(rowIdx, rowData) {
+    const table = $('#ContainerList').DataTable();
+    const isDisabled = window.isRailDisabled(rowData);
+    
+    // Update each rail-related field
+    window.railRelatedFields.forEach(fieldName => {
+        // Find the column index for this field
+        const colIdx = table.column(`${fieldName}:name`).index();
+        if (colIdx !== undefined) {
+            try {
+                const cell = table.cell(rowIdx, colIdx);
+                if (cell && cell.node()) {
+                    const $cell = $(cell.node());
+                    
+                    if (isDisabled) {
+                        // Disable the field
+                        $cell.addClass('rail-field-disabled');
+                        $cell.removeClass('editable');
+                        $cell.data('rail-disabled', true);
+                        $cell.attr('data-rail-disabled', 'true');
+                        
+                        // Apply inline styles for stronger effect
+                        $cell.css({
+                            'background-color': '#f8f9fa',
+                            'color': '#adb5bd',
+                            'cursor': 'not-allowed',
+                            'pointer-events': 'none'
+                        });
+                    } else {
+                        // Enable the field
+                        $cell.removeClass('rail-field-disabled');
+                        $cell.addClass('editable');
+                        $cell.data('rail-disabled', false);
+                        $cell.removeAttr('data-rail-disabled');
+                        
+                        // Remove inline styles
+                        $cell.css({
+                            'background-color': '',
+                            'color': '',
+                            'cursor': '',
+                            'pointer-events': ''
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error(`❌ Error updating rail field ${fieldName}:`, err);
+            }
+        }
+    });
+}
+
+// Update rail fields for all rows
+window.updateRailFieldsForAllRows = function() {
+    const table = $('#ContainerList').DataTable();
+    
+    let count = 0;
+    table.rows().every(function(rowIdx) {
+        const rowData = this.data();
+        window.updateRailFieldsForRow(rowIdx, rowData);
+        count++;
+    });
+    
+    window.railFieldsInitialized = true;
+}
+
+>>>>>>> parent of 591f1ef (feat: Refactor rail-related field logic and styling for improved maintainability and performance)
 // Add this function near the top of scripts.js, outside any other functions
 window.initTooltips = function() {
     const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
