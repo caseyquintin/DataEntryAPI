@@ -223,6 +223,9 @@ DataEntryAPI
 
 🪲**Current Bugs**🪲
 
+***General***
+⏹️ Fix missing horizontal scrollbar.
+
 ***New Container Modal***
 ✅ Actual/Estimate dropdowns are using boolean. (5/9/2025)
  
