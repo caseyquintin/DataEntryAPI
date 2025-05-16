@@ -23,58 +23,69 @@
 
 <body>
 
-        <div class="d-flex" id="wrapper">
-            <!-- Sidebar-->
-            <div class="border-end bg-white" id="sidebar-wrapper">
-                <div class="sidebar-heading border-bottom bg-light">Start Bootstrap</div>
-                <div class="list-group list-group-flush">
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="index.html">All Active Containers</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="notsailed.html">Not Sailed</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="onvessel-arrived.html">On Vessel (Arrived)</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="onvessel-notarrived.html">On Vessel (Not Arrived)</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="rail.html">Rail</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="settoreturn.html">Set To Return</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="settopickup.html">Set To Pick Up</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="returned.html">Returned (1 Year)</a>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar-->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-light">Start Bootstrap</div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="index.html">All Active
+                    Containers</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="notsailed.html">Not
+                    Sailed</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3"
+                    href="onvessel-arrived.html">On Vessel (Arrived)</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3"
+                    href="onvessel-notarrived.html">On Vessel (Not Arrived)</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="rail.html">Rail</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="settoreturn.html">Set
+                    To Return</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="settopickup.html">Set
+                    To Pick Up</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3"
+                    href="returned.html">Returned (1 Year)</a>
+            </div>
+        </div>
+        <!-- Page content wrapper-->
+        <div id="page-content-wrapper">
+            <!-- Top navigation-->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-primary" id="sidebarToggle">Toggle Menu</button>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation"><span
+                            class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                            <li class="nav-item active"><a class="nav-link"
+                                    href="https://alot.auditlogistics.com/projects" target="_blank">ALOT</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">Configuration</a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" id="bulkUploadBtn" href="#">Bulk Import</a>
+                                    <a class="dropdown-item" id="manageDynamicLinksBtn" href="#">Manage Links</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- Page content-->
+            <!-- ✅ Toolbar stays static horizontally -->
+            <div class="sticky-toolbar-container bg-white py-2 px-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2"
+                style="position: sticky; top: 56px; z-index: 1049;">
+                <div class="d-flex gap-2 flex-wrap" id="bulkButtons">
+                    <!-- These will be inserted dynamically from scripts.js -->
+                </div>
+                <div class="dt-buttons btn-group flex-wrap" role="group"></div>
+                <div class="d-flex align-items-center ms-auto">
+                    <label for="ContainerList_filter" class="form-label mb-0 me-2">Search:</label>
+                    <input type="search" class="form-control form-control-sm" placeholder=""
+                        aria-controls="ContainerList">
                 </div>
             </div>
-            <!-- Page content wrapper-->
-            <div id="page-content-wrapper">
-                <!-- Top navigation-->
-                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                    <div class="container-fluid">
-                        <button class="btn btn-primary" id="sidebarToggle">Toggle Menu</button>
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
-                                <li class="nav-item active"><a class="nav-link" href="#!">Home</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#!">Link</a></li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="#!">Action</a>
-                                        <a class="dropdown-item" href="#!">Another action</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#!">Something else here</a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-                <!-- Page content-->
-                <!-- ✅ Toolbar stays static horizontally -->
-                <div class="sticky-toolbar-container bg-white py-2 px-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style="position: sticky; top: 56px; z-index: 1049;">
-                    <div class="d-flex gap-2 flex-wrap" id="bulkButtons">
-                        <!-- These will be inserted dynamically from scripts.js -->
-                    </div>
-                    <div class="dt-buttons btn-group flex-wrap" role="group"></div>
-                    <div class="d-flex align-items-center ms-auto">
-                        <label for="ContainerList_filter" class="form-label mb-0 me-2">Search:</label>
-                        <input type="search" class="form-control form-control-sm" placeholder="" aria-controls="ContainerList">
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
-                    </div>
-                </div>
 
             <!-- Table Loading Spinner -->
             <div id="tableSpinner"
@@ -84,8 +95,9 @@
             </div>
 
             <!-- ✅ Only the table scrolls horizontally -->
-            <div id="table-area" class="table-responsive" style="flex: 1; overflow: auto;">
-                <div id="table-container" style="min-width: 100%;">
+            <div id="table-area" style="flex: 1 1 auto; overflow: hidden; display: flex; flex-direction: column;">
+                <div id="table-container"
+                    style="flex: 1 1 auto; overflow-y: hidden; overflow-x: hidden; position: relative;">
                     <table id="ContainerList" class="table table-bordered" width="100%">
                         <thead>
                             <tr>
@@ -163,32 +175,16 @@
     <!-- Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060"></div>
 
-<<<<<<< HEAD
     <!-- New Container modal -->
     <div class="modal fade" id="addContainerModal" tabindex="-1" aria-labelledby="addContainerModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <form id="addContainerForm">
                     <div class="modal-header">
                         <h5 class="modal-title">✨ Add New Container</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-=======
-        <!-- New Container modal -->
-        <div class="modal fade" id="addContainerModal" tabindex="-1" aria-labelledby="addContainerModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <form id="addContainerForm">
-                        <div class="modal-header">
-                            <h5 class="modal-title">✨ Add New Container</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-          
-                        <div class="modal-body">
-                            <!-- 🔽 Keep all your accordions and inputs exactly as-is -->
-                            <div class="accordion" id="containerFormAccordion">
->>>>>>> parent of 96bceec (feat: Refactor accordion IDs and update text for consistency in modals)
 
                     <div class="modal-body">
                         <!-- 🔽 Keep all your accordions and inputs exactly as-is -->
@@ -222,215 +218,8 @@
                                                 name="ContainerSize"></select>
                                         </div>
                                         <div class="col-md-4">
-<<<<<<< HEAD
                                             <label for="newMainSource" class="form-label">Main Source</label>
                                             <select id="newMainSource" class="form-select" name="MainSource"></select>
-=======
-                                        <label for="newVendor" class="form-label">Vendor</label>
-                                        <input type="text" id="newVendor" class="form-control"  name="Vendor"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newVendorID" class="form-label">Vendor ID #</label>
-                                        <input type="text" id="newVendorID" class="form-control"  name="VendorIDNumber"/>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-
-                                <!-- Vessel Details -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#vesselDetails">
-                                        🚢 Vessel Details
-                                    </button>
-                                    </h2>
-                                    <div id="vesselDetails" class="accordion-collapse collapse">
-                                    <div class="accordion-body row g-3">
-                                        <div class="col-md-4">
-                                        <label for="newVesselLineSelect" class="form-label">Vessel Line</label>
-                                        <select id="newVesselLineSelect" class="form-select" name="VesselLineID"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newVesselNameSelect" class="form-label">Vessel Name</label>
-                                        <select id="newVesselNameSelect" class="form-select" name="VesselID"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newVoyage" class="form-label">Voyage #</label>
-                                        <input type="text" id="newVoyage" class="form-control" name="Voyage"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newPortDeparture" class="form-label">Port of Departure</label>
-                                        <input type="text" id="newPortDeparture" class="form-control" name="PortOfDeparture"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newSail" class="form-label">Sail</label>
-                                        <input type="date" id="newSail" class="form-control" name="Sail"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newSailActualSelect" class="form-label">Sail Actual</label>
-                                        <select id="newSailActualSelect" class="form-control" name="SailActual"></select>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrival and Offloading Details -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#arrivalDetails">
-                                        ⚓ Arrival & Offloading Details
-                                    </button>
-                                    </h2>
-                                    <div id="arrivalDetails" class="accordion-collapse collapse">
-                                    <div class="accordion-body row g-3">
-                                        <div class="col-md-4">
-                                        <label for="newPortOfEntrySelect" class="form-label">Port of Entry</label>
-                                        <select id="newPortOfEntrySelect" class="form-select" name="PortID"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newTerminalSelect" class="form-label">Terminal</label>
-                                        <select id="newTerminalSelect" class="form-select" name="TerminalID"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newArrival" class="form-label">Arrival</label>
-                                        <input type="date" id="newArrival" class="form-control" name="Arrival"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newArrivalActualSelect" class="form-label">Arrival Actual</label>
-                                        <select id="newArrivalActualSelect" class="form-control" name="ArrivalActual"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newBerth" class="form-label">Berth</label>
-                                        <input type="date" id="newBerth" class="form-control" name="Berth"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newBerthActualSelect" class="form-label">Berth Actual</label>
-                                        <select id="newBerthActualSelect" class="form-control" name="BerthActual"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newOffload" class="form-label">Offload</label>
-                                        <input type="date" id="newOffload" class="form-control" name="Offload"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newOffloadActualSelect" class="form-label">Offload Actual</label>
-                                        <select id="newOffloadActualSelect" class="form-control" name="OffloadActual"></select>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-
-                                <!-- Pickup and Delivery Details -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pickupDetails">
-                                        🚛 Pickup & Delivery Details
-                                    </button>
-                                    </h2>
-                                    <div id="pickupDetails" class="accordion-collapse collapse">
-                                    <div class="accordion-body row g-3">
-                                        <div class="col-md-4">
-                                        <label for="newCarrierSelect" class="form-label">Carrier</label>
-                                        <select id="newCarrierSelect" class="form-control" name="CarrierID"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newAvailable" class="form-label">Available</label>
-                                        <input type="date" id="newAvailable" class="form-control" name="Available" placeholder="Not Set"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newPickupLFD" class="form-label">Pickup LFD</label>
-                                        <input type="date" id="newPickupLFD" class="form-control" name="PickupLFD" />
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newPickup" class="form-label">Pickup</label>
-                                        <input type="date" id="newPickup" class="form-control" name="PortRailwayPickup" />
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newReturnLFD" class="form-label">Return LFD</label>
-                                        <input type="date" id="newReturnLFD" class="form-control" name="ReturnLFD" />
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newDelivered" class="form-label">Delivered</label>
-                                        <input type="date" id="newDelivered" class="form-control" name="Delivered" />
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newReturned" class="form-label">Returned</label>
-                                        <input type="date" id="newReturned" class="form-control" name="Returned" />
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-
-                                <!-- Notes and Additional Information -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#notesInfo">
-                                        📝 Notes & Additional Information
-                                    </button>
-                                    </h2>
-                                    <div id="notesInfo" class="accordion-collapse collapse">
-                                    <div class="accordion-body row g-3">
-                                        <div class="col-md-12">
-                                        <label for="newNotes" class="form-label">Notes</label>
-                                        <textarea id="newNotes" class="form-control" rows="3" name="Notes"></textarea>
-                                        </div>
-                                        <div class="col-md-4">
-                                        <label for="newLastUpdated" class="form-label">Last Updated</label>
-                                        <input type="date" id="newLastUpdated" class="form-control" name="LastUpdated"/>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                            </div> <!-- End of accordion -->
-                        </div> <!-- End of addContainerForm -->
-        
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-success">Add Container</button>
-                        </div>
-        
-                    </form>
-                </div> <!-- End modal-content -->
-            </div> <!-- End modal-dialog modal-xl -->
-        </div> <!-- End AddContainerModal -->
-
-        <!-- Single Edit Modal -->
-        <div class="modal fade" id="editContainerModal" tabindex="-1" aria-labelledby="editContainerModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <form id="editContainerForm">
-                    <input type="hidden" id="editContainerID" />
-                    <div class="modal-header">
-                        <h5 class="modal-title">✏️ Edit Container</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="accordion" id="containerFormAccordion">
-        
-                            <!-- Container Information -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#editContainerInfo">
-                                        🗂 Container Information
-                                    </button>
-                                </h2>
-                                <div id="editContainerInfo" class="accordion-collapse collapse show">
-                                    <div class="accordion-body row g-3">
-                                        <div class="col-md-4">
-                                            <label for="editContainerNumber" class="form-label">Container #</label>
-                                            <input type="text" id="editContainerNumber" class="form-control" name="Container" />
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="editCurrentStatusSelect" class="form-label">Current Status</label>
-                                            <select id="editCurrentStatusSelect" class="form-select" name="CurrentStatus"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="editContainerSizeSelect" class="form-label">Container Size</label>
-                                            <select id="editContainerSizeSelect" class="form-select" name="ContainerSize"></select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="editMainSourceSelect" class="form-label">Main Source</label>
-                                            <select id="editMainSourceSelect" class="form-select" name="MainSource"></select>
->>>>>>> parent of 96bceec (feat: Refactor accordion IDs and update text for consistency in modals)
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label d-block">Transload</label>
@@ -956,14 +745,9 @@
                             <!-- Arrival and Offloading Details -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-<<<<<<< HEAD
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#editArrivalDetails">
                                         ⚓ Arrival &amp; Offloading Details
-=======
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editArrivalDetails">
-                                        ⚓ Arrival & Offloading Details
->>>>>>> parent of 96bceec (feat: Refactor accordion IDs and update text for consistency in modals)
                                     </button>
                                 </h2>
                                 <div id="editArrivalDetails" class="accordion-collapse collapse">
@@ -1016,14 +800,9 @@
                             <!-- Pickup and Delivery Details -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-<<<<<<< HEAD
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#editPickupDetails">
                                         🚛 Pickup &amp; Delivery Details
-=======
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editPickupDetails">
-                                        🚛 Pickup & Delivery Details
->>>>>>> parent of 96bceec (feat: Refactor accordion IDs and update text for consistency in modals)
                                     </button>
                                 </h2>
                                 <div id="editPickupDetails" class="accordion-collapse collapse">
@@ -1070,14 +849,9 @@
                             <!-- Notes and Additional Information -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-<<<<<<< HEAD
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#editNotesInfo">
                                         📝 Notes &amp; Additional Information
-=======
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editNotesInfo">
-                                        📝 Notes & Additional Information
->>>>>>> parent of 96bceec (feat: Refactor accordion IDs and update text for consistency in modals)
                                     </button>
                                 </h2>
                                 <div id="editNotesInfo" class="accordion-collapse collapse">
@@ -1109,7 +883,6 @@
         </div> <!-- End of modal-dialog modal-xl -->
     </div> <!-- End of editContainerModal -->
 
-<<<<<<< HEAD
     <!-- Bulk Edit Modal -->
     <div class="modal fade" id="bulkContainerModal" tabindex="-1" aria-labelledby="bulkContainerModalLabel"
         aria-hidden="true">
@@ -1122,19 +895,6 @@
                     </div>
                     <div class="modal-body">
                         <div class="accordion" id="bulkEditAccordion">
-=======
-        <!-- Bulk Edit Modal -->
-        <div class="modal fade" id="bulkContainerModal" tabindex="-1" aria-labelledby="bulkContainerModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <form id="bulkContainerForm">
-                        <div class="modal-header">
-                            <h5 class="modal-title">✏️ Bulk Edit Containers</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="accordion" id="bulkFormAccordion">
->>>>>>> parent of 96bceec (feat: Refactor accordion IDs and update text for consistency in modals)
 
                             <!-- Container Information -->
                             <div class="accordion-item">
@@ -1367,314 +1127,6 @@
                                                 <input type="text" id="bulkShipmentNumber" class="form-control" name="ShipmentNumber" disabled />
                                             </div> -->
 
-<<<<<<< HEAD
-=======
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Vendor Information -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bulkVendorInfo">
-                                            🧾 Vendor Information
-                                        </button>
-                                    </h2>
-                                    <div id="bulkVendorInfo" class="accordion-collapse collapse">
-                                        <div class="accordion-body row g-3">
-
-                                            <!-- PO Number -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkPONumber" data-target="bulkPONumber">
-                                                    <label class="form-check-label" for="applyBulkPONumber">Apply PO #</label>
-                                                </div>
-                                                <input type="text" id="bulkPONumber" class="form-control" name="PONumber" disabled />
-                                            </div>
-
-                                            <!-- Vendor -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkVendor" data-target="bulkVendor">
-                                                    <label class="form-check-label" for="applyBulkVendor">Apply Vendor</label>
-                                                </div>
-                                                <input type="text" id="bulkVendor" class="form-control" name="Vendor" disabled />
-                                            </div>
-
-                                            <!-- Vendor ID -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkVendorIDNumber" data-target="bulkVendorIDNumber">
-                                                    <label class="form-check-label" for="applyBulkVendorIDNumber">Apply Vendor ID #</label>
-                                                </div>
-                                                <input type="text" id="bulkVendorIDNumber" class="form-control" name="VendorIDNumber" disabled />
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Vessel Details -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bulkVesselDetails">
-                                            🚢 Vessel Details
-                                        </button>
-                                    </h2>
-                                    <div id="bulkVesselDetails" class="accordion-collapse collapse">
-                                        <div class="accordion-body row g-3">
-
-                                            <!-- Vessel Line -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkVesselLineID" data-target="bulkVesselLineSelect">
-                                                    <label class="form-check-label" for="applyBulkVesselLineID">Apply Vessel Line</label>
-                                                </div>
-                                                <select id="bulkVesselLineSelect" class="form-select" name="VesselLineID" disabled></select>
-                                            </div>
-
-                                            <!-- Vessel Name -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkVesselID" data-target="bulkVesselNameSelect">
-                                                    <label class="form-check-label" for="applyBulkVesselID">Apply Vessel Name</label>
-                                                </div>
-                                                <select id="bulkVesselNameSelect" class="form-select" name="VesselID" disabled></select>
-                                            </div>
-
-                                            <!-- Voyage -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkVoyage" data-target="bulkVoyage">
-                                                    <label class="form-check-label" for="applyBulkVoyage">Apply Voyage #</label>
-                                                </div>
-                                                <input type="text" id="bulkVoyage" class="form-control" name="Voyage" disabled />
-                                            </div>
-
-                                            <!-- Port of Departure -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkPortOfDeparture" data-target="bulkPortOfDeparture">
-                                                    <label class="form-check-label" for="applyBulkPortOfDeparture">Apply Port of Departure</label>
-                                                </div>
-                                                <input type="text" id="bulkPortOfDeparture" class="form-control" name="PortOfDeparture" disabled />
-                                            </div>
-
-                                            <!-- Sail Date -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkSail" data-target="bulkSailDate">
-                                                    <label class="form-check-label" for="applyBulkSail">Apply Sail</label>
-                                                </div>
-                                                <input type="date" id="bulkSailDate" class="form-control" name="Sail" disabled />
-                                            </div>
-
-                                            <!-- Sail Actual -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkSailActual" data-target="bulkSailActualSelect">
-                                                    <label class="form-check-label" for="applyBulkSailActual">Apply Sail Actual</label>
-                                                </div>
-                                                <select id="bulkSailActualSelect" class="form-select" name="SailActual" disabled></select>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrival and Offloading Details -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bulkArrivalDetails">
-                                            ⚓ Arrival & Offloading Details
-                                        </button>
-                                    </h2>
-                                    <div id="bulkArrivalDetails" class="accordion-collapse collapse">
-                                        <div class="accordion-body row g-3">
-
-                                            <!-- Port of Entry -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkPortID" data-target="bulkPortOfEntrySelect">
-                                                    <label class="form-check-label" for="applyBulkPortID">Apply Port of Entry</label>
-                                                </div>
-                                                <select id="bulkPortOfEntrySelect" class="form-select" name="PortID" disabled></select>
-                                            </div>
-
-                                            <!-- Terminal -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkTerminalID" data-target="bulkTerminalSelect">
-                                                    <label class="form-check-label" for="applyBulkTerminalID">Apply Terminal</label>
-                                                </div>
-                                                <select id="bulkTerminalSelect" class="form-select" name="TerminalID" disabled></select>
-                                            </div>
-
-                                            <!-- Arrival -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkArrival" data-target="bulkArrivalDate">
-                                                    <label class="form-check-label" for="applyBulkArrival">Apply Arrival</label>
-                                                </div>
-                                                <input type="date" id="bulkArrivalDate" class="form-control" name="Arrival" disabled />
-                                            </div>
-
-                                            <!-- Arrival Actual -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkArrivalActual" data-target="bulkArrivalActualSelect">
-                                                    <label class="form-check-label" for="applyBulkArrivalActual">Apply Arrival Actual</label>
-                                                </div>
-                                                <select id="bulkArrivalActualSelect" class="form-select" name="ArrivalActual" disabled></select>
-                                            </div>
-
-                                            <!-- Berth -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkBerth" data-target="bulkBerthDate">
-                                                    <label class="form-check-label" for="applyBulkBerth">Apply Berth</label>
-                                                </div>
-                                                <input type="date" id="bulkBerthDate" class="form-control" name="Berth" disabled />
-                                            </div>
-
-                                            <!-- Berth Actual -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkBerthActual" data-target="bulkBerthActualSelect">
-                                                    <label class="form-check-label" for="applyBulkBerthActual">Apply Berth Actual</label>
-                                                </div>
-                                                <select id="bulkBerthActualSelect" class="form-select" name="BerthActual" disabled></select>
-                                            </div>
-
-                                            <!-- Offload -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkOffload" data-target="bulkOffloadDate">
-                                                    <label class="form-check-label" for="applyBulkOffload">Apply Offload</label>
-                                                </div>
-                                                <input type="date" id="bulkOffloadDate" class="form-control" name="Offload" disabled />
-                                            </div>
-
-                                            <!-- Offload Actual -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkOffloadActual" data-target="bulkOffloadActualSelect">
-                                                    <label class="form-check-label" for="applyBulkOffloadActual">Apply Offload Actual</label>
-                                                </div>
-                                                <select id="bulkOffloadActualSelect" class="form-select" name="OffloadActual" disabled></select>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Pickup and Delivery Details -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bulkPickupDetails">
-                                            🚛 Pickup & Delivery Details
-                                        </button>
-                                    </h2>
-                                    <div id="bulkPickupDetails" class="accordion-collapse collapse">
-                                        <div class="accordion-body row g-3">
-
-                                            <!-- Carrier -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkCarrierID" data-target="bulkCarrierSelect">
-                                                    <label class="form-check-label" for="applyBulkCarrierID">Apply Carrier</label>
-                                                </div>
-                                                <select id="bulkCarrierSelect" class="form-select" name="CarrierID" disabled></select>
-                                            </div>
-
-                                            <!-- Available -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkAvailable" data-target="bulkAvailableDate">
-                                                    <label class="form-check-label" for="applyBulkAvailable">Apply Available</label>
-                                                </div>
-                                                <input type="date" id="bulkAvailableDate" class="form-control" name="Available" disabled />
-                                            </div>
-
-                                            <!-- Pickup LFD -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkPickupLFD" data-target="bulkPickupLFDDate">
-                                                    <label class="form-check-label" for="applyBulkPickupLFD">Apply Pickup LFD</label>
-                                                </div>
-                                                <input type="date" id="bulkPickupLFDDate" class="form-control" name="PickupLFD" disabled />
-                                            </div>
-
-                                            <!-- Pickup -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkPortRailwayPickup" data-target="bulkPickupDate">
-                                                    <label class="form-check-label" for="applyBulkPortRailwayPickup">Apply Pickup</label>
-                                                </div>
-                                                <input type="date" id="bulkPickupDate" class="form-control" name="PortRailwayPickup" disabled />
-                                            </div>
-
-                                            <!-- Return LFD -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkReturnLFD" data-target="bulkReturnLFDDate">
-                                                    <label class="form-check-label" for="applyBulkReturnLFD">Apply Return LFD</label>
-                                                </div>
-                                                <input type="date" id="bulkReturnLFDDate" class="form-control" name="ReturnLFD" disabled />
-                                            </div>
-
-                                            <!-- Delivered -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkDelivered" data-target="bulkDeliveredDate">
-                                                    <label class="form-check-label" for="applyBulkDelivered">Apply Delivered</label>
-                                                </div>
-                                                <input type="date" id="bulkDeliveredDate" class="form-control" name="Delivered" disabled />
-                                            </div>
-
-                                            <!-- Returned -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkReturned" data-target="bulkReturnedDate">
-                                                    <label class="form-check-label" for="applyBulkReturned">Apply Returned</label>
-                                                </div>
-                                                <input type="date" id="bulkReturnedDate" class="form-control" name="Returned" disabled />
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Notes and Additional Information -->
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bulkNotesInfo">
-                                            📝 Notes & Additional Information
-                                        </button>
-                                    </h2>
-                                    <div id="bulkNotesInfo" class="accordion-collapse collapse">
-                                        <div class="accordion-body row g-3">
-
-                                            <!-- Notes -->
-                                            <div class="col-md-12">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkNotes" data-target="bulkNotes">
-                                                    <label class="form-check-label" for="applyBulkNotes">Apply Notes</label>
-                                                </div>
-                                                <textarea id="bulkNotes" class="form-control" rows="3" name="Notes" disabled></textarea>
-                                            </div>
-
-                                            <!-- Last Updated -->
-                                            <div class="col-md-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input apply-field" type="checkbox" id="applyBulkLastUpdated" data-target="bulkLastUpdatedDate">
-                                                    <label class="form-check-label" for="applyBulkLastUpdated">Apply Last Updated</label>
-                                                </div>
-                                                <input type="date" id="bulkLastUpdatedDate" class="form-control" name="LastUpdated" disabled />
-                                            </div>
-
-                                        </div>
->>>>>>> parent of 96bceec (feat: Refactor accordion IDs and update text for consistency in modals)
                                     </div>
                                 </div>
                             </div>
@@ -2213,39 +1665,111 @@
                             </div>
                         </div>
 
-                            <!-- Terminals Tab -->
-                            <div class="tab-pane fade" id="terminals-pane" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Terminal</th>
-                                                <th>Website Link</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="terminalTable">
-                                            <!-- Data will be loaded here -->
-                                            <tr>
-                                                <td colspan="3" class="text-center">Loading...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                        <!-- Terminals Tab -->
+                        <div class="tab-pane fade" id="terminals-pane" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Terminal</th>
+                                            <th>Website Link</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="terminalTable">
+                                        <!-- Data will be loaded here -->
+                                        <tr>
+                                            <td colspan="3" class="text-center">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="saveLinksBtn">Save All Changes</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveLinksBtn">Save All Changes</button>
                 </div>
             </div>
         </div>
-       
-        <!-- Core Libraries -->
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+
+    <!-- Bulk Upload Modal -->
+    <div class="modal fade" id="bulkUploadModal" tabindex="-1" aria-labelledby="bulkUploadModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bulkUploadModalLabel">📤 Bulk Import Containers</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm">
+                        <div class="mb-3">
+                            <label for="csvFile" class="form-label">CSV File</label>
+                            <input class="form-control" type="file" id="csvFile" accept=".csv">
+                            <div class="form-text">
+                                Upload a CSV file with container data.
+                                <a href="#" id="downloadTemplate">Download template</a>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="updateExisting">
+                            <label class="form-check-label" for="updateExisting">Update existing containers if
+                                found</label>
+                        </div>
+                        <div id="uploadStatus" class="alert alert-info d-none">
+                            <div class="mb-2">Uploading and processing file...</div>
+                            <div class="progress" style="height: 20px;">
+                                <div id="uploadProgressBar"
+                                    class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small id="processedCount">Processed: 0 rows</small>
+                                <small id="totalCount">Total: 0 rows</small>
+                            </div>
+                            <!-- Add this time estimate element here -->
+                            <div class="text-center mt-1">
+                                <small id="timeRemaining" class="text-muted"></small>
+                            </div>
+                        </div>
+                        <div id="uploadResults" class="alert alert-success d-none">
+                            <div>
+                                <h6 class="mb-2">Upload Results:</h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li>Records processed: <span id="recordsProcessed">0</span></li>
+                                    <li>Successfully imported: <span id="recordsSuccess" class="text-success">0</span>
+                                    </li>
+                                    <li>Failed to import: <span id="recordsFailed" class="text-danger">0</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="errorDetails" class="mt-3 d-none">
+                            <h6 class="mb-2 text-danger">Error Details:</h6>
+                            <div class="alert alert-danger p-2">
+                                <div class="mb-2"><strong>Found <span id="errorCount">0</span> errors while
+                                        processing</strong></div>
+                                <div class="error-list small bg-light p-2 rounded"
+                                    style="max-height: 200px; overflow-y: auto;">
+                                    <!-- Error details will be added here -->
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="uploadBtn" class="btn btn-primary">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Libraries -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- DataTables Core + Bootstrap -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -2264,9 +1788,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-
-    <!-- Your Custom Logic -->
-    <script src="./js/scripts.js"></script>
 
     <!-- Flatpickr JS -->
     <script src="./libs/flatpickr/flatpickr.min.js"></script>
@@ -2301,13 +1822,13 @@
     <!-- Column Chooser -->
     <script src="./js/modules/columnChooser.js"></script>
 
-        <!-- Link Manager -->
-        <script src="./js/modules/linkManager.js"></script>
+    <!-- Link Manager -->
+    <script src="./js/modules/linkManager.js"></script>
 
-        <!-- Bulk Upload -->
-        <script src="./js/modules/bulkUpload.js"></script>
+    <!-- Bulk Upload -->
+    <script src="./js/modules/bulkUpload.js"></script>
 
-        <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Find your configuration dropdown toggle
             const configDropdown = document.getElementById('navbarDropdown');
@@ -2331,7 +1852,11 @@
                 });
             }
         });
-        </script>
+    </script>
 
-    </body>
+    <!-- Your Custom Logic -->
+    <script src="./js/scripts.js"></script>
+
+</body>
+
 </html>

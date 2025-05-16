@@ -162,10 +162,7 @@ DataEntryAPI
     ✅ Blank Line (5/10/2025)  
  ✅ Basic link generation for SSLs, Vessel Owners and Terminals (started 5/12/2025, completed 5/12/2025)
  ⏹️ Color coding for Actual/Estimate, Current Status and Main Source
-<<<<<<< HEAD
-=======
- ⏹️ Make Search function more robust
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
+ ✅ Make Search function more robust (5/10/2025)
  ⏹️ Filter table by status using pages and show only relevant columns
     ✅ All Active Containers
     ⏹️ Not Sailed
@@ -175,7 +172,7 @@ DataEntryAPI
     ⏹️ Set To Return
     ⏹️ Set To Pick Up
     ⏹️ Returned (1 year)
- ⏹️ Bulk Upload feature (.csv now, .xls/.xlsx later) (started 5/13/2025)
+ ✅ Bulk Upload feature (.csv now, .xls/.xlsx later) (5/13/2025)
     
  ***New Container Modal***
  ⏹️ Add multiple containers with the same information
@@ -192,10 +189,10 @@ DataEntryAPI
  ***Inline***
  ✅ Disable Rail fields when Rail is set to "No"
  ✅ Dates should be able to be entered as 5/12 instead of 5/12/2025 (autocomplete year) [Single Edit does this already] (5/9/2025)
- ⏹️ Allow more mobility in Inline Editor (move up or down a row using keyboard)
+ ✅ Allow more mobility in Inline Editor (move up or down a row using keyboard)
 
  ***Search Function***
- ⏹️ Make Search function more robust
+ ✅ Make Search function more robust (5/9/2025)
 
 * * * * *
 
@@ -235,8 +232,6 @@ DataEntryAPI
 ❓ Cascading DDs are still malfunctioning if changed too quickly // seems to be working okay as of 5/10
 ✅ Newly added rows stay yellow/orange until refresh - should go to normal as soon as a different row is selected. (5/10/2025)
 ✅ Allow for blank fields to be tabbed through without setting values. (5/12/2025)
-⏹️ Debug table navigation with arrow keys.
-
  
 ***Single Edit***
 ✅ If field is cleared, old value remains instead of being submitted as NULL. (5/9/2025)
@@ -251,8 +246,4 @@ DataEntryAPI
 ✅ Debug Bulk Delete modal window (5/8/2025)
  
 ***Search Function***
-<<<<<<< HEAD
-⏹️ Debug
-=======
 ✅ Debug (5/9/2025)
->>>>>>> parent of 8e06b01 (feat: Implement bulk upload functionality with progress tracking and error handling)
