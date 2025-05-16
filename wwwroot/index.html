@@ -95,9 +95,8 @@
             </div>
 
             <!-- ✅ Only the table scrolls horizontally -->
-            <div id="table-area" style="flex: 1 1 auto; overflow: hidden; display: flex; flex-direction: column;">
-                <div id="table-container"
-                    style="flex: 1 1 auto; overflow-y: hidden; overflow-x: hidden; position: relative;">
+            <div id="table-area" class="table-responsive" style="flex: 1; overflow: auto;">
+                <div id="table-container" style="min-width: 100%;">
                     <table id="ContainerList" class="table table-bordered" width="100%">
                         <thead>
                             <tr>

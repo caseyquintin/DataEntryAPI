@@ -486,17 +486,20 @@ function initializeContainerTable () {
             }
         },
         rowId: 'containerID',
-        scrollY: '1000px', // or your existing calc height
-        scrollX: true, // ✅ fix horizontal scroll issue
+        scrollX: true,
+        scrollY: true, // ✅ fix horizontal scroll issue
+        scrollCollapse: false, // Disable unnecessary collapsing
+        paging: true, // disables or enables pagination
         autoWidth: true, // ✅ allow dynamic sizing once
+        responsive: false,
+        FixedHeader: {
+            header: true,
+            headerOffset: $('.sticky-toolbar-container').outerHeight()
+          
+        },
         stateSave: true, // ✅ So it loads column sizes and visibility settings
         scroller: true,
         deferRender: true,
-        responsive: {
-            details: false
-        },
-        scrollCollapse: false, // Disable unnecessary collapsing
-        paging: true, // disables or enables pagination
         info: false, // hides X to Y of Z entries
         lengthChange: false, // hides the "Show X entries" dropdown
         pageLength: 100,
@@ -849,6 +852,17 @@ function initializeContainerTable () {
                 $(row).addClass('status-appt');
             }
         }
+    });
+
+    function adjustTable() {
+        const table = $('#ContainerList').DataTable();
+        table.columns.adjust();
+        table.draw();
+    }
+
+    // Call this after any modal closes or dynamic content changes
+    $('.modal').on('hidden.bs.modal', function () {
+        setTimeout(adjustTable, 100);
     });
         
     // Keep layout aligned after ordering or filtering
